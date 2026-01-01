@@ -7,36 +7,44 @@
 // ==========================================
 // Environment Detection
 // ==========================================
-const isVercel = window.location.hostname.includes('vercel.app') || window.location.hostname.includes('your-domain.com');
+const isInfinityFree = window.location.hostname.includes('kesug.com') || window.location.hostname.includes('infinityfreeapp.com');
+const isVercel = window.location.hostname.includes('vercel.app');
 const isLocalDev = window.location.port === '5500' || window.location.port === '8080';
 const isXAMPP = window.location.port === '80' || window.location.pathname.includes('Coding%20PSM');
 
 // ==========================================
-// 🔴 PRODUCTION BACKEND URL (InfinityFree)
+// 🔴 PRODUCTION BACKEND URL
 // ==========================================
+// InfinityFree: Same domain, no CORS issues!
 const PRODUCTION_BACKEND_URL = 'https://ayamkings.kesug.com/ayamkings_backend';
 
 const CONFIG = {
     // API Backend URL - auto-detect environment
-    API_BASE_URL: isVercel
-        ? PRODUCTION_BACKEND_URL  // Production: Vercel frontend → InfinityFree/Railway backend
-        : isLocalDev
-            ? 'http://localhost:8000'  // Development: frontend on 5500, backend on 8000
-            : window.location.origin + '/Coding%20PSM/ayamkings_backend', // XAMPP fallback
+    API_BASE_URL: isInfinityFree
+        ? window.location.origin + '/ayamkings_backend'  // InfinityFree: same domain
+        : isVercel
+            ? PRODUCTION_BACKEND_URL  // Vercel (if CORS fixed)
+            : isLocalDev
+                ? 'http://localhost:8000'  // Development
+                : window.location.origin + '/Coding%20PSM/ayamkings_backend', // XAMPP
 
     // Frontend Base URL - auto-detect from current location
-    FRONTEND_BASE_URL: isVercel
-        ? window.location.origin  // Vercel: root URL
-        : isLocalDev
-            ? window.location.origin  // Local dev: root URL
-            : window.location.origin + '/Coding%20PSM/ayamkings_frontend', // XAMPP
+    FRONTEND_BASE_URL: isInfinityFree
+        ? window.location.origin + '/ayamkings_frontend'  // InfinityFree
+        : isVercel
+            ? window.location.origin  // Vercel
+            : isLocalDev
+                ? window.location.origin  // Local dev
+                : window.location.origin + '/Coding%20PSM/ayamkings_frontend', // XAMPP
 
-    // Uploads folder URL - for production, images should be in backend
-    UPLOADS_URL: isVercel
-        ? PRODUCTION_BACKEND_URL + '/uploads'  // Production: uploads from backend
-        : isLocalDev
-            ? 'http://localhost:5500/uploads'
-            : window.location.origin + '/Coding%20PSM/ayamkings_frontend/uploads'
+    // Uploads folder URL
+    UPLOADS_URL: isInfinityFree
+        ? window.location.origin + '/ayamkings_frontend/uploads'  // InfinityFree
+        : isVercel
+            ? PRODUCTION_BACKEND_URL + '/uploads'
+            : isLocalDev
+                ? 'http://localhost:5500/uploads'
+                : window.location.origin + '/Coding%20PSM/ayamkings_frontend/uploads'
 };
 
 // Helper function to get API endpoint
