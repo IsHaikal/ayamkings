@@ -14,7 +14,7 @@ const isXAMPP = window.location.port === '80' || window.location.pathname.includ
 // ==========================================
 // 🔴 PRODUCTION BACKEND URL (InfinityFree)
 // ==========================================
-const PRODUCTION_BACKEND_URL = 'https://ayamkings.kesug.com';
+const PRODUCTION_BACKEND_URL = 'https://ayamkings.kesug.com/ayamkings_backend';
 
 const CONFIG = {
     // API Backend URL - auto-detect environment
