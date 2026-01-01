@@ -1,0 +1,75 @@
+<?php
+// coupon_crud.php - Admin Coupon Management
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+$input = json_decode(file_get_contents('php://input'), true);
+$action = $_GET['action'] ?? $input['action'] ?? '';
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "ayamkings_db";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    echo json_encode(['success' => false, 'message' => 'Database connection failed.']);
+    exit();
+}
+
+if ($action === 'list') {
+    $sql = "SELECT * FROM coupons ORDER BY created_at DESC";
+    $result = $conn->query($sql);
+    $coupons = [];
+    while ($row = $result->fetch_assoc()) {
+        $coupons[] = $row;
+    }
+    echo json_encode(['success' => true, 'coupons' => $coupons]);
+
+} elseif ($action === 'create') {
+    $code = $input['code'] ?? '';
+    $type = $input['discount_type'] ?? 'percent';
+    $value = $input['discount_value'] ?? 0;
+    
+    if (empty($code) || empty($value)) {
+        echo json_encode(['success' => false, 'message' => 'Code and value are required.']);
+        exit();
+    }
+
+    $stmt = $conn->prepare("INSERT INTO coupons (code, discount_type, discount_value) VALUES (?, ?, ?)");
+    $stmt->bind_param("ssd", $code, $type, $value);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Coupon created.']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $stmt->error]);
+    }
+    $stmt->close();
+
+} elseif ($action === 'delete') {
+    // Soft delete (set active = 0) or hard delete? Let's do Toggle Active for now or Hard Delete if requested.
+    // Let's implement Delete for cleanup.
+    $id = $input['id'] ?? 0;
+    $stmt = $conn->prepare("DELETE FROM coupons WHERE id = ?");
+    $stmt->bind_param("i", $id);
+    
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Coupon deleted.']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error: ' . $stmt->error]);
+    }
+    $stmt->close();
+} else {
+    echo json_encode(['success' => false, 'message' => 'Invalid action.']);
+}
+
+$conn->close();
+?>

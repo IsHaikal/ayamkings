@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Dashboard - Ayam Kings</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Premium Golden Glassmorphism Theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f5f2;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 0) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(35, 100%, 96%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(45, 100%, 96%, 1) 0, transparent 50%);
+            color: #111827;
+            /* Changed from #1f2937 to darker black */
+        }
+
+        /* Override grey text colors to be brighter/darker for readability */
+        .text-gray-600 {
+            color: #374151 !important;
+        }
+
+        .text-gray-500 {
+            color: #4b5563 !important;
+        }
+
+        .text-gray-400 {
+            color: #6b7280 !important;
+        }
+
+        /* Make headings and important text bolder */
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: #111827;
+        }
+
+        p {
+            color: #374151;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .glass-heavy {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-glass:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Message Box */
+        .message-box {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: rgba(16, 185, 129, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+            z-index: 1000;
+            display: none;
+            font-weight: 600;
+            animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .message-box.error {
+            background: rgba(239, 68, 68, 0.9);
+            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .active-nav-link {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col selection:bg-amber-200 selection:text-amber-900">
+    <!-- Navbar -->
+    <nav class="glass-heavy sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center shadow-lg shadow-amber-200">
+                    <i class="fas fa-crown text-white text-lg"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-black">
+                    Ayam<span class="text-amber-600">Kings</span> <span class="text-gray-600 font-light ml-1 text-lg">|
+                        Staff</span>
+                </h1>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div id="loggedInUser" class="text-sm font-bold text-gray-500 hidden md:block uppercase tracking-wider">
+                </div>
+                <button id="logoutButton"
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2.5 px-6 rounded-xl transition-all hover:-translate-y-0.5 text-sm uppercase tracking-wide">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="flex flex-1 flex-col lg:flex-row container mx-auto px-6 py-8 gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full lg:w-72 flex-shrink-0">
+            <div class="glass rounded-3xl p-6 sticky top-28 h-[calc(100vh-140px)] flex flex-col">
+                <h2 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-6 px-2">Menu</h2>
+                <nav class="space-y-2 flex-1">
+                    <a href="#order-management"
+                        class="flex items-center p-3.5 rounded-xl text-gray-600 hover:bg-white/50 transition-all font-semibold group"
+                        data-section="order-management">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white flex items-center justify-center mr-3 transition-colors text-gray-400 group-hover:text-amber-500"><i
+                                class="fas fa-clipboard-list"></i></span>
+                        Active Orders
+                        <span id="pendingOrderBadge"
+                            class="ml-auto bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-md hidden shadow-sm">0</span>
+                    </a>
+                    <a href="#completed-orders"
+                        class="flex items-center p-3.5 rounded-xl text-gray-600 hover:bg-white/50 transition-all font-semibold group"
+                        data-section="completed-orders">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white flex items-center justify-center mr-3 transition-colors text-gray-400 group-hover:text-amber-500"><i
+                                class="fas fa-check-circle"></i></span>
+                        Completed
+                        <span id="completedOrderBadge"
+                            class="ml-auto bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-md hidden shadow-sm">0</span>
+                    </a>
+                    <a href="#rejected-orders"
+                        class="flex items-center p-3.5 rounded-xl text-gray-600 hover:bg-white/50 transition-all font-semibold group"
+                        data-section="rejected-orders">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white flex items-center justify-center mr-3 transition-colors text-gray-400 group-hover:text-amber-500"><i
+                                class="fas fa-times-circle"></i></span>
+                        Rejected
+                        <span id="rejectedOrderBadge"
+                            class="ml-auto bg-gray-400 text-white text-[10px] font-bold px-2 py-0.5 rounded-md hidden shadow-sm">0</span>
+                    </a>
+                    <button id="manageCouponsButton"
+                        class="flex items-center p-3.5 rounded-xl text-gray-600 hover:bg-white/50 transition-all font-semibold group w-full text-left">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white flex items-center justify-center mr-3 transition-colors text-gray-400 group-hover:text-purple-500"><i
+                                class="fas fa-tag"></i></span>
+                        Coupons
+                    </button>
+                </nav>
+
+                <div class="mt-auto pt-6 border-t border-gray-200/50">
+                    <p class="text-xs text-gray-500 text-center font-medium">Ayam Kings Staff v1.2</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="flex-1 w-full min-w-0">
+            <!-- Order Management Section -->
+            <section id="order-management" class="dashboard-section animate-fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-black tracking-tight">Active Orders</h2>
+                        <p class="text-gray-700 font-medium">Manage incoming orders in real-time.</p>
+                    </div>
+                    <div class="relative w-full md:w-auto">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="orderSearch" placeholder="Search orders..."
+                            class="pl-10 pr-4 py-3 w-full md:w-64 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all shadow-sm text-sm">
+                    </div>
+                </div>
+
+                <!-- Changed to Grid for Active Orders -->
+                <div id="activeOrdersGrid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-6">
+                    <!-- Cards injected by JS -->
+                    <div class="col-span-full text-center py-12">
+                        <p class="text-gray-400 font-medium">Waiting for orders...</p>
+                    </div>
+                </div>
+
+                <!-- Hidden Table structure for logic compatibility if mostly unused, or strictly use JS -->
+                <div class="hidden">
+                    <tbody id="ordersTableBody"></tbody>
+                </div>
+            </section>
+
+            <!-- Completed Orders Section -->
+            <section id="completed-orders" class="dashboard-section hidden animate-fade-in">
+                <div class="bg-white/80 backdrop-blur rounded-3xl p-8 shadow-sm border border-white/50">
+                    <h2 class="text-2xl font-bold text-black mb-6 flex items-center gap-3">
+                        <span
+                            class="w-10 h-10 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center"><i
+                                class="fas fa-check"></i></span>
+                        History
+                    </h2>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-widest">
+                                    <th class="py-4 px-2">ID</th>
+                                    <th class="py-4 px-2">Customer</th>
+                                    <th class="py-4 px-2">Items Detail</th>
+                                    <th class="py-4 px-2">Total</th>
+                                    <th class="py-4 px-2">Status</th>
+                                    <th class="py-4 px-2 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="completedOrdersTableBody" class="text-sm font-medium text-gray-800">
+                                <!-- JS Populated -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Rejected Orders Section -->
+            <section id="rejected-orders" class="dashboard-section hidden animate-fade-in">
+                <div class="bg-white/80 backdrop-blur rounded-3xl p-8 shadow-sm border border-white/50">
+                    <h2 class="text-2xl font-bold text-black mb-6 flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-full bg-red-50 text-red-500 flex items-center justify-center"><i
+                                class="fas fa-times"></i></span>
+                        Rejected
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead
+                                class="border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-widest">
+                                <tr>
+                                    <th class="py-4 px-2">ID</th>
+                                    <th class="py-4 px-2">Customer</th>
+                                    <th class="py-4 px-2">Reason/Detail</th>
+                                    <th class="py-4 px-2">Total</th>
+                                    <th class="py-4 px-2 text-right">Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rejectedOrdersTableBody" class="text-sm font-medium text-gray-800">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Removed Order Detail Modal HTML -->
+
+    <!-- Order Detail Modal -->
+    <div id="orderDetailModal" class="modal fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" onclick="closeOrderModal()">
+        </div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div
+                class="bg-white rounded-3xl shadow-2xl w-full max-w-lg transform transition-all scale-100 p-0 overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-amber-400 to-amber-500 p-6 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-extrabold text-white tracking-tight">Order Details</h3>
+                        <p class="text-amber-100 text-sm font-medium">View full order information</p>
+                    </div>
+                    <button onclick="closeOrderModal()" class="text-white/80 hover:text-white transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Body -->
+                <div class="p-6 max-h-[70vh] overflow-y-auto">
+                    <!-- ID and Status -->
+                    <div class="flex justify-between items-center mb-6">
+                        <span id="modalOrderId"
+                            class="bg-gray-100 text-gray-800 font-mono font-bold px-3 py-1 rounded-lg text-sm">#12345</span>
+                        <span id="modalOrderStatus"
+                            class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-100 text-blue-600">Processing</span>
+                    </div>
+
+                    <!-- Customer Info -->
+                    <div class="mb-6 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Customer</h4>
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-10 h-10 rounded-full bg-amber-100 text-amber-500 flex items-center justify-center font-bold text-lg">
+                                <i class="far fa-user"></i>
+                            </div>
+                            <div>
+                                <p id="modalCustomerName" class="font-bold text-gray-900 text-sm">Customer Name</p>
+                                <p id="modalCustomerPhone" class="text-xs text-gray-500">012-3456789</p>
+                                <p id="modalCustomerEmail" class="text-xs text-gray-500">email@example.com</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items List -->
+                    <div class="mb-6">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Items</h4>
+                        <ul id="modalItemsList" class="space-y-3">
+                            <!-- Items Injected Here -->
+                        </ul>
+                    </div>
+
+                    <!-- Total -->
+                    <div class="flex justify-between items-center pt-4 border-t border-gray-100">
+                        <span class="font-bold text-gray-500 text-sm">Total Amount</span>
+                        <span id="modalTotalAmount" class="font-extrabold text-2xl text-gray-900">RM 0.00</span>
+                    </div>
+
+                    <div class="mt-2 text-right">
+                        <span id="modalOrderDate" class="text-xs text-gray-400">Date</span>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                    <button onclick="closeOrderModal()"
+                        class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-6 rounded-xl transition-colors text-sm">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box"></div>
+
+    <!-- Daily Special Modal -->
+    <div id="specialModal" class="modal fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeSpecialModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg transform scale-100 overflow-hidden">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-6 flex justify-between items-center">
+                    <div>
+                        <h3 id="specialModalTitle" class="text-xl font-extrabold text-white">Add Daily Special</h3>
+                        <p class="text-orange-100 text-sm">Create a limited-time offer</p>
+                    </div>
+                    <button onclick="closeSpecialModal()" class="text-white/80 hover:text-white transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Form -->
+                <form id="specialForm" class="p-6 space-y-5">
+                    <input type="hidden" id="specialId">
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Name *</label>
+                        <input type="text" id="specialName" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all"
+                            placeholder="e.g. Weekend BBQ Feast">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Description</label>
+                        <textarea id="specialDescription" rows="2"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all resize-none"
+                            placeholder="Describe what makes this special..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Price (RM) *</label>
+                            <input type="number" id="specialPrice" step="0.01" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all"
+                                placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Ends At *</label>
+                            <input type="datetime-local" id="specialEndDate" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Image URL</label>
+                        <input type="text" id="specialImageUrl"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all"
+                            placeholder="https://... or uploads/image.jpg">
+                    </div>
+
+                    <!-- Preview -->
+                    <div id="specialImagePreview" class="hidden">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Preview</label>
+                        <img id="specialPreviewImg" src="" alt="Preview"
+                            class="w-full h-32 object-cover rounded-xl border border-gray-200">
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" onclick="closeSpecialModal()"
+                            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg">
+                            <i class="fas fa-save mr-2"></i> Save Special
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Modal Functions
+        function closeOrderModal() {
+            document.getElementById('orderDetailModal').classList.add('hidden');
+        }
+
+        function showOrderDetails(orderId) {
+            const order = allOrders.find(o => o.id == orderId);
+            if (!order) return;
+
+            // Populate Data
+            document.getElementById('modalOrderId').textContent = `#${order.id}`;
+            document.getElementById('modalOrderStatus').textContent = order.status;
+
+            // Set Badge Color
+            const statusEl = document.getElementById('modalOrderStatus');
+            statusEl.className = 'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider';
+            const s = order.status.toLowerCase();
+            if (s === 'pending') statusEl.classList.add('bg-amber-100', 'text-amber-600');
+            else if (s === 'preparing') statusEl.classList.add('bg-blue-100', 'text-blue-600');
+            else if (s.includes('ready')) statusEl.classList.add('bg-indigo-100', 'text-indigo-600');
+            else if (s === 'finished' || s === 'completed') statusEl.classList.add('bg-emerald-100', 'text-emerald-600');
+            else if (s === 'cancelled' || s === 'rejected') statusEl.classList.add('bg-red-100', 'text-red-600');
+
+            document.getElementById('modalCustomerName').textContent = order.customer_name;
+            document.getElementById('modalCustomerPhone').textContent = order.customer_phone || '-';
+            document.getElementById('modalCustomerEmail').textContent = order.customer_email;
+            document.getElementById('modalTotalAmount').textContent = `RM ${parseFloat(order.total_amount).toFixed(2)}`;
+            document.getElementById('modalOrderDate').textContent = new Date(order.order_date).toLocaleString();
+
+            const itemsList = document.getElementById('modalItemsList');
+            itemsList.innerHTML = '';
+
+            // correct usage: order.items
+            const items = Array.isArray(order.items) ? order.items : [];
+            if (items.length > 0) {
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center p-3 bg-white border border-gray-100 rounded-xl shadow-sm';
+                    li.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-xs font-bold">${item.quantity}</span>
+                            <span class="text-sm font-semibold text-gray-800">${item.name}</span>
+                        </div>
+                        <span class="text-xs font-mono font-bold text-gray-500">RM ${(item.price * item.quantity).toFixed(2)}</span>
+                    `;
+                    itemsList.appendChild(li);
+                });
+            } else {
+                itemsList.innerHTML = '<li class="text-gray-500 text-sm">No items found for this order.</li>';
+            }
+
+            document.getElementById('orderDetailModal').classList.remove('hidden');
+        }
+
+        // Function to display messages (e.g., success, error)
+        function showMessage(message, isError = false) {
+            const msgBox = document.getElementById('messageBox');
+            msgBox.textContent = message;
+            msgBox.className = 'message-box'; // Reset classes
+            if (isError) {
+                msgBox.classList.add('error');
+            }
+            msgBox.style.display = 'block';
+            setTimeout(() => {
+                msgBox.style.display = 'none';
+            }, 3000); // Hide after 3 seconds
+        }
+
+        // --- Authentication Check ---
+        (function () {
+            const userToken = localStorage.getItem('userToken');
+            const userRole = localStorage.getItem('userRole');
+            const userFullName = localStorage.getItem('userFullName');
+
+            // Debug: Log stored values
+            console.log('Staff Auth Check - Token:', userToken);
+            console.log('Staff Auth Check - Role:', userRole);
+
+            // If not logged in or not staff/admin, redirect
+            if (!userToken || (userRole !== 'staff' && userRole !== 'admin')) {
+                console.log("Staff Dashboard: Not logged in as staff/admin or token missing. Redirecting to staff_login.html");
+                console.log("Reason: userToken=" + userToken + ", userRole=" + userRole);
+                window.location.href = 'staff_login.html';
+                return;
+            }
+
+            document.getElementById('loggedInUser').textContent = `Welcome, ${userFullName || 'Staff'}!`;
+
+            // Logout Button Redirection
+            document.getElementById('logoutButton').addEventListener('click', function () {
+                localStorage.removeItem('userToken');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('userFullName');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userId');
+                showMessage("Logged out successfully.", false);
+                const redirectUrl = 'staff_login.html'; // Redirect to staff login
+                console.log(`Staff Dashboard: Logging out. Redirecting to: ${redirectUrl}`);
+                setTimeout(() => {
+                    window.location.href = redirectUrl;
+                }, 1000);
+            });
+        })();
+
+        // --- Dashboard Navigation Logic ---
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function (event) {
+                event.preventDefault(); // Prevent default anchor jump
+
+                const targetSectionId = this.getAttribute('data-section');
+                const targetSection = document.getElementById(targetSectionId);
+
+                // Hide all sections
+                document.querySelectorAll('.dashboard-section').forEach(section => {
+                    section.style.display = 'none';
+                });
+
+                // Show the target section
+                if (targetSection) {
+                    targetSection.style.display = 'block';
+                }
+
+                // Update active link styling
+                document.querySelectorAll('nav a').forEach(navLink => {
+                    navLink.classList.remove('active-nav-link');
+                    navLink.classList.remove('bg-blue-800');
+                });
+                this.classList.add('active-nav-link');
+                this.classList.add('bg-blue-800');
+
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+
+        // --- Order Management Logic (Modern Cards) ---
+        const activeOrdersGrid = document.getElementById('activeOrdersGrid');
+        const orderSearchInput = document.getElementById('orderSearch');
+
+        let allOrders = []; // Store all orders for filtering
+
+        async function fetchOrders() {
+            try {
+                const response = await fetch(getApiUrl('get_orders.php'));
+                const data = await response.json();
+
+                if (data.success) {
+                    allOrders = data.orders;
+                    filterAndDisplayOrders();
+                    updateAllBadges();
+                } else {
+                    showMessage(data.message || "Failed to fetch orders.", true);
+                    // activeOrdersGrid.innerHTML = ... error state
+                }
+            } catch (error) {
+                console.error('Error fetching orders:', error);
+                showMessage("An error occurred while fetching orders.", true);
+            }
+        }
+
+        function filterAndDisplayOrders() {
+            const searchTerm = orderSearchInput.value.toLowerCase();
+            const activeOrders = allOrders.filter(order => order.status.toLowerCase() === 'pending');
+            const filteredOrders = activeOrders.filter(order =>
+                order.id.toString().includes(searchTerm) ||
+                order.customer_name.toLowerCase().includes(searchTerm)
+            );
+            displayOrders(filteredOrders);
+        }
+
+        function displayOrders(orders) {
+            activeOrdersGrid.innerHTML = '';
+
+            if (orders.length === 0) {
+                activeOrdersGrid.innerHTML = `
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
+                        <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-inbox text-3xl text-gray-300"></i>
+                        </div>
+                        <p class="font-medium text-lg">No active orders</p>
+                        <p class="text-sm">Wait for new customers!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            orders.forEach(order => {
+                let itemsListHtml = '<ul class="space-y-2 mb-4">';
+                // correct usage: order.items is already an array
+                const items = Array.isArray(order.items) ? order.items : [];
+                if (items.length > 0) {
+                    items.forEach(item => {
+                        itemsListHtml += `
+                            <li class="flex justify-between items-center text-sm">
+                                <span class="text-gray-700"><span class="font-bold text-black">${item.quantity}x</span> ${item.name}</span>
+                                <span class="text-gray-600 font-mono">RM ${(item.price * item.quantity).toFixed(2)}</span>
+                            </li>
+                        `;
+                    });
+                } else {
+                    itemsListHtml += '<li>No items found</li>';
+                }
+                itemsListHtml += '</ul>';
+
+                const card = document.createElement('div');
+                card.className = 'card-glass rounded-3xl p-6 flex flex-col relative overflow-hidden group hover:border-amber-200 transition-colors duration-300';
+                card.innerHTML = `
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-amber-100 rounded-full mix-blend-multiply filter blur-3xl opacity-0 group-hover:opacity-50 transition-opacity"></div>
+                    
+                    <div class="flex justify-between items-start mb-6 z-10">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-lg uppercase tracking-wider">Order #${order.id}</span>
+                                <button onclick="showOrderDetails(${order.id})" class="text-gray-400 hover:text-amber-500 transition-colors" title="View Full Details">
+                                    <i class="fas fa-eye text-xs"></i>
+                                </button>
+                                <span class="text-xs text-gray-500 font-medium ml-1"><i class="far fa-clock mr-1"></i>${new Date(order.order_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-black">${order.customer_name}</h3>
+                        </div>
+                        <div class="text-right">
+                            <span class="block text-xs text-gray-600 font-bold uppercase tracking-wider">Total</span>
+                            <span class="block text-2xl font-extrabold text-black">RM ${parseFloat(order.total_amount).toFixed(2)}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex-1 bg-white/50 rounded-2xl p-4 mb-6 border border-gray-100/50 z-10 backdrop-blur-sm">
+                        ${itemsListHtml}
+                        <div class="border-t border-gray-100 mt-2 pt-2 text-xs text-gray-500">
+                             Customer ID: ${order.user_id}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 mt-auto z-10">
+                         <button onclick="updateOrderStatus(${order.id}, 'Preparing')" class="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl transition-all hover:-translate-y-0.5 shadow-lg shadow-emerald-200">
+                            <i class="fas fa-check"></i> Accept
+                         </button>
+                         <button onclick="updateOrderStatus(${order.id}, 'Cancelled')" class="flex items-center justify-center gap-2 bg-white hover:bg-red-50 text-red-500 hover:text-red-600 border border-red-100 font-bold py-3 px-4 rounded-xl transition-all hover:-translate-y-0.5">
+                            <i class="fas fa-times"></i> Reject
+                         </button>
+                    </div>
+                `;
+                activeOrdersGrid.appendChild(card);
+            });
+        }
+        orderSearchInput.addEventListener('input', filterAndDisplayOrders);
+
+        // Function to display completed orders (Preparing, Ready for Pickup, Finished)
+        function displayCompletedOrders() {
+            const completedTableBody = document.getElementById('completedOrdersTableBody');
+            const completedStatuses = ['preparing', 'ready for pickup', 'finished'];
+            const completedOrders = allOrders.filter(o => completedStatuses.includes(o.status.toLowerCase()));
+
+            completedTableBody.innerHTML = '';
+
+            if (completedOrders.length === 0) {
+                completedTableBody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-400">No history available</td></tr>`;
+                return;
+            }
+
+            completedOrders.forEach(order => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors';
+
+                let itemsSummary = 'No Items';
+                // correct usage: order.items
+                const items = Array.isArray(order.items) ? order.items : [];
+                if (items.length > 0) {
+                    itemsSummary = items.map(i => `${i.quantity}x ${i.name}`).join(', ');
+                }
+
+                // Status Badge Logic
+                let badgeClass = 'bg-gray-100 text-gray-600';
+                let actionBtn = '';
+                const s = order.status.toLowerCase();
+
+                if (s === 'preparing') {
+                    badgeClass = 'bg-blue-50 text-blue-600 border border-blue-100';
+                    actionBtn = `<button onclick="updateOrderStatus(${order.id}, 'Ready for Pickup')" class="text-xs font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-200 transition-colors">Ready</button>`;
+                } else if (s === 'ready for pickup') {
+                    badgeClass = 'bg-indigo-50 text-indigo-600 border border-indigo-100';
+                    actionBtn = `<button onclick="updateOrderStatus(${order.id}, 'Finished')" class="text-xs font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200 transition-colors">Complete</button>`;
+                } else if (s === 'finished') {
+                    badgeClass = 'bg-emerald-50 text-emerald-600 border border-emerald-100';
+                    actionBtn = `<span class="text-gray-300 text-xs">-</span>`;
+                }
+
+                tr.innerHTML = `
+                    <td class="py-4 px-2 font-mono text-xs font-bold text-gray-600">#${order.id}</td>
+                    <td class="py-4 px-2 font-semibold text-black">${order.customer_name}
+                         <button onclick="showOrderDetails(${order.id})" class="ml-2 text-gray-400 hover:text-amber-500 transition-colors"><i class="fas fa-eye text-xs"></i></button>
+                    </td>
+                    <td class="py-4 px-2 text-gray-700 truncate max-w-xs cursor-pointer hover:text-amber-600" title="Click to view details" onclick="showOrderDetails(${order.id})">${itemsSummary}</td>
+                    <td class="py-4 px-2 font-bold text-black">RM ${parseFloat(order.total_amount).toFixed(2)}</td>
+                    <td class="py-4 px-2"><span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${badgeClass}">${order.status}</span></td>
+                    <td class="py-4 px-2 text-right">${actionBtn}</td>
+                `;
+                completedTableBody.appendChild(tr);
+            });
+        }
+
+        // Function to display rejected orders
+        function displayRejectedOrders() {
+            const rejectedTableBody = document.getElementById('rejectedOrdersTableBody');
+            const rejectedOrders = allOrders.filter(o => o.status.toLowerCase() === 'cancelled');
+
+            rejectedTableBody.innerHTML = '';
+
+            if (rejectedOrders.length === 0) {
+                rejectedTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-gray-400">No rejected orders</td></tr>`;
+                return;
+            }
+
+            rejectedOrders.forEach(order => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors';
+
+                tr.innerHTML = `
+                    <td class="py-4 px-2 font-mono text-xs font-bold text-gray-600">#${order.id}</td>
+                    <td class="py-4 px-2 font-semibold text-black">${order.customer_name}
+                         <button onclick="showOrderDetails(${order.id})" class="ml-2 text-gray-400 hover:text-amber-500 transition-colors"><i class="fas fa-eye text-xs"></i></button>
+                    </td>
+                    <td class="py-4 px-2 text-gray-500 cursor-pointer hover:text-red-500" onclick="showOrderDetails(${order.id})">Rejected</td>
+                    <td class="py-4 px-2 font-bold text-gray-800">RM ${parseFloat(order.total_amount).toFixed(2)}</td>
+                    <td class="py-4 px-2 text-right text-xs text-gray-400">${new Date(order.order_date).toLocaleString()}</td>
+                `;
+                rejectedTableBody.appendChild(tr);
+            });
+        }
+
+        // Function to update all order count badges
+        function updateAllBadges() {
+            const completedStatuses = ['preparing', 'ready for pickup', 'finished'];
+            const completedCount = allOrders.filter(o => completedStatuses.includes(o.status.toLowerCase())).length;
+            const rejectedCount = allOrders.filter(o => o.status.toLowerCase() === 'cancelled').length;
+
+            // Completed badge
+            const completedBadge = document.getElementById('completedOrderBadge');
+            if (completedCount > 0) {
+                completedBadge.textContent = completedCount;
+                completedBadge.classList.remove('hidden');
+            } else {
+                completedBadge.classList.add('hidden');
+            }
+
+            // Rejected badge
+            const rejectedBadge = document.getElementById('rejectedOrderBadge');
+            if (rejectedCount > 0) {
+                rejectedBadge.textContent = rejectedCount;
+                rejectedBadge.classList.remove('hidden');
+            } else {
+                rejectedBadge.classList.add('hidden');
+            }
+
+            // Also display both tables
+            displayCompletedOrders();
+            displayRejectedOrders();
+        }
+
+        // Function to update order status
+        async function updateOrderStatus(orderId, newStatus) {
+            try {
+                const response = await fetch(getApiUrl('update_order_status.php'), {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        status: newStatus
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show specific message based on new status
+                    let message = `Order #${orderId} status updated to "${newStatus}"!`;
+                    if (newStatus === 'Preparing') {
+                        message = `✅ Order #${orderId} accepted! Moved to Completed Orders.`;
+                    } else if (newStatus === 'Cancelled') {
+                        message = `❌ Order #${orderId} rejected! Moved to Rejected Orders.`;
+                    } else if (newStatus === 'Ready for Pickup') {
+                        message = `📦 Order #${orderId} is ready for pickup!`;
+                    } else if (newStatus === 'Finished') {
+                        message = `🎉 Order #${orderId} completed!`;
+                    }
+                    showMessage(message);
+                    fetchOrders(); // Refresh all orders tables (including Completed/Rejected)
+                } else {
+                    showMessage(data.message || "Failed to update order status.", true);
+                }
+            } catch (error) {
+                console.error('Error updating order status:', error);
+                showMessage("An error occurred while updating the order.", true);
+            }
+        }
+
+        // Initial load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set initial view to Order Management on load
+            document.querySelectorAll('.dashboard-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            const orderManagementSection = document.getElementById('order-management');
+            if (orderManagementSection) {
+                orderManagementSection.style.display = 'block';
+            }
+            const orderManagementLink = document.querySelector('nav a[data-section="order-management"]');
+            if (orderManagementLink) {
+                orderManagementLink.classList.add('active-nav-link');
+                orderManagementLink.classList.add('bg-blue-800');
+            }
+
+            fetchOrders(); // Fetch orders when the staff dashboard loads
+
+            // --- Real-time Notification System ---
+            let previousPendingCount = 0;
+            let audioContext = null;
+
+            // Create notification sound using Web Audio API
+            function playNotificationSound() {
+                try {
+                    if (!audioContext) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+
+                    oscillator.frequency.value = 800; // Frequency in Hz
+                    oscillator.type = 'sine';
+                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.5);
+
+                    // Double beep for attention
+                    setTimeout(() => {
+                        const osc2 = audioContext.createOscillator();
+                        const gain2 = audioContext.createGain();
+                        osc2.connect(gain2);
+                        gain2.connect(audioContext.destination);
+                        osc2.frequency.value = 1000;
+                        osc2.type = 'sine';
+                        gain2.gain.setValueAtTime(0.3, audioContext.currentTime);
+                        gain2.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+                        osc2.start(audioContext.currentTime);
+                        osc2.stop(audioContext.currentTime + 0.3);
+                    }, 200);
+                } catch (e) {
+                    console.log('Audio notification not supported');
+                }
+            }
+
+            // Update pending order badge
+            function updatePendingBadge(count) {
+                const badge = document.getElementById('pendingOrderBadge');
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.classList.remove('hidden');
+                    badge.classList.add('animate-pulse');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+
+            // Poll for new orders every 5 seconds
+            async function checkForNewOrders() {
+                try {
+                    const response = await fetch(getApiUrl(`get_orders.php?t=${Date.now()}`));
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const pendingOrders = data.orders.filter(o => o.status.toLowerCase() === 'pending');
+                        const pendingCount = pendingOrders.length;
+
+                        // Update badge
+                        updatePendingBadge(pendingCount);
+
+                        // If there are new pending orders, play sound and show message
+                        // Logic fixed: Play sound if count INCREASED, regardless of previous being 0 or not
+                        if (pendingCount > previousPendingCount) {
+                            // Only play sound if it's not the very first load (prev != initial 0 check can be handled by just keeping sound separate)
+                            if (previousPendingCount !== 0 || pendingCount > 0) {
+                                playNotificationSound();
+                                showMessage(`🔔 New order received! ${pendingCount} pending order(s).`);
+                            }
+                        }
+
+                        // ALWAYS update the UI with fresh data
+                        allOrders = data.orders;
+                        filterAndDisplayOrders();
+
+                        previousPendingCount = pendingCount;
+                    }
+                } catch (error) {
+                    console.error('Error checking for new orders:', error);
+                }
+            }
+
+            // Initial badge update
+            setTimeout(() => {
+                const pendingCount = allOrders.filter(o => o.status.toLowerCase() === 'pending').length;
+                updatePendingBadge(pendingCount);
+                previousPendingCount = pendingCount;
+            }, 1000);
+
+            // --- Coupon Management Logic ---
+            const manageCouponsButton = document.getElementById('manageCouponsButton');
+            const couponModal = document.getElementById('couponModal');
+            const closeCouponModalButton = document.getElementById('closeCouponModalButton');
+            const createCouponForm = document.getElementById('createCouponForm');
+
+            if (manageCouponsButton) {
+                manageCouponsButton.addEventListener('click', () => {
+                    couponModal.style.display = 'flex';
+                    fetchCoupons();
+                });
+            }
+
+            if (closeCouponModalButton) {
+                closeCouponModalButton.addEventListener('click', () => {
+                    couponModal.style.display = 'none';
+                });
+            }
+
+            // Close modal if clicking outside
+            window.onclick = function (event) {
+                if (event.target == couponModal) {
+                    couponModal.style.display = "none";
+                }
+            }
+
+            async function fetchCoupons() {
+                try {
+                    const response = await fetch(getApiUrl('coupon_crud.php?action=list'));
+                    const data = await response.json();
+                    if (data.success) {
+                        renderCoupons(data.coupons);
+                    }
+                } catch (error) {
+                    console.error("Error fetching coupons", error);
+                }
+            }
+
+            function renderCoupons(coupons) {
+                const list = document.getElementById('couponListBody');
+                list.innerHTML = '';
+                coupons.forEach(coupon => {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-100 hover:bg-gray-50';
+                    row.innerHTML = `
+                   <td class="p-3 font-bold text-gray-700">${coupon.code}</td>
+                   <td class="p-3 text-sm text-gray-500 capitalize">${coupon.discount_type}</td>
+                   <td class="p-3 text-sm font-bold text-amber-600">${parseFloat(coupon.discount_value).toFixed(2)}</td>
+                   <td class="p-3 text-sm text-gray-500">${coupon.times_used}</td>
+                   <td class="p-3 text-sm text-gray-500">${new Date(coupon.created_at).toLocaleDateString()}</td>
+                   <td class="p-3 text-right">
+                       <button onclick="window.deleteCoupon(${coupon.id})" class="text-red-400 hover:text-red-600 font-bold text-xs uppercase tracking-wide">Delete</button>
+                   </td>
+               `;
+                    list.appendChild(row);
+                });
+            }
+
+            if (createCouponForm) {
+                createCouponForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const code = document.getElementById('newCouponCode').value;
+                    const type = document.getElementById('newCouponType').value;
+                    const value = document.getElementById('newCouponValue').value;
+
+                    try {
+                        const response = await fetch(getApiUrl('coupon_crud.php'), {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                action: 'create',
+                                code: code,
+                                discount_type: type,
+                                discount_value: value
+                            })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            showMessage("Coupon created!");
+                            createCouponForm.reset();
+                            fetchCoupons(); // Refresh
+                        } else {
+                            showMessage("Error: " + data.message, true);
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
+                });
+            }
+
+            window.deleteCoupon = async function (id) {
+                if (!confirm('Delete this coupon?')) return;
+                try {
+                    const response = await fetch(getApiUrl('coupon_crud.php'), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            action: 'delete',
+                            id: id
+                        })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        showMessage("Coupon deleted.");
+                        fetchCoupons();
+                    } else {
+                        showMessage("Error deleting coupon.", true);
+                    }
+                } catch (e) { console.error(e); }
+            };
+            // Initialize
+            fetchOrders(); // Initial fetch
+            setInterval(checkForNewOrders, 5000); // Poll every 5 seconds
+
+        }); // END DOMContentLoaded
+    </script>
+
+    <!-- Coupon Modal -->
+    <div id="couponModal"
+        class="modal z-50 fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div
+            class="modal-content bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-xl font-bold text-gray-800">Coupon Management</h3>
+                <button id="closeCouponModalButton"
+                    class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200 hover:text-gray-800 transition-all"><i
+                        class="fas fa-times"></i></button>
+            </div>
+
+            <div class="p-6 overflow-y-auto">
+                <!-- Create Form -->
+                <form id="createCouponForm" class="mb-8 bg-amber-50/50 p-5 rounded-2xl border border-amber-100/50">
+                    <h4 class="text-sm font-bold text-amber-800 mb-3 uppercase tracking-wide">Create New Coupon</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" id="newCouponCode" placeholder="Code (e.g. SAVE10)"
+                            class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 text-sm font-bold uppercase"
+                            required>
+                        <select id="newCouponType"
+                            class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 text-sm font-medium bg-white">
+                            <option value="percent">Percentage (%)</option>
+                            <option value="fixed">Fixed Amount (RM)</option>
+                        </select>
+                        <input type="number" step="0.01" id="newCouponValue" placeholder="Value"
+                            class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500/20 text-sm font-bold"
+                            required>
+                    </div>
+                    <button type="submit"
+                        class="mt-4 w-full bg-gray-900 text-white font-bold py-2.5 rounded-xl hover:bg-black transition-all text-sm shadow-lg hover:shadow-xl active:scale-95">Create
+                        Coupon</button>
+                </form>
+
+                <!-- List -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-xs text-gray-400 uppercase tracking-wider border-b border-gray-200">
+                                <th class="p-3 font-medium">Code</th>
+                                <th class="p-3 font-medium">Type</th>
+                                <th class="p-3 font-medium">Value</th>
+                                <th class="p-3 font-medium">Used</th>
+                                <th class="p-3 font-medium">Created</th>
+                                <th class="p-3 font-medium text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="couponListBody">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

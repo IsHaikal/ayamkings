@@ -1,0 +1,71 @@
+<?php
+// update_order_status.php (NEW FILE: Handles updating order status)
+
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: PUT, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+$response = ['success' => false, 'message' => 'An unknown error occurred.'];
+
+if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    $order_id = $data['order_id'] ?? null;
+    $status = $data['status'] ?? null;
+
+    if (empty($order_id) || empty($status)) {
+        $response['message'] = 'Missing order ID or status.';
+        echo json_encode($response);
+        exit();
+    }
+
+    // Validate status against allowed values
+    $allowed_statuses = ['Pending', 'Preparing', 'Ready for Pickup', 'Finished', 'Cancelled'];
+    if (!in_array($status, $allowed_statuses)) {
+        $response['message'] = 'Invalid status value provided.';
+        echo json_encode($response);
+        exit();
+    }
+
+    // Database connection
+    $servername = "localhost";
+    $db_username = "root";
+    $db_password = "";
+    $dbname = "ayamkings_db";
+
+    $conn = new mysqli($servername, $db_username, $db_password, $dbname);
+
+    if ($conn->connect_error) {
+        $response['message'] = 'Database connection failed: ' . $conn->connect_error;
+        echo json_encode($response);
+        exit();
+    }
+
+    $stmt = $conn->prepare("UPDATE orders SET status = ? WHERE id = ?");
+    $stmt->bind_param("si", $status, $order_id);
+
+    if ($stmt->execute()) {
+        if ($stmt->affected_rows > 0) {
+            $response['success'] = true;
+            $response['message'] = 'Order status updated successfully.';
+        } else {
+            $response['message'] = 'No order found with the provided ID or no change in status.';
+        }
+    } else {
+        $response['message'] = 'Error updating order status: ' . $stmt->error;
+    }
+
+    $stmt->close();
+    $conn->close();
+} else {
+    $response['message'] = 'Invalid request method.';
+}
+
+echo json_encode($response);
+?>

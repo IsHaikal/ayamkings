@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayam Kings - Redirecting...</title>
+    <script>
+        // Redirect to customer login page
+        // If already logged in, redirect to appropriate dashboard
+        (function () {
+            const token = localStorage.getItem('userToken');
+            const userRole = localStorage.getItem('userRole');
+
+            if (token && userRole) {
+                // Already logged in - redirect to dashboard
+                if (userRole === 'admin') {
+                    window.location.replace('admin_dashboard.html');
+                } else if (userRole === 'staff') {
+                    window.location.replace('staff_dashboard.html');
+                } else if (userRole === 'customer') {
+                    window.location.replace('customer_menu.html');
+                }
+            } else {
+                // Not logged in - redirect to customer login
+                window.location.replace('customer_login.html');
+            }
+        })();
+    </script>
+</head>
+
+<body>
+    <p style="text-align: center; margin-top: 50px; font-family: sans-serif; color: #666;">
+        Redirecting...
+    </p>
+</body>
+
+</html>

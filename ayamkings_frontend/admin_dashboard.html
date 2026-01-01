@@ -1,0 +1,1318 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Ayam Kings</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Chart.js CDN for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <style>
+        /* Premium Golden Glassmorphism Theme */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f5f2;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 0) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(35, 100%, 96%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(45, 100%, 96%, 1) 0, transparent 50%);
+            color: #1f2937;
+        }
+
+        /* Glassmorphism Utilities */
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .glass-heavy {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-glass:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Message Box */
+        .message-box {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            background: rgba(16, 185, 129, 0.9);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+            z-index: 2000;
+            display: none;
+            font-weight: 600;
+            animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .message-box.error {
+            background: rgba(239, 68, 68, 0.9);
+            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4);
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            margin: auto;
+            padding: 32px;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .close-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-button:hover {
+            background: #e5e7eb;
+            color: #1f2937;
+            transform: rotate(90deg);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .active-nav-link {
+            background: linear-gradient(135deg, #1f2937, #111827);
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col selection:bg-amber-200 selection:text-amber-900">
+    <!-- Navbar -->
+    <nav class="glass-heavy sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div
+                    class="w-10 h-10 bg-amber-400 rounded-xl flex items-center justify-center shadow-lg shadow-amber-200">
+                    <i class="fas fa-crown text-white text-lg"></i>
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight text-black">
+                    Ayam<span class="text-amber-600">Kings</span> <span class="text-gray-600 font-light ml-1 text-lg">|
+                        Admin</span>
+                </h1>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <div id="loggedInUser" class="text-sm font-bold text-gray-500 hidden md:block uppercase tracking-wider">
+                </div>
+                <button id="logoutButton"
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold py-2.5 px-6 rounded-xl transition-all hover:-translate-y-0.5 text-sm uppercase tracking-wide">
+                    Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="flex flex-1 flex-col lg:flex-row container mx-auto px-6 py-8 gap-8">
+        <!-- Sidebar -->
+        <aside class="w-full lg:w-72 flex-shrink-0">
+            <div class="glass rounded-3xl p-6 sticky top-28 h-[calc(100vh-140px)] flex flex-col">
+                <h2 class="text-xs font-bold text-gray-600 uppercase tracking-widest mb-6 px-2">Data & Controls</h2>
+                <nav class="space-y-2 flex-1">
+                    <a href="#menu-management"
+                        class="flex items-center p-3.5 rounded-xl text-gray-600 hover:bg-white/50 transition-all font-semibold group active-nav-link"
+                        data-section="menu-management">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white flex items-center justify-center mr-3 transition-colors text-gray-400 group-hover:text-amber-500"><i
+                                class="fas fa-utensils"></i></span>
+                        Menu Management
+                    </a>
+                    <a href="#user-management"
+                        class="flex items-center p-3.5 rounded-xl text-gray-600 hover:bg-white/50 transition-all font-semibold group"
+                        data-section="user-management">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white flex items-center justify-center mr-3 transition-colors text-gray-400 group-hover:text-amber-500"><i
+                                class="fas fa-users"></i></span>
+                        User Management
+                    </a>
+                    <a href="#statistics-management"
+                        class="flex items-center p-3.5 rounded-xl text-gray-600 hover:bg-white/50 transition-all font-semibold group"
+                        data-section="statistics-management">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white flex items-center justify-center mr-3 transition-colors text-gray-400 group-hover:text-amber-500"><i
+                                class="fas fa-chart-line"></i></span>
+                        Financial Report
+                    </a>
+                    <a href="#daily-specials"
+                        class="flex items-center p-3.5 rounded-xl text-gray-600 hover:bg-white/50 transition-all font-semibold group"
+                        data-section="daily-specials">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white flex items-center justify-center mr-3 transition-colors text-gray-400 group-hover:text-orange-500"><i
+                                class="fas fa-fire"></i></span>
+                        Daily Specials
+                        <span
+                            class="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-md bg-orange-500 text-white shadow-sm">NEW</span>
+                    </a>
+                </nav>
+                <div class="mt-auto pt-6 border-t border-gray-200/50">
+                    <p class="text-xs text-gray-500 text-center font-medium">Ayam Kings Admin v2.0</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="flex-1 w-full min-w-0">
+            <!-- Menu Management Section -->
+            <section id="menu-management" class="dashboard-section animate-fade-in block">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-black tracking-tight">Menu Items</h2>
+                        <p class="text-gray-700 font-medium">Manage your products and pricing.</p>
+                    </div>
+                    <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                        <div class="relative w-full md:w-auto">
+                            <i
+                                class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="menuSearch" placeholder="Search menu..."
+                                class="pl-10 pr-4 py-3 w-full md:w-64 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all shadow-sm text-sm">
+                        </div>
+                        <button id="addMenuItemButton"
+                            class="bg-gray-900 hover:bg-black text-white font-bold py-3 px-6 rounded-xl transition-all hover:-translate-y-0.5 shadow-lg shadow-gray-200 flex items-center justify-center gap-2 text-sm">
+                            <i class="fas fa-plus"></i> Add Item
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white/80 backdrop-blur rounded-3xl p-8 shadow-sm border border-white/50 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-widest">
+                                    <th class="py-4 px-2">ID</th>
+                                    <th class="py-4 px-2">Image</th>
+                                    <th class="py-4 px-2">Name</th>
+                                    <th class="py-4 px-2">Description</th>
+                                    <th class="py-4 px-2">Price</th>
+                                    <th class="py-4 px-2">Category</th>
+                                    <th class="py-4 px-2 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="menuTableBody" class="text-sm font-medium text-gray-800">
+                                <!-- Menu items JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Management Section -->
+            <section id="user-management" class="dashboard-section animate-fade-in hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-black tracking-tight">Users</h2>
+                        <p class="text-gray-700 font-medium">Manage registered customers and staff.</p>
+                    </div>
+                    <div class="relative w-full md:w-auto">
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input type="text" id="userSearch" placeholder="Search users..."
+                            class="pl-10 pr-4 py-3 w-full md:w-64 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all shadow-sm text-sm">
+                    </div>
+                </div>
+
+                <div class="bg-white/80 backdrop-blur rounded-3xl p-8 shadow-sm border border-white/50 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr
+                                    class="border-b border-gray-200 text-xs font-bold text-gray-600 uppercase tracking-widest">
+                                    <th class="py-4 px-2">ID</th>
+                                    <th class="py-4 px-2">Full Name</th>
+                                    <th class="py-4 px-2">Email</th>
+                                    <th class="py-4 px-2">Phone</th>
+                                    <th class="py-4 px-2">Role</th>
+                                    <th class="py-4 px-2 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody" class="text-sm font-medium text-gray-800">
+                                <!-- Users JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Statistics Section -->
+            <section id="statistics-management" class="dashboard-section animate-fade-in hidden">
+                <div class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-black tracking-tight">Financial Report</h2>
+                        <p class="text-gray-700 font-medium">Real-time performance metrics.</p>
+                    </div>
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-gray-200 shadow-sm">
+                        <input type="date" id="startDate"
+                            class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-amber-500">
+                        <span class="text-gray-400 font-medium">-</span>
+                        <input type="date" id="endDate"
+                            class="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-amber-500">
+                        <button onclick="applyDateFilter()"
+                            class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors">
+                            <i class="fas fa-filter mr-1"></i> Filter
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 active">
+                    <div
+                        class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-6 rounded-3xl shadow-lg shadow-blue-200 relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 w-20 h-20 bg-white opacity-10 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-150">
+                        </div>
+                        <i class="fas fa-money-bill-wave text-3xl mb-4 opacity-80"></i>
+                        <h3 class="text-sm font-medium opacity-90 uppercase tracking-wide">Daily Sales</h3>
+                        <p id="dailySales" class="text-3xl font-bold mt-1">RM 0.00</p>
+                    </div>
+                    <div
+                        class="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white p-6 rounded-3xl shadow-lg shadow-emerald-200 relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 w-20 h-20 bg-white opacity-10 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-150">
+                        </div>
+                        <i class="fas fa-chart-line text-3xl mb-4 opacity-80"></i>
+                        <h3 class="text-sm font-medium opacity-90 uppercase tracking-wide">Monthly Profit</h3>
+                        <p id="monthlyProfit" class="text-3xl font-bold mt-1">RM 0.00</p>
+                    </div>
+                    <div
+                        class="bg-gradient-to-br from-rose-500 to-rose-600 text-white p-6 rounded-3xl shadow-lg shadow-rose-200 relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 w-20 h-20 bg-white opacity-10 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-150">
+                        </div>
+                        <i class="fas fa-credit-card text-3xl mb-4 opacity-80"></i>
+                        <h3 class="text-sm font-medium opacity-90 uppercase tracking-wide">Monthly Expenses</h3>
+                        <p id="monthlyExpenses" class="text-3xl font-bold mt-1">RM 0.00</p>
+                    </div>
+                    <div
+                        class="bg-gradient-to-br from-violet-500 to-violet-600 text-white p-6 rounded-3xl shadow-lg shadow-violet-200 relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 right-0 w-20 h-20 bg-white opacity-10 rounded-full -mr-10 -mt-10 transition-transform group-hover:scale-150">
+                        </div>
+                        <i class="fas fa-file-invoice text-3xl mb-4 opacity-80"></i>
+                        <h3 class="text-sm font-medium opacity-90 uppercase tracking-wide">Monthly Sales</h3>
+                        <p id="monthlySales" class="text-3xl font-bold mt-1">RM 0.00</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="card-glass rounded-3xl p-6">
+                        <h3 class="text-lg font-bold text-black mb-6 flex items-center gap-2">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-blue-100 text-blue-500 flex items-center justify-center text-sm">
+                                <i class="fas fa-chart-area"></i>
+                            </div>
+                            Monthly Performance
+                        </h3>
+                        <div class="relative h-64">
+                            <canvas id="salesExpensesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card-glass rounded-3xl p-6">
+                        <h3 class="text-lg font-bold text-black mb-6 flex items-center gap-2">
+                            <div
+                                class="w-8 h-8 rounded-lg bg-amber-100 text-amber-500 flex items-center justify-center text-sm">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            Top Selling Items
+                        </h3>
+                        <div class="relative h-64">
+                            <canvas id="topSellingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex flex-wrap justify-center gap-4">
+                    <button id="generateCSVButton"
+                        class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-xl transition-all hover:-translate-y-1 shadow-lg shadow-emerald-200 flex items-center gap-2">
+                        <i class="fas fa-file-csv"></i> Download CSV
+                    </button>
+                    <button id="generatePDFButton"
+                        class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 px-8 rounded-xl transition-all hover:-translate-y-1 shadow-lg shadow-rose-200 flex items-center gap-2">
+                        <i class="fas fa-file-pdf"></i> Download PDF
+                    </button>
+                </div>
+            </section>
+
+            <!-- Daily Specials Section -->
+            <section id="daily-specials" class="dashboard-section hidden animate-fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-black tracking-tight flex items-center gap-2">
+                            <i class="fas fa-fire text-orange-500"></i> Daily Specials
+                        </h2>
+                        <p class="text-gray-700 font-medium">Create limited-time promotional items.</p>
+                    </div>
+                    <button id="addSpecialButton"
+                        class="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-orange-200 transition-all hover:-translate-y-0.5 flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Add Special
+                    </button>
+                </div>
+
+                <div id="specialsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="col-span-full text-center py-12">
+                        <div class="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-fire text-4xl text-orange-200"></i>
+                        </div>
+                        <p class="text-gray-500 font-medium">No daily specials yet.</p>
+                        <p class="text-gray-400 text-sm">Create your first special offer!</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Menu Item Modal -->
+    <div id="menuItemModal" class="modal">
+        <div class="modal-content">
+            <div class="close-button">&times;</div>
+            <h3 id="modalTitle" class="text-2xl font-extrabold text-black mb-6 tracking-tight">Add New Menu Item</h3>
+            <form id="menuItemForm" class="space-y-5" enctype="multipart/form-data">
+                <input type="hidden" id="menuItemId">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="md:col-span-2">
+                        <label for="itemName"
+                            class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Item
+                            Name</label>
+                        <input type="text" id="itemName" name="name"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm font-semibold text-gray-800 placeholder-gray-400"
+                            placeholder="e.g. Nasi Lemak Royal" required>
+                    </div>
+
+                    <div>
+                        <label for="itemPrice"
+                            class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Price
+                            (RM)</label>
+                        <input type="number" step="0.01" id="itemPrice" name="price"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm font-semibold text-gray-800"
+                            placeholder="0.00" required>
+                    </div>
+
+                    <div>
+                        <label for="itemCategory"
+                            class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Category</label>
+                        <select id="itemCategory" name="category"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm font-semibold text-gray-800"
+                            required>
+                            <option value="">Select Category</option>
+                            <option value="Set">Set</option>
+                            <option value="Chicken">Chicken</option>
+                            <option value="Drinks">Drinks</option>
+                            <option value="Add-on">Add-on</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="itemDescription"
+                            class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Description</label>
+                        <textarea id="itemDescription" name="description" rows="3"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm font-semibold text-gray-800 placeholder-gray-400"
+                            placeholder="Describe the dish..." required></textarea>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="itemImageFile"
+                            class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Upload
+                            Image</label>
+                        <div class="flex items-start gap-4">
+                            <div class="flex-1">
+                                <input type="file" id="itemImageFile" name="image_file"
+                                    accept="image/png, image/jpeg, image/gif"
+                                    class="w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-amber-50 file:text-amber-700 hover:file:bg-amber-100 transition-all cursor-pointer">
+                                <p class="text-xs text-gray-400 mt-2">JPG, PNG or GIF (Max 2MB)</p>
+                            </div>
+                            <img id="imagePreview" src="" alt="Preview"
+                                class="w-16 h-16 rounded-xl object-cover shadow-sm border border-gray-100 hidden">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden input to store image URL -->
+                <input type="hidden" id="itemImageUrl" name="image_url">
+
+                <button type="submit" id="saveMenuItemButton"
+                    class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-4 rounded-xl transition-all hover:-translate-y-1 shadow-lg shadow-amber-200 text-sm tracking-wide uppercase">
+                    Save Menu Item
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Message Box -->
+    <div id="messageBox" class="message-box"></div>
+
+    <!-- Daily Special Modal -->
+    <div id="specialModal" class="modal fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onclick="closeSpecialModal()"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg transform scale-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-6 flex justify-between items-center">
+                    <div>
+                        <h3 id="specialModalTitle" class="text-xl font-extrabold text-white">Add Daily Special</h3>
+                        <p class="text-orange-100 text-sm">Create a limited-time offer</p>
+                    </div>
+                    <button onclick="closeSpecialModal()" class="text-white/80 hover:text-white transition-colors">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <form id="specialForm" class="p-6 space-y-5">
+                    <input type="hidden" id="specialId">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Name *</label>
+                        <input type="text" id="specialName" required
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all"
+                            placeholder="e.g. Weekend BBQ Feast">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Description</label>
+                        <textarea id="specialDescription" rows="2"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all resize-none"
+                            placeholder="Describe what makes this special..."></textarea>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Price (RM) *</label>
+                            <input type="number" id="specialPrice" step="0.01" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all"
+                                placeholder="0.00">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Ends At *</label>
+                            <input type="datetime-local" id="specialEndDate" required
+                                class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Image</label>
+                        <div class="flex gap-2 mb-2">
+                            <label class="flex-1 cursor-pointer">
+                                <div id="specialFileDropzone"
+                                    class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-orange-400 transition-colors">
+                                    <i class="fas fa-cloud-upload-alt text-2xl text-gray-400 mb-2"></i>
+                                    <p class="text-sm text-gray-500">Click to upload PNG/JPG</p>
+                                    <p class="text-xs text-gray-400 mt-1" id="specialFileName">Max 5MB</p>
+                                </div>
+                                <input type="file" id="specialImageFile" accept=".png,.jpg,.jpeg" class="hidden">
+                            </label>
+                        </div>
+                        <div class="text-center text-xs text-gray-400 mb-2">— or paste URL —</div>
+                        <input type="text" id="specialImageUrl"
+                            class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all"
+                            placeholder="https://... or uploads/image.jpg">
+                    </div>
+                    <div id="specialImagePreview" class="hidden">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Preview</label>
+                        <img id="specialPreviewImg" src="" alt="Preview"
+                            class="w-full h-32 object-cover rounded-xl border border-gray-200">
+                    </div>
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" onclick="closeSpecialModal()"
+                            class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 rounded-xl transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold py-3 rounded-xl transition-all shadow-lg">
+                            <i class="fas fa-save mr-2"></i> Save Special
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // --- Utilities ---
+        function showMessage(message, isError = false) {
+            const msgBox = document.getElementById('messageBox');
+            msgBox.innerHTML = isError ? `<i class="fas fa-exclamation-circle mr-2"></i>${message}` : `<i class="fas fa-check-circle mr-2"></i>${message}`;
+            msgBox.className = 'message-box';
+            if (isError) msgBox.classList.add('error');
+            msgBox.style.display = 'block';
+            setTimeout(() => { msgBox.style.display = 'none'; }, 3000);
+        }
+
+        // --- Authentication ---
+        (function () {
+            const userToken = localStorage.getItem('userToken');
+            const userRole = localStorage.getItem('userRole');
+            const userFullName = localStorage.getItem('userFullName');
+
+            if (!userToken || userRole !== 'admin') {
+                window.location.href = 'staff_login.html';
+                return;
+            }
+            document.getElementById('loggedInUser').textContent = `Hi, ${userFullName || 'Admin'}`;
+
+            document.getElementById('logoutButton').addEventListener('click', function () {
+                localStorage.clear();
+                window.location.href = 'staff_login.html';
+            });
+        })();
+
+        // --- Navigation ---
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-section');
+
+                // Hide all sections with fade out (handled by css transitions ideally, but here just display toggling)
+                document.querySelectorAll('.dashboard-section').forEach(el => el.classList.add('hidden'));
+                document.getElementById(targetId).classList.remove('hidden');
+
+                // Update styling
+                document.querySelectorAll('nav a').forEach(el => el.classList.remove('active-nav-link'));
+                this.classList.add('active-nav-link');
+
+                if (targetId === 'statistics-management') {
+                    fetchStatistics();
+                    fetchTopSelling();
+                }
+            });
+        });
+
+        // --- Menu Logic ---
+        const menuTableBody = document.getElementById('menuTableBody');
+        const searchInput = document.getElementById('menuSearch'); // Fixed ID
+        const modal = document.getElementById('menuItemModal'); // Fixed ID
+        let allMenuItems = [];
+
+        // Fetch
+        async function fetchMenuItems() {
+            try {
+                const res = await fetch(getApiUrl('get_menu.php'));
+                const data = await res.json();
+                if (data.success) {
+                    allMenuItems = data.menuItems;
+                    displayMenuItems(allMenuItems);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // Renamed/Merged logic for Top Selling since it comes from same API now
+        function fetchTopSelling() {
+            // No-op, handled by fetchStatistics now
+        }
+
+        function displayTopSelling(items) {
+            const ctx = document.getElementById('topSellingChart').getContext('2d');
+            // Assuming we want a bar chart for top items, or just a list? 
+            // The HTML has a canvas `topSellingChart`. So Chart.js it is.
+
+            if (topSellingChart) topSellingChart.destroy();
+
+            const labels = items.map(i => i.name);
+            const values = items.map(i => i.sold);
+
+            topSellingChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Units Sold',
+                        data: values,
+                        backgroundColor: [
+                            'rgba(245, 158, 11, 0.8)', // Amber
+                            'rgba(16, 185, 129, 0.8)', // Emerald
+                            'rgba(59, 130, 246, 0.8)', // Blue
+                            'rgba(236, 72, 153, 0.8)', // Pink
+                            'rgba(139, 92, 246, 0.8)'  // Violet
+                        ],
+                        borderRadius: 8,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }, // Hide legend for cleaner look
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+        // Display
+        function displayMenuItems(items) {
+            menuTableBody.innerHTML = '';
+            if (!items.length) {
+                menuTableBody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-400">No items found</td></tr>';
+                return;
+            }
+            items.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors group';
+                tr.innerHTML = `
+                    <td class="py-4 px-2 font-mono text-xs text-gray-500">#${item.id}</td>
+                    <td class="py-4 px-2">
+                        <img src="${getUploadUrl(item.image_url)}" class="w-12 h-12 rounded-lg object-cover shadow-sm group-hover:scale-105 transition-transform">
+                    </td>
+                    <td class="py-4 px-2 font-bold text-black">${item.name}</td>
+                    <td class="py-4 px-2 text-xs text-gray-700 max-w-xs truncate">${item.description}</td>
+                    <td class="py-4 px-2 font-bold text-black">RM ${parseFloat(item.price).toFixed(2)}</td>
+                    <td class="py-4 px-2"><span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">${item.category}</span></td>
+                    <td class="py-4 px-2 text-center">
+                        <button class="edit-btn text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors mr-2" data-id="${item.id}"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors" data-id="${item.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                menuTableBody.appendChild(tr);
+            });
+
+            // Re-attach listeners
+            document.querySelectorAll('.edit-btn').forEach(b => b.onclick = (e) => editMenuItem(e.currentTarget.dataset.id));
+            document.querySelectorAll('.delete-btn').forEach(b => b.onclick = (e) => deleteMenuItem(e.currentTarget.dataset.id));
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allMenuItems.filter(i => i.name.toLowerCase().includes(term) || i.category.toLowerCase().includes(term));
+            displayMenuItems(filtered);
+        });
+
+        // Modal Logic
+        const btnAdd = document.getElementById('addMenuItemButton');
+        const btnClose = document.querySelector('.close-button');
+        const form = document.getElementById('menuItemForm');
+
+        btnAdd.onclick = () => {
+            document.getElementById('modalTitle').textContent = "Add New Item";
+            form.reset();
+            document.getElementById('menuItemId').value = '';
+            document.getElementById('imagePreview').classList.add('hidden');
+            modal.style.display = 'flex';
+        }
+        btnClose.onclick = () => modal.style.display = 'none';
+        window.onclick = (e) => { if (e.target == modal) modal.style.display = 'none'; }
+
+        // Edit
+        function editMenuItem(id) {
+            const item = allMenuItems.find(i => i.id == id);
+            if (item) {
+                document.getElementById('modalTitle').textContent = "Edit Header";
+                document.getElementById('menuItemId').value = item.id;
+                document.getElementById('itemName').value = item.name;
+                document.getElementById('itemDescription').value = item.description;
+                document.getElementById('itemPrice').value = item.price;
+                document.getElementById('itemCategory').value = item.category;
+                document.getElementById('itemImageUrl').value = item.image_url;
+
+                const preview = document.getElementById('imagePreview');
+                if (item.image_url) {
+                    preview.src = getUploadUrl(item.image_url);
+                    preview.classList.remove('hidden');
+                } else {
+                    preview.classList.add('hidden');
+                }
+                modal.style.display = 'flex';
+            }
+        }
+
+        // Delete
+        async function deleteMenuItem(id) {
+            if (confirm('Are you sure?')) {
+                const res = await fetch(getApiUrl(`menu_crud.php?id=${id}`), { method: 'DELETE' });
+                const data = await res.json();
+                if (data.success) { showMessage('Deleted!'); fetchMenuItems(); }
+                else showMessage('Failed to delete', true);
+            }
+        }
+
+        // Form Submit
+        document.getElementById('itemImageFile').onchange = function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('imagePreview').src = e.target.result;
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            showMessage('Saving...', false);
+
+            const formData = new FormData(form);
+            const imageFile = document.getElementById('itemImageFile').files[0];
+            let imageUrl = document.getElementById('itemImageUrl').value;
+
+            // Upload Image first if exists
+            if (imageFile) {
+                const uploadData = new FormData();
+                uploadData.append('image_file', imageFile);
+                try {
+                    const res = await fetch(getApiUrl('upload_image.php'), { method: 'POST', body: uploadData });
+                    const data = await res.json();
+                    if (data.success) imageUrl = data.image_url;
+                    else throw new Error(data.message);
+                } catch (err) {
+                    showMessage('Image upload failed: ' + err.message, true);
+                    return;
+                }
+            }
+
+            // Save Item
+            const id = document.getElementById('menuItemId').value;
+            const payload = {
+                name: formData.get('name'),
+                description: formData.get('description'),
+                price: formData.get('price'),
+                category: formData.get('category'),
+                image_url: imageUrl
+            };
+
+            try {
+                const url = id ? getApiUrl(`menu_crud.php?id=${id}`) : getApiUrl('menu_crud.php');
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showMessage('Saved successfully!');
+                    modal.style.display = 'none';
+                    fetchMenuItems();
+                } else showMessage(data.message, true);
+            } catch (e) { showMessage('Error saving item', true); }
+        };
+
+
+        // --- User Logic ---
+        const userTableBody = document.getElementById('userTableBody');
+        const userSearchInput = document.getElementById('userSearch'); // Fixed var name to match listener
+
+        let allUsers = [];
+
+        async function fetchUsers() {
+            try {
+                const res = await fetch(getApiUrl('get_users.php'));
+                const data = await res.json();
+                if (data.success) {
+                    allUsers = data.users;
+                    displayUsers(allUsers);
+                } else {
+                    showMessage(data.message || "Failed to fetch users.", true);
+                }
+            } catch (e) {
+                console.error(e);
+                showMessage("Network error loading users.", true);
+            }
+        }
+
+        function displayUsers(users) {
+            userTableBody.innerHTML = '';
+            if (!users || !users.length) {
+                userTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-400">No users found</td></tr>';
+                return;
+            }
+            users.forEach((user, index) => {
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors group';
+                tr.innerHTML = `
+                    <td class="py-4 px-2 font-mono text-xs text-gray-500">#${user.id}</td>
+                    <td class="py-4 px-2 font-bold text-black">${user.full_name}</td>
+                    <td class="py-4 px-2 text-sm text-gray-800">${user.email}</td>
+                    <td class="py-4 px-2 text-sm text-gray-800">${user.phone_number || '-'}</td>
+                    <td class="py-4 px-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
+                            ${user.role === 'customer' ? 'bg-emerald-100 text-emerald-600' : ''}
+                            ${user.role === 'staff' ? 'bg-blue-100 text-blue-600' : ''}
+                            ${user.role === 'admin' ? 'bg-amber-100 text-amber-600' : ''}
+                        ">${user.role}</span>
+                    </td>
+                    <td class="py-4 px-2 text-center">
+                         <button class="delete-user-btn text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors" data-id="${user.id}"><i class="fas fa-trash"></i></button>
+                    </td>
+                `;
+                userTableBody.appendChild(tr);
+            });
+
+            // Re-attach listeners
+            document.querySelectorAll('.delete-user-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const id = event.currentTarget.dataset.id;
+                    deleteUser(id);
+                });
+            });
+        }
+
+        userSearchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allUsers.filter(u => u.full_name.toLowerCase().includes(term) || u.email.toLowerCase().includes(term));
+            displayUsers(filtered);
+        });
+
+        async function deleteUser(id) {
+            const loggedInUserId = localStorage.getItem('userId');
+            if (id == loggedInUserId) { showMessage("Cannot delete your own account!", true); return; }
+
+            if (confirm('Are you sure you want to delete this user?')) {
+                try {
+                    const res = await fetch(getApiUrl(`user_crud.php?id=${id}`), { method: 'DELETE' });
+                    const data = await res.json();
+                    if (data.success) { showMessage('User deleted'); fetchUsers(); }
+                    else showMessage(data.message, true);
+                } catch (e) { showMessage('Deletion failed', true); }
+            }
+        }
+
+
+
+        // --- Statistics Logic (Charts) ---
+        let salesChart = null;
+        let topSellingChart = null;
+
+        // Default Init for Date
+        function initDateFilters() {
+            const now = new Date();
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const formatDate = (d) => d.toISOString().split('T')[0];
+            document.getElementById('startDate').value = formatDate(firstDay);
+            document.getElementById('endDate').value = formatDate(now);
+        }
+
+        async function fetchStatistics() {
+            try {
+                const start = document.getElementById('startDate').value;
+                const end = document.getElementById('endDate').value;
+                const query = start && end ? `?start_date=${start}&end_date=${end}` : '';
+
+                const res = await fetch(getApiUrl(`get_statistics.php${query}`));
+                const stats = await res.json();
+
+                if (stats.success) {
+                    const data = stats.statistics;
+                    // Cards
+                    document.getElementById('dailySales').textContent = `RM ${parseFloat(data.daily_sales || 0).toFixed(2)}`;
+                    document.getElementById('monthlySales').textContent = `RM ${parseFloat(data.monthly_sales || 0).toFixed(2)}`;
+                    document.getElementById('monthlyProfit').textContent = `RM ${parseFloat(data.monthly_profit || 0).toFixed(2)}`;
+                    document.getElementById('monthlyExpenses').textContent = `RM ${parseFloat(data.monthly_expenses || 0).toFixed(2)}`;
+
+                    // Charts
+                    renderSalesHelper(data.chart_data);
+
+                    // Top Selling (Integrated)
+                    if (data.top_selling) {
+                        displayTopSelling(data.top_selling);
+                    }
+                }
+            } catch (e) { console.error("Stats Error:", e); }
+        }
+
+        // --- Helpers ---
+        function applyDateFilter() {
+            fetchStatistics();
+        }
+        window.applyDateFilter = applyDateFilter; // Ensure global for HTML onclick
+
+        function downloadCSV() {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            const query = start && end ? `?start_date=${start}&end_date=${end}` : '';
+            window.location.href = getApiUrl(`export_analytics.php${query}`);
+        }
+
+        function downloadPDF() {
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            const query = start && end ? `?start_date=${start}&end_date=${end}` : '';
+            // Open print view in new tab
+            window.open(getApiUrl(`generate_report_pdf.php${query}`), '_blank');
+        }
+
+        // Attach listeners
+        document.getElementById('generateCSVButton').onclick = downloadCSV;
+        document.getElementById('generatePDFButton').onclick = downloadPDF;
+
+
+        function renderSalesHelper(data) {
+            const ctx = document.getElementById('salesExpensesChart').getContext('2d');
+            if (salesChart) salesChart.destroy();
+
+            // Data parsing
+            const labels = data.labels || [];
+            const sales = data.sales || [];
+            const expenses = data.expenses || [];
+
+            salesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Sales',
+                            data: sales,
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Expenses',
+                            data: expenses,
+                            borderColor: '#F43F5E',
+                            backgroundColor: 'rgba(244, 63, 94, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        function displayTopSelling(items) {
+            const ctx = document.getElementById('topSellingChart').getContext('2d');
+            if (topSellingChart) topSellingChart.destroy();
+
+            topSellingChart = new Chart(ctx, {
+                type: 'bar', // Changed from doughnut to bar for Top 5
+                data: {
+                    labels: items.map(i => i.name),
+                    datasets: [{
+                        label: 'Sold',
+                        data: items.map(i => i.sold),
+                        backgroundColor: ['#F59E0B', '#10B981', '#3B82F6', '#EC4899', '#8B5CF6'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }, // Hide legend
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchMenuItems();
+            fetchUsers();
+            initDateFilters();
+            fetchStatistics();
+            fetchSpecials();
+
+            // Daily Specials Button
+            document.getElementById('addSpecialButton').addEventListener('click', () => openSpecialModal());
+        });
+
+        // ========== DAILY SPECIALS LOGIC ==========
+        let allSpecials = [];
+
+        async function fetchSpecials() {
+            try {
+                const res = await fetch(getApiUrl('daily_specials_crud.php'));
+                const data = await res.json();
+                if (data.success) {
+                    allSpecials = data.specials;
+                    renderSpecialsGrid();
+                }
+            } catch (e) { console.error('Error fetching specials:', e); }
+        }
+
+        function renderSpecialsGrid() {
+            const grid = document.getElementById('specialsGrid');
+            if (allSpecials.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-12">
+                        <div class="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="fas fa-fire text-4xl text-orange-200"></i>
+                        </div>
+                        <p class="text-gray-500 font-medium">No daily specials yet.</p>
+                        <p class="text-gray-400 text-sm">Create your first special offer!</p>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = allSpecials.map(s => {
+                const endDate = new Date(s.end_date);
+                const now = new Date();
+                const isExpired = endDate < now;
+                const statusBadge = isExpired
+                    ? '<span class="bg-gray-400 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">EXPIRED</span>'
+                    : '<span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">ACTIVE</span>';
+
+                const imgSrc = s.image_url ? getUploadUrl(s.image_url) : 'https://via.placeholder.com/300x200?text=No+Image';
+
+                return `
+                    <div class="card-glass rounded-2xl overflow-hidden group ${isExpired ? 'opacity-60' : ''}">
+                        <div class="relative h-40 overflow-hidden">
+                            <img src="${imgSrc}" alt="${s.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <div class="absolute top-3 left-3">${statusBadge}</div>
+                            <div class="absolute top-3 right-3 flex gap-2">
+                                <button onclick="editSpecial(${s.id})" class="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-amber-600 shadow-sm transition-all">
+                                    <i class="fas fa-edit text-sm"></i>
+                                </button>
+                                <button onclick="deleteSpecial(${s.id})" class="w-8 h-8 bg-white/90 hover:bg-white rounded-full flex items-center justify-center text-red-500 shadow-sm transition-all">
+                                    <i class="fas fa-trash text-sm"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h3 class="font-bold text-gray-900 mb-1">${s.name}</h3>
+                            <p class="text-sm text-gray-500 line-clamp-2 mb-2">${s.description || 'No description'}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xl font-extrabold text-orange-600">RM ${parseFloat(s.price).toFixed(2)}</span>
+                                <span class="text-xs text-gray-400"><i class="far fa-clock mr-1"></i>Ends: ${endDate.toLocaleDateString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function closeSpecialModal() {
+            const modal = document.getElementById('specialModal');
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+
+        function openSpecialModal(special = null) {
+            const modal = document.getElementById('specialModal');
+            const form = document.getElementById('specialForm');
+            form.reset();
+            document.getElementById('specialId').value = '';
+            document.getElementById('specialImagePreview').classList.add('hidden');
+
+            if (special) {
+                document.getElementById('specialModalTitle').textContent = 'Edit Daily Special';
+                document.getElementById('specialId').value = special.id;
+                document.getElementById('specialName').value = special.name;
+                document.getElementById('specialDescription').value = special.description || '';
+                document.getElementById('specialPrice').value = special.price;
+                document.getElementById('specialImageUrl').value = special.image_url || '';
+                const ed = new Date(special.end_date);
+                document.getElementById('specialEndDate').value = ed.toISOString().slice(0, 16);
+                if (special.image_url) {
+                    document.getElementById('specialPreviewImg').src = getUploadUrl(special.image_url);
+                    document.getElementById('specialImagePreview').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('specialModalTitle').textContent = 'Add Daily Special';
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                document.getElementById('specialEndDate').value = tomorrow.toISOString().slice(0, 16);
+            }
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
+
+        function editSpecial(id) {
+            const special = allSpecials.find(s => s.id == id);
+            if (special) openSpecialModal(special);
+        }
+
+        async function deleteSpecial(id) {
+            if (!confirm('Delete this special?')) return;
+            try {
+                const res = await fetch(getApiUrl('daily_specials_crud.php'), {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showMessage('Special deleted!');
+                    fetchSpecials();
+                } else {
+                    showMessage(data.message, true);
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        document.getElementById('specialForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const id = document.getElementById('specialId').value;
+            let imageUrl = document.getElementById('specialImageUrl').value;
+
+            // Check if file was selected - upload first
+            const fileInput = document.getElementById('specialImageFile');
+            if (fileInput.files && fileInput.files[0]) {
+                const formData = new FormData();
+                formData.append('image_file', fileInput.files[0]);
+
+                try {
+                    showMessage('Uploading image...');
+                    const uploadRes = await fetch(getApiUrl('upload_image.php'), {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const uploadData = await uploadRes.json();
+                    if (uploadData.success) {
+                        imageUrl = uploadData.image_url;
+                    } else {
+                        showMessage('Image upload failed: ' + uploadData.message, true);
+                        return;
+                    }
+                } catch (err) {
+                    showMessage('Image upload error', true);
+                    console.error(err);
+                    return;
+                }
+            }
+
+            const payload = {
+                name: document.getElementById('specialName').value,
+                description: document.getElementById('specialDescription').value,
+                price: parseFloat(document.getElementById('specialPrice').value),
+                image_url: imageUrl,
+                end_date: document.getElementById('specialEndDate').value,
+                created_by: localStorage.getItem('userId')
+            };
+
+            const method = id ? 'PUT' : 'POST';
+            if (id) payload.id = id;
+
+            try {
+                const res = await fetch(getApiUrl('daily_specials_crud.php'), {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showMessage(id ? 'Special updated!' : 'Special created!');
+                    closeSpecialModal();
+                    fetchSpecials();
+                } else {
+                    showMessage(data.message, true);
+                }
+            } catch (e) { console.error(e); showMessage('Error saving special', true); }
+        });
+
+        // Image URL input preview
+        document.getElementById('specialImageUrl').addEventListener('input', function () {
+            const url = this.value;
+            if (url) {
+                document.getElementById('specialPreviewImg').src = url.startsWith('http') ? url : getUploadUrl(url);
+                document.getElementById('specialImagePreview').classList.remove('hidden');
+            } else {
+                document.getElementById('specialImagePreview').classList.add('hidden');
+            }
+        });
+
+        // File input preview
+        document.getElementById('specialImageFile').addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                document.getElementById('specialFileName').textContent = file.name;
+                document.getElementById('specialFileDropzone').classList.add('border-orange-500', 'bg-orange-50');
+                // Preview
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('specialPreviewImg').src = e.target.result;
+                    document.getElementById('specialImagePreview').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+                // Clear URL input
+                document.getElementById('specialImageUrl').value = '';
+            }
+        });
+    </script>
+</body>
+
+</html>
