@@ -12,17 +12,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-// Database connection
-$servername = "localhost";
-$db_username = "root";
-$db_password = "";
-$dbname = "ayamkings_db";
-
-$conn = new mysqli($servername, $db_username, $db_password, $dbname);
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'message' => 'DB Connection failed']);
-    exit();
-}
+// Database connection (using centralized config)
+require_once __DIR__ . '/db_config.php';
+$conn = getDbConnection();
 
 $response = ['success' => false, 'message' => 'Unknown error'];
 $method = $_SERVER['REQUEST_METHOD'];
