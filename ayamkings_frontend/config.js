@@ -12,9 +12,9 @@ const isLocalDev = window.location.port === '5500' || window.location.port === '
 const isXAMPP = window.location.port === '80' || window.location.pathname.includes('Coding%20PSM');
 
 // ==========================================
-// 🔴 IMPORTANT: Update this URL after deploying backend
+// 🔴 PRODUCTION BACKEND URL (InfinityFree)
 // ==========================================
-const PRODUCTION_BACKEND_URL = 'https://YOUR_BACKEND_URL_HERE'; // ← Update ini bila backend dah deploy
+const PRODUCTION_BACKEND_URL = 'https://ayamkings.kesug.com';
 
 const CONFIG = {
     // API Backend URL - auto-detect environment
