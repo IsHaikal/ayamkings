@@ -14,12 +14,13 @@ $is_production = (getenv('ENVIRONMENT') === 'production') ||
 
 if ($is_production) {
     // ==========================================
-    // PRODUCTION DATABASE (InfinityFree/Railway)
+    // PRODUCTION DATABASE (InfinityFree)
     // ==========================================
-    define('DB_HOST', getenv('DB_HOST') ?: 'YOUR_PRODUCTION_HOST');
-    define('DB_USERNAME', getenv('DB_USERNAME') ?: 'YOUR_PRODUCTION_USERNAME');
-    define('DB_PASSWORD', getenv('DB_PASSWORD') ?: 'YOUR_PRODUCTION_PASSWORD');
-    define('DB_NAME', getenv('DB_NAME') ?: 'YOUR_PRODUCTION_DATABASE');
+    // 🔴 IMPORTANT: Replace 'YOUR_VPANEL_PASSWORD' with your InfinityFree vPanel password
+    define('DB_HOST', 'sql301.infinityfree.com');
+    define('DB_USERNAME', 'if0_40806298');
+    define('DB_PASSWORD', 'YOUR_VPANEL_PASSWORD');  // ← TUKAR NI dengan password vPanel anda
+    define('DB_NAME', 'if0_40806298_ayamkings_db');
 } else {
     // ==========================================
     // LOCAL DEVELOPMENT (XAMPP)

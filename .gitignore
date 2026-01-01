@@ -40,6 +40,7 @@ yarn-debug.log*
 # Database Config (SENSITIVE)
 # =========================
 ayamkings_backend/db_config.php
+ayamkings_backend/db_config_production.php
 yarn-error.log*
 
 # =========================
