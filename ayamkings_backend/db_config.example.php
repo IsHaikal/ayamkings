@@ -1,26 +1,21 @@
 <?php
 // ==========================================
-// AyamKings Database Configuration TEMPLATE
+// AyamKings Database Configuration
 // ==========================================
-// 📋 INSTRUCTIONS:
-// 1. Copy this file and rename to: db_config.php
-// 2. Update the credentials below with your actual values
-// 3. db_config.php is in .gitignore so your credentials stay safe
-// ==========================================
+// COPY this file to db_config.php and update credentials
 
-// Environment Detection
-$is_production = (getenv('ENVIRONMENT') === 'production') || 
-                  (isset($_SERVER['HTTP_HOST']) && !str_contains($_SERVER['HTTP_HOST'], 'localhost'));
+// Docker/EC2 environment detection
+$is_docker = getenv('ENVIRONMENT') === 'production' || 
+             getenv('MYSQL_HOST') !== false;
 
-if ($is_production) {
+if ($is_docker) {
     // ==========================================
-    // PRODUCTION DATABASE (InfinityFree)
+    // DOCKER/PRODUCTION DATABASE
     // ==========================================
-    // 🔴 IMPORTANT: Replace 'YOUR_VPANEL_PASSWORD' with your InfinityFree vPanel password
-    define('DB_HOST', 'sql301.infinityfree.com');
-    define('DB_USERNAME', 'if0_40806298');
-    define('DB_PASSWORD', 'YOUR_VPANEL_PASSWORD');  // ← TUKAR NI dengan password vPanel anda
-    define('DB_NAME', 'if0_40806298_ayamkings_db');
+    define('DB_HOST', 'mysql');  // Docker service name
+    define('DB_USERNAME', 'ayamkings_user');
+    define('DB_PASSWORD', 'ayamkings_password');
+    define('DB_NAME', 'ayamkings_db');
 } else {
     // ==========================================
     // LOCAL DEVELOPMENT (XAMPP)
@@ -39,7 +34,7 @@ function getDbConnection() {
         http_response_code(500);
         die(json_encode([
             'success' => false, 
-            'message' => 'Database connection failed'
+            'message' => 'Database connection failed: ' . $conn->connect_error
         ]));
     }
     
