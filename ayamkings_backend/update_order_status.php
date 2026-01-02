@@ -73,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
         $conn->close();
 
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         http_response_code(500);
         $response['message'] = 'Server Error: ' . $e->getMessage();
     }
