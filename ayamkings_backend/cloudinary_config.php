@@ -4,7 +4,7 @@
 // ==========================================
 // Store these as environment variables in production!
 
-define('CLOUDINARY_CLOUD_NAME', 'Root');
+define('CLOUDINARY_CLOUD_NAME', 'dacdibj8e');
 define('CLOUDINARY_API_KEY', '624615619382876');
 define('CLOUDINARY_API_SECRET', '8bfk4eIIaZPZLB7peJj-01df_3k');
 define('CLOUDINARY_UPLOAD_PRESET', 'ayamkings'); // Optional, for unsigned uploads
