@@ -1,7 +1,6 @@
 <?php
-// upload_image.php (NEW FILE: Handles image file uploads)
+// upload_image.php - Uploads images to Cloudinary
 
-// Ensure we always return JSON
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
@@ -20,6 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $response = ['success' => false, 'message' => 'An error occurred during upload.'];
 
+// Include Cloudinary config
+require_once __DIR__ . '/cloudinary_config.php';
+
 // Check if file was uploaded without errors
 if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
     $fileTmpPath = $_FILES['image_file']['tmp_name'];
@@ -29,34 +31,40 @@ if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ER
     $fileNameCmps = explode(".", $fileName);
     $fileExtension = strtolower(end($fileNameCmps));
 
-    $allowedfileExtensions = array('jpg', 'jpeg', 'gif', 'png');
+    $allowedfileExtensions = array('jpg', 'jpeg', 'gif', 'png', 'webp');
 
     if (in_array($fileExtension, $allowedfileExtensions)) {
-        // Directory to save the uploaded image
-        // IMPORTANT: Adjust this path if your 'uploads' folder is elsewhere relative to the backend.
-        // This path is relative to the PHP script's location.
-        $uploadFileDir = '../ayamkings_frontend/uploads/';
-        // Ensure the directory exists
-        if (!is_dir($uploadFileDir)) {
-            mkdir($uploadFileDir, 0777, true); // Create directory if it doesn't exist, recursively
-        }
-
-        $newFileName = md5(time() . $fileName) . '.' . $fileExtension; // Generate unique file name
-        $destPath = $uploadFileDir . $newFileName;
-
-        if (move_uploaded_file($fileTmpPath, $destPath)) {
-            // Return the public URL of the image
-            // IMPORTANT: This URL needs to be accessible by the browser.
-            // It's relative to the web server's root, which typically means /Coding%20PSM/ayamkings_frontend/uploads/
-            $publicImageUrl = 'http://localhost/Coding%20PSM/ayamkings_frontend/uploads/' . $newFileName;
+        // Generate unique public ID
+        $publicId = 'menu_' . md5(time() . $fileName);
+        
+        // Upload to Cloudinary
+        $uploadResult = uploadToCloudinary($fileTmpPath, $publicId);
+        
+        if ($uploadResult['success']) {
             $response['success'] = true;
-            $response['message'] = 'Image uploaded successfully!';
-            $response['image_url'] = $publicImageUrl;
+            $response['message'] = 'Image uploaded successfully to Cloudinary!';
+            $response['image_url'] = $uploadResult['url'];
+            $response['public_id'] = $uploadResult['public_id'];
         } else {
-            $response['message'] = 'There was an error moving the uploaded file. Check directory permissions.';
+            // Fallback: Try local upload if Cloudinary fails
+            $uploadFileDir = '../ayamkings_frontend/uploads/';
+            if (!is_dir($uploadFileDir)) {
+                mkdir($uploadFileDir, 0777, true);
+            }
+            
+            $newFileName = md5(time() . $fileName) . '.' . $fileExtension;
+            $destPath = $uploadFileDir . $newFileName;
+            
+            if (move_uploaded_file($fileTmpPath, $destPath)) {
+                $response['success'] = true;
+                $response['message'] = 'Image uploaded locally (Cloudinary unavailable).';
+                $response['image_url'] = 'uploads/' . $newFileName;
+            } else {
+                $response['message'] = 'Cloudinary error: ' . $uploadResult['error'] . '. Local fallback also failed.';
+            }
         }
     } else {
-        $response['message'] = 'Invalid file type. Only JPG, JPEG, GIF, and PNG files are allowed.';
+        $response['message'] = 'Invalid file type. Only JPG, JPEG, GIF, PNG, and WEBP files are allowed.';
     }
 } else {
     $response['message'] = 'No file uploaded or upload error: ' . ($_FILES['image_file']['error'] ?? 'Unknown error.');
