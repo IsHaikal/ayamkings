@@ -44,7 +44,7 @@ const CONFIG = {
     UPLOADS_URL: isInfinityFree
         ? window.location.origin + '/ayamkings_frontend/uploads'  // InfinityFree
         : isVercel
-            ? PRODUCTION_BACKEND_URL + '/uploads'
+            ? window.location.origin + '/uploads'  // Vercel: uploads in frontend
             : isLocalDev
                 ? 'http://localhost:5500/uploads'
                 : window.location.origin + '/Coding%20PSM/ayamkings_frontend/uploads'
