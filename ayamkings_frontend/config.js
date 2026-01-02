@@ -15,8 +15,11 @@ const isXAMPP = window.location.port === '80' || window.location.pathname.includ
 // ==========================================
 // 🔴 PRODUCTION BACKEND URL
 // ==========================================
-// InfinityFree: Same domain, no CORS issues!
-const PRODUCTION_BACKEND_URL = 'https://ayamkings.kesug.com/ayamkings_backend';
+// Uses environment variable (set in Vercel dashboard)
+// Format: __BACKEND_URL__ will be replaced during Vercel build
+const PRODUCTION_BACKEND_URL = '__BACKEND_URL__' !== '__BACKEND_' + 'URL__'
+    ? '__BACKEND_URL__'
+    : 'https://ayamkings-production.up.railway.app'; // Fallback for local dev
 
 const CONFIG = {
     // API Backend URL - auto-detect environment
