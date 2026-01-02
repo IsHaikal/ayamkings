@@ -37,9 +37,8 @@ npm-debug.log*
 yarn-debug.log*
 
 # =========================
-# Database Config (SENSITIVE)
+# Database Config (Production secrets are in env vars)
 # =========================
-ayamkings_backend/db_config.php
 ayamkings_backend/db_config_production.php
 yarn-error.log*
 
