@@ -831,6 +831,7 @@
 
         form.onsubmit = async (e) => {
             e.preventDefault();
+            const formData = new FormData(form);
 
             // Validate Price
             const priceVal = parseFloat(formData.get('price'));
@@ -841,7 +842,7 @@
 
             showMessage('Saving...', false);
 
-            const formData = new FormData(form);
+
             const imageFile = document.getElementById('itemImageFile').files[0];
             let imageUrl = document.getElementById('itemImageUrl').value;
 

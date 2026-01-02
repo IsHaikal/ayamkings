@@ -28,18 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Database connection
-    $servername = "localhost";
-    $db_username = "root";
-    $db_password = "";
-    $dbname = "ayamkings_db";
-
-    $conn = new mysqli($servername, $db_username, $db_password, $dbname);
-
-    if ($conn->connect_error) {
-        $response['message'] = 'Database connection failed: ' . $conn->connect_error;
-        echo json_encode($response);
-        exit();
-    }
+    require_once __DIR__ . '/db_config.php';
+    $conn = getDbConnection();
 
     // Check if the user has already reviewed this item
     $check_stmt = $conn->prepare("SELECT id FROM reviews WHERE menu_item_id = ? AND user_id = ?");

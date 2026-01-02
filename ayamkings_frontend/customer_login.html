@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -180,7 +182,8 @@
 
             <!-- Forgot Password Link -->
             <div class="text-right">
-                <a href="#" class="text-sm text-amber-600 hover:text-amber-700 font-medium transition-colors">Forgot
+                <a href="forgot_password.html"
+                    class="text-sm text-amber-600 hover:text-amber-700 font-medium transition-colors">Forgot
                     password?</a>
             </div>
 
@@ -232,16 +235,88 @@
             }
         }
 
-        // Google Login Handler (Dummy - will implement later)
+        // Google Login Handler
         function handleGoogleLogin() {
-            showMessage("Google Login will be available soon!", false);
-            // TODO: Implement Google OAuth when ready
-            // 1. Load Google Identity Services library
-            // 2. Initialize with Client ID
-            // 3. Handle credential response
-            // 4. Verify token on backend
-            // 5. Create/login user
+            // Initialize Google Identity Services
+            google.accounts.id.initialize({
+                client_id: CONFIG.GOOGLE_CLIENT_ID,
+                callback: handleGoogleCredentialResponse
+            });
+
+            // Prompt One Tap or show button
+            google.accounts.id.prompt((notification) => {
+                if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+                    // Fallback: render the button
+                    showMessage('Opening Google Sign-In...', false);
+                    google.accounts.id.renderButton(
+                        document.createElement('div'),
+                        { theme: 'outline', size: 'large' }
+                    );
+                    // Trigger popup
+                    google.accounts.oauth2.initCodeClient({
+                        client_id: CONFIG.GOOGLE_CLIENT_ID,
+                        scope: 'email profile',
+                        ux_mode: 'popup',
+                        callback: (response) => {
+                            console.log('OAuth response:', response);
+                        }
+                    }).requestCode();
+                }
+            });
         }
+
+        // Handle Google credential response
+        async function handleGoogleCredentialResponse(response) {
+            try {
+                showMessage('Signing in with Google...', false);
+
+                const res = await fetch(getApiUrl('google_login.php'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ credential: response.credential })
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    if (data.user.role === 'customer') {
+                        showMessage(data.message || 'Google login successful!');
+                        localStorage.setItem('userToken', data.token);
+                        localStorage.setItem('userRole', data.user.role);
+                        localStorage.setItem('userFullName', data.user.full_name);
+                        localStorage.setItem('userEmail', data.user.email);
+                        localStorage.setItem('userId', data.user.id);
+
+                        startSession();
+
+                        setTimeout(() => {
+                            window.location.href = 'customer_menu.html';
+                        }, 1000);
+                    } else {
+                        showMessage('Access Denied: Please use Staff/Admin Login.', true);
+                        localStorage.clear();
+                    }
+                } else {
+                    showMessage(data.message || 'Google login failed.', true);
+                }
+            } catch (error) {
+                console.error('Google login error:', error);
+                showMessage('An error occurred during Google login.', true);
+            }
+        }
+
+        // Initialize Google Sign-In on page load
+        window.onload = function () {
+            if (typeof google !== 'undefined' && google.accounts) {
+                google.accounts.id.initialize({
+                    client_id: CONFIG.GOOGLE_CLIENT_ID,
+                    callback: handleGoogleCredentialResponse,
+                    auto_select: false
+                });
+            }
+        };
 
         // Function to display messages
         function showMessage(message, isError = false) {

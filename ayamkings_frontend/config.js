@@ -47,7 +47,10 @@ const CONFIG = {
             ? window.location.origin + '/uploads'  // Vercel: uploads in frontend
             : isLocalDev
                 ? 'http://localhost:5500/uploads'
-                : window.location.origin + '/Coding%20PSM/ayamkings_frontend/uploads'
+                : window.location.origin + '/Coding%20PSM/ayamkings_frontend/uploads',
+
+    // Google OAuth Client ID
+    GOOGLE_CLIENT_ID: '1042340132840-h57gfmo8acij39okurfc07lqkpr8q5mc.apps.googleusercontent.com'
 };
 
 // Helper function to get API endpoint
