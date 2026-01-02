@@ -3,6 +3,9 @@ FROM php:8.2-apache
 # Install PHP extensions for MySQL
 RUN docker-php-ext-install mysqli pdo pdo_mysql
 
+# Fix Apache MPM conflict - disable event, enable prefork
+RUN a2dismod mpm_event && a2enmod mpm_prefork
+
 # Enable Apache mod_rewrite and headers
 RUN a2enmod rewrite headers
 
