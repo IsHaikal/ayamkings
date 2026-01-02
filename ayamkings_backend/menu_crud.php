@@ -39,9 +39,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $image_url = $data['image_url'] ?? 'https://placehold.co/100x100/FFD700/8B4513?text=Item';
         error_log("[DEBUG POST] Name: '$name', Desc: '$description', Price: '$price', Category: '$category', Image_URL: '$image_url'");
 
-        if (empty($name) || empty($price) || empty($category)) {
+        if (empty($name) || !is_numeric($price) || empty($category)) {
             $response['message'] = 'Name, price, and category are required.';
             error_log("[ERROR POST] Missing required fields.");
+            echo json_encode($response);
+            exit();
+        }
+
+        if ($price < 0) {
+            $response['message'] = 'Price cannot be negative.';
             echo json_encode($response);
             exit();
         }

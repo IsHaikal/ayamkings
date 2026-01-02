@@ -35,6 +35,11 @@ if ($action === 'list') {
         exit();
     }
 
+    if ($value < 0) {
+        echo json_encode(['success' => false, 'message' => 'Discount value cannot be negative.']);
+        exit();
+    }
+
     $stmt = $conn->prepare("INSERT INTO coupons (code, discount_type, discount_value) VALUES (?, ?, ?)");
     $stmt->bind_param("ssd", $code, $type, $value);
     

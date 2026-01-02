@@ -831,6 +831,14 @@
 
         form.onsubmit = async (e) => {
             e.preventDefault();
+
+            // Validate Price
+            const priceVal = parseFloat(formData.get('price'));
+            if (priceVal < 0) {
+                showMessage('Price cannot be negative!', true);
+                return;
+            }
+
             showMessage('Saving...', false);
 
             const formData = new FormData(form);
@@ -1227,6 +1235,13 @@
         document.getElementById('specialForm').addEventListener('submit', async function (e) {
             e.preventDefault();
             const id = document.getElementById('specialId').value;
+            const priceVal = parseFloat(document.getElementById('specialPrice').value);
+
+            if (priceVal < 0) {
+                showMessage('Price cannot be negative!', true);
+                return;
+            }
+
             let imageUrl = document.getElementById('specialImageUrl').value;
 
             // Check if file was selected - upload first

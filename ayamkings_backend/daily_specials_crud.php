@@ -54,8 +54,10 @@ elseif ($method === 'POST') {
     $end_date = $data['end_date'] ?? '';
     $created_by = $data['created_by'] ?? null;
     
-    if (empty($name) || empty($price) || empty($end_date)) {
+    if (empty($name) || !is_numeric($price) || empty($end_date)) {
         $response['message'] = 'Name, price, and end date are required.';
+    } elseif ($price < 0) {
+        $response['message'] = 'Price cannot be negative.';
     } else {
         $stmt = $conn->prepare("INSERT INTO daily_specials (name, description, price, image_url, end_date, created_by) VALUES (?, ?, ?, ?, ?, ?)");
         $stmt->bind_param("ssdssi", $name, $description, $price, $image_url, $end_date, $created_by);
@@ -83,6 +85,8 @@ elseif ($method === 'PUT') {
     
     if (empty($id)) {
         $response['message'] = 'Special ID is required.';
+    } elseif ($price < 0) {
+        $response['message'] = 'Price cannot be negative.';
     } else {
         $stmt = $conn->prepare("UPDATE daily_specials SET name=?, description=?, price=?, image_url=?, end_date=?, is_active=? WHERE id=?");
         $stmt->bind_param("ssdssii", $name, $description, $price, $image_url, $end_date, $is_active, $id);
