@@ -2,7 +2,7 @@
 // update_order_status.php (NEW FILE: Handles updating order status)
 
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: PUT, OPTIONS");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');
 
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $response = ['success' => false, 'message' => 'An unknown error occurred.'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents('php://input'), true);
 
     $order_id = $data['order_id'] ?? null;

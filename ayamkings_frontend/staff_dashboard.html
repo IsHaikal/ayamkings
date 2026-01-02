@@ -828,7 +828,7 @@
         async function updateOrderStatus(orderId, newStatus) {
             try {
                 const response = await fetch(getApiUrl('update_order_status.php'), {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
