@@ -2,20 +2,22 @@
 // ==========================================
 // AyamKings Database Configuration
 // ==========================================
-// COPY this file to db_config.php and update credentials
+// COPY this file to db_config.php
 
-// Docker/EC2 environment detection
-$is_docker = getenv('ENVIRONMENT') === 'production' || 
-             getenv('MYSQL_HOST') !== false;
+// Railway/Docker environment detection
+$is_production = getenv('MYSQLHOST') !== false || 
+                 getenv('ENVIRONMENT') === 'production';
 
-if ($is_docker) {
+if ($is_production) {
     // ==========================================
-    // DOCKER/PRODUCTION DATABASE
+    // RAILWAY/PRODUCTION DATABASE
     // ==========================================
-    define('DB_HOST', 'mysql');  // Docker service name
-    define('DB_USERNAME', 'ayamkings_user');
-    define('DB_PASSWORD', 'ayamkings_password');
-    define('DB_NAME', 'ayamkings_db');
+    // Railway auto-injects these environment variables
+    define('DB_HOST', getenv('MYSQLHOST') ?: 'mysql');
+    define('DB_USERNAME', getenv('MYSQLUSER') ?: 'root');
+    define('DB_PASSWORD', getenv('MYSQLPASSWORD') ?: '');
+    define('DB_NAME', getenv('MYSQLDATABASE') ?: 'railway');
+    define('DB_PORT', getenv('MYSQLPORT') ?: '3306');
 } else {
     // ==========================================
     // LOCAL DEVELOPMENT (XAMPP)
@@ -24,11 +26,12 @@ if ($is_docker) {
     define('DB_USERNAME', 'root');
     define('DB_PASSWORD', '');
     define('DB_NAME', 'ayamkings_db');
+    define('DB_PORT', '3306');
 }
 
 // Database Connection Function
 function getDbConnection() {
-    $conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME);
+    $conn = new mysqli(DB_HOST, DB_USERNAME, DB_PASSWORD, DB_NAME, DB_PORT);
     
     if ($conn->connect_error) {
         http_response_code(500);
