@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Validate status
-        $allowed_statuses = ['Pending', 'Preparing', 'Ready for Pickup', 'Finished', 'Cancelled'];
+        $allowed_statuses = ['Pending', 'Preparing', 'Ready', 'Finished', 'Cancelled'];
         if (!in_array($status, $allowed_statuses)) {
              throw new Exception('Invalid status value provided: ' . $status);
         }

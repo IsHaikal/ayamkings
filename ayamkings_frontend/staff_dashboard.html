@@ -715,7 +715,7 @@
         // Function to display completed orders (Preparing, Ready for Pickup, Finished)
         function displayCompletedOrders() {
             const completedTableBody = document.getElementById('completedOrdersTableBody');
-            const completedStatuses = ['preparing', 'ready for pickup', 'finished'];
+            const completedStatuses = ['preparing', 'ready', 'finished'];
             const completedOrders = allOrders.filter(o => completedStatuses.includes(o.status.toLowerCase()));
 
             completedTableBody.innerHTML = '';
@@ -743,8 +743,8 @@
 
                 if (s === 'preparing') {
                     badgeClass = 'bg-blue-50 text-blue-600 border border-blue-100';
-                    actionBtn = `<button onclick="updateOrderStatus(${order.id}, 'Ready for Pickup')" class="text-xs font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-200 transition-colors">Ready</button>`;
-                } else if (s === 'ready for pickup') {
+                    actionBtn = `<button onclick="updateOrderStatus(${order.id}, 'Ready')" class="text-xs font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-200 transition-colors">Ready</button>`;
+                } else if (s === 'ready') {
                     badgeClass = 'bg-indigo-50 text-indigo-600 border border-indigo-100';
                     actionBtn = `<button onclick="updateOrderStatus(${order.id}, 'Finished')" class="text-xs font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-1.5 rounded-lg border border-emerald-200 transition-colors">Complete</button>`;
                 } else if (s === 'finished') {
@@ -797,7 +797,7 @@
 
         // Function to update all order count badges
         function updateAllBadges() {
-            const completedStatuses = ['preparing', 'ready for pickup', 'finished'];
+            const completedStatuses = ['preparing', 'ready', 'finished'];
             const completedCount = allOrders.filter(o => completedStatuses.includes(o.status.toLowerCase())).length;
             const rejectedCount = allOrders.filter(o => o.status.toLowerCase() === 'cancelled').length;
 
@@ -847,7 +847,7 @@
                         message = `✅ Order #${orderId} accepted! Moved to Completed Orders.`;
                     } else if (newStatus === 'Cancelled') {
                         message = `❌ Order #${orderId} rejected! Moved to Rejected Orders.`;
-                    } else if (newStatus === 'Ready for Pickup') {
+                    } else if (newStatus === 'Ready') {
                         message = `📦 Order #${orderId} is ready for pickup!`;
                     } else if (newStatus === 'Finished') {
                         message = `🎉 Order #${orderId} completed!`;
