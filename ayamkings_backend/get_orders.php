@@ -13,20 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $response = ['success' => false, 'message' => 'An unknown error occurred.', 'orders' => []];
 
-// Database connection details
-$servername = "localhost";
-$db_username = "root";
-$db_password = "";
-$dbname = "ayamkings_db";
-
-$conn = new mysqli($servername, $db_username, $db_password, $dbname);
-
-// Check database connection *first*
-if ($conn->connect_error) {
-    $response['message'] = 'Database connection failed: ' . $conn->connect_error;
-    echo json_encode($response);
-    exit(); // Stop execution here if connection fails
-}
+// Database connection (using centralized config)
+require_once __DIR__ . '/db_config.php';
+$conn = getDbConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // This SQL query specifically uses 'o.total_amount' and 'o.items_json'
