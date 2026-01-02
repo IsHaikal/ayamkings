@@ -14,19 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $response = ['success' => false, 'message' => 'An unknown error occurred.', 'users' => []];
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Database connection
-    $servername = "localhost";
-    $db_username = "root";
-    $db_password = "";
-    $dbname = "ayamkings_db";
-
-    $conn = new mysqli($servername, $db_username, $db_password, $dbname);
-
-    if ($conn->connect_error) {
-        $response['message'] = 'Database connection failed: ' . $conn->connect_error;
-        echo json_encode($response);
-        exit();
-    }
+    // Database connection (using centralized config)
+    require_once __DIR__ . '/db_config.php';
+    $conn = getDbConnection();
 
     // Fetch all users. For security, in a production app, you might want to
     // Fetch all users, sorted by role: admin -> staff -> customer
