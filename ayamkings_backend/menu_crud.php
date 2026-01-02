@@ -21,19 +21,9 @@ $response = ['success' => false, 'message' => 'An unknown error occurred.'];
 error_log("[DEBUG] menu_crud.php received a " . $_SERVER['REQUEST_METHOD'] . " request.");
 
 // Database connection
-$servername = "localhost";
-$db_username = "root";
-$db_password = "";
-$dbname = "ayamkings_db";
-
-$conn = new mysqli($servername, $db_username, $db_password, $dbname);
-
-if ($conn->connect_error) {
-    $response['message'] = 'Database connection failed: ' . $conn->connect_error;
-    error_log("[ERROR] Database connection failed: " . $conn->connect_error);
-    echo json_encode($response);
-    exit();
-}
+// Database connection
+require_once __DIR__ . '/db_config.php';
+$conn = getDbConnection();
 
 // Get JSON data for POST and PUT requests
 $data = json_decode(file_get_contents('php://input'), true);

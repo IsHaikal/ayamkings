@@ -13,17 +13,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $input = json_decode(file_get_contents('php://input'), true);
 $action = $_GET['action'] ?? $input['action'] ?? '';
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "ayamkings_db";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'message' => 'Database connection failed.']);
-    exit();
-}
+require_once __DIR__ . '/db_config.php';
+$conn = getDbConnection();
 
 if ($action === 'list') {
     $sql = "SELECT * FROM coupons ORDER BY created_at DESC";

@@ -14,18 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $response = ['success' => false, 'message' => 'An unknown error occurred.'];
 
 // Database connection details
-$servername = "localhost";
-$db_username = "root";
-$db_password = "";
-$dbname = "ayamkings_db";
-
-$conn = new mysqli($servername, $db_username, $db_password, $dbname);
-
-if ($conn->connect_error) {
-    $response['message'] = 'Database connection failed: ' . $conn->connect_error;
-    echo json_encode($response);
-    exit();
-}
+// Database connection details
+require_once __DIR__ . '/db_config.php';
+$conn = getDbConnection();
 
 $method = $_SERVER['REQUEST_METHOD'];
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0; // Get ID from query string for PUT/DELETE
