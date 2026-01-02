@@ -100,7 +100,7 @@ const SESSION_TIMEOUT_MS = 1 * 60 * 60 * 1000; // 1 Hour
 // Initialize or Reset Session Timer
 function startSession() {
     localStorage.setItem('lastActivity', Date.now());
-    console.log("Session started/refreshed at: " + new Date().toLocaleTimeString());
+    // Session activity updated silently
 }
 
 // Check if Session is Expired
@@ -128,7 +128,7 @@ function checkSession() {
                 window.location.reload();
             }
         } else {
-            // Valid session - verify if we need to set lastActivity for first time
+            // Valid session - refresh activity timestamp silently
         }
     } else {
         // Token exists but no activity record? Start now.
@@ -136,10 +136,17 @@ function checkSession() {
     }
 }
 
-// Global Activity Listener to Reset Timer
+// Throttle timer to prevent spam
+let lastResetTime = 0;
+const THROTTLE_MS = 30000; // Only update every 30 seconds max
+
+// Global Activity Listener to Reset Timer (throttled)
 function resetSessionTimer() {
-    if (localStorage.getItem('userToken')) {
-        startSession(); // Update timestamp
+    const now = Date.now();
+    if (localStorage.getItem('userToken') && (now - lastResetTime > THROTTLE_MS)) {
+        localStorage.setItem('lastActivity', now);
+        lastResetTime = now;
+        // Removed console.log spam
     }
 }
 
