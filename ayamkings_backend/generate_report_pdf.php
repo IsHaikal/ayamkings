@@ -9,13 +9,8 @@ $start_date = $_GET['start_date'] ?? date('Y-m-01');
 $end_date = $_GET['end_date'] ?? date('Y-m-d');
 
 // Database Connection
-$servername = "localhost";
-$db_username = "root";
-$db_password = "";
-$dbname = "ayamkings_db";
-$conn = new mysqli($servername, $db_username, $db_password, $dbname);
-
-if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); }
+require_once __DIR__ . '/db_config.php';
+$conn = getDbConnection();
 
 // Fetch Data
 $sql = "SELECT 

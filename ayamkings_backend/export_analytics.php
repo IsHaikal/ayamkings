@@ -10,17 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Database connection
-$servername = "localhost";
-$db_username = "root";
-$db_password = "";
-$dbname = "ayamkings_db";
-
-$conn = new mysqli($servername, $db_username, $db_password, $dbname);
+require_once __DIR__ . '/db_config.php';
+$conn = getDbConnection();
 $conn->set_charset("utf8mb4");
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
 // Set Headers for CSV Download
 $start_date = $_GET['start_date'] ?? date('Y-m-01');
