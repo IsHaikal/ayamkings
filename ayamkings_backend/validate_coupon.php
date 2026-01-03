@@ -18,17 +18,9 @@ if (!isset($input['code'])) {
 
 $code = $input['code'];
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "ayamkings_db";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'message' => 'Database connection failed.']);
-    exit();
-}
+// Database connection
+require_once __DIR__ . '/db_config.php';
+$conn = getDbConnection();
 
 // Check coupon availability
 $stmt = $conn->prepare("SELECT * FROM coupons WHERE code = ? AND is_active = 1");
