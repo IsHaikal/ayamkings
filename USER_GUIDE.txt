@@ -1,0 +1,301 @@
+================================================================================
+                    AYAMKINGS FOOD ORDERING SYSTEM
+                         USER GUIDELINE MANUAL
+================================================================================
+
+TABLE OF CONTENTS
+-----------------
+1. Introduction
+2. System Access
+3. Customer Guide
+4. Staff Guide
+5. Admin Guide
+6. Troubleshooting
+7. Contact Support
+
+================================================================================
+1. INTRODUCTION
+================================================================================
+
+AyamKings is a comprehensive food ordering system designed for restaurant 
+operations. The system supports three user roles:
+
+  - CUSTOMER  : Order food, view menu, write reviews
+  - STAFF     : Manage incoming orders, update order status
+  - ADMIN     : Full system control including menu, users, and analytics
+
+================================================================================
+2. SYSTEM ACCESS
+================================================================================
+
+LIVE WEBSITE:
+  Frontend  : https://ayamkings.vercel.app
+  
+LOGIN PAGES:
+  Customer  : https://ayamkings.vercel.app/customer_login.html
+  Staff     : https://ayamkings.vercel.app/staff_login.html
+  Admin     : https://ayamkings.vercel.app/staff_login.html (use admin account)
+
+REGISTRATION:
+  Customer  : https://ayamkings.vercel.app/customer_register.html
+  Staff     : https://ayamkings.vercel.app/staff_register.html
+
+================================================================================
+3. CUSTOMER GUIDE
+================================================================================
+
+3.1 REGISTRATION & LOGIN
+------------------------
+  a) Go to Customer Login page
+  b) Click "Create Account" to register OR
+  c) Click "Continue with Google" for quick login
+  d) Fill in: Full Name, Email, Phone, Password
+  e) Accept Terms & Conditions, then click "Create Account"
+
+3.2 BROWSING MENU
+-----------------
+  a) After login, you will be redirected to Menu page
+  b) Browse items by scrolling or use category filters:
+     - All
+     - Chicken
+     - Drinks
+     - Sides
+  c) Use search bar to find specific items
+  d) Each item shows: Image, Name, Price, Rating
+
+3.3 ADDING TO CART
+------------------
+  a) Click on any menu item to view details
+  b) Select quantity using +/- buttons
+  c) Click "Add to Cart" button
+  d) Cart icon at top-right shows item count
+  e) Click cart icon to view/edit cart
+
+3.4 PLACING ORDER
+-----------------
+  a) Click on Cart icon
+  b) Review items and quantities
+  c) Apply coupon code if available (optional)
+  d) Click "Checkout" button
+  e) Confirm order details
+  f) Click "Place Order"
+  g) Order confirmation will be displayed
+
+3.5 VIEWING ORDER HISTORY
+-------------------------
+  a) Click on Profile/Account icon
+  b) Select "Order History"
+  c) View all past orders with status:
+     - Pending    : Order received, waiting for staff
+     - Cooking    : Order being prepared
+     - Ready      : Order ready for pickup
+     - Completed  : Order finished
+     - Rejected   : Order was cancelled
+
+3.6 WRITING REVIEWS
+-------------------
+  a) Go to Menu page
+  b) Click on any item you've ordered before
+  c) Scroll down to "Reviews" section
+  d) Click "Write Review" button
+  e) Select star rating (1-5)
+  f) Write your comment (optional)
+  g) Click "Submit Review"
+
+3.7 FORGOT PASSWORD
+-------------------
+  a) Go to Customer Login page
+  b) Click "Forgot password?" link
+  c) Enter your registered email
+  d) Click "Send Reset Link"
+  e) Click the reset button that appears
+  f) Enter and confirm new password
+  g) Login with new password
+
+================================================================================
+4. STAFF GUIDE
+================================================================================
+
+4.1 LOGIN
+---------
+  a) Go to Staff Login page
+  b) Enter your staff email and password
+  c) Click "Sign In"
+
+4.2 VIEWING ORDERS
+------------------
+  a) Dashboard shows three sections:
+     - ACTIVE ORDERS    : New pending orders
+     - COMPLETED ORDERS : Accepted orders being prepared
+     - REJECTED ORDERS  : Cancelled orders
+  
+4.3 MANAGING ORDERS
+-------------------
+  FOR NEW ORDERS:
+    a) View order details (items, quantity, customer name)
+    b) Click "Accept" to start preparing
+    c) Click "Reject" to cancel order (provide reason)
+
+  FOR ACCEPTED ORDERS:
+    a) Prepare the food items
+    b) When ready, click "Ready for Pickup" button
+    c) Order moves to completed status
+
+4.4 DAILY SPECIALS
+------------------
+  a) View today's special menu items
+  b) These items are highlighted on customer menu
+
+================================================================================
+5. ADMIN GUIDE
+================================================================================
+
+5.1 LOGIN
+---------
+  a) Go to Staff Login page
+  b) Enter admin credentials
+  c) You will be redirected to Admin Dashboard
+
+5.2 DASHBOARD OVERVIEW
+----------------------
+  The admin dashboard contains:
+    - Statistics Cards (Total Orders, Revenue, Customers, Menu Items)
+    - Quick Access Tabs:
+      * Menu Management
+      * Daily Specials
+      * User Management
+      * Coupon Management
+      * Order History
+      * Analytics/Reports
+
+5.3 MENU MANAGEMENT
+-------------------
+  ADDING NEW ITEM:
+    a) Click "Menu Management" tab
+    b) Click "Add New Item" button
+    c) Fill in:
+       - Item Name
+       - Category (Chicken/Drinks/Sides)
+       - Description
+       - Price (must be positive number)
+       - Keywords (comma-separated)
+       - Upload Image
+    d) Click "Save"
+
+  EDITING ITEM:
+    a) Find item in the list
+    b) Click "Edit" button
+    c) Modify details
+    d) Click "Update"
+
+  DELETING ITEM:
+    a) Find item in the list
+    b) Click "Delete" button
+    c) Confirm deletion
+
+5.4 DAILY SPECIALS
+------------------
+  a) Click "Daily Specials" tab
+  b) Add special offers with discounted prices
+  c) Set validity period
+  d) These appear highlighted on customer menu
+
+5.5 USER MANAGEMENT
+-------------------
+  a) Click "User Management" tab
+  b) View all registered users
+  c) Filter by role (Customer/Staff/Admin)
+  d) Edit user details or change roles
+  e) Delete inactive accounts
+
+5.6 COUPON MANAGEMENT
+---------------------
+  CREATING COUPON:
+    a) Click "Coupon Management" tab
+    b) Click "Add Coupon"
+    c) Enter:
+       - Coupon Code (e.g., SAVE10)
+       - Discount Type (Percentage/Fixed)
+       - Discount Value
+       - Minimum Order (optional)
+       - Expiry Date
+    d) Click "Save"
+
+  MANAGING COUPONS:
+    a) View all active coupons
+    b) Edit or delete as needed
+    c) Monitor usage statistics
+
+5.7 ORDER HISTORY
+-----------------
+  a) Click "Order History" tab
+  b) View all orders with filters:
+     - Date range
+     - Status
+     - Customer
+  c) Export orders to Excel/PDF
+
+5.8 ANALYTICS & REPORTS
+-----------------------
+  a) View sales charts and graphs
+  b) Top selling items report
+  c) Revenue by period
+  d) Customer statistics
+  e) Export reports for documentation
+
+================================================================================
+6. TROUBLESHOOTING
+================================================================================
+
+PROBLEM: Cannot login
+SOLUTION:
+  - Check email and password are correct
+  - Use "Forgot Password" to reset
+  - Clear browser cache and cookies
+  - Try different browser
+
+PROBLEM: Google login not working
+SOLUTION:
+  - Click "Continue with Google"
+  - A popup will appear with Google button
+  - Click the Google button in popup
+  - Allow popup windows in browser settings
+
+PROBLEM: Menu items not loading
+SOLUTION:
+  - Refresh the page
+  - Check internet connection
+  - Wait 30 seconds and try again
+
+PROBLEM: Order not submitting
+SOLUTION:
+  - Ensure cart is not empty
+  - Check all required fields
+  - Try refreshing and re-adding items
+
+PROBLEM: Reviews not showing
+SOLUTION:
+  - Refresh the menu page
+  - Reviews load when clicking item detail
+
+PROBLEM: Images not uploading
+SOLUTION:
+  - Use JPG, PNG, or WEBP format
+  - Maximum file size: 5MB
+  - Try smaller image
+
+================================================================================
+7. CONTACT SUPPORT
+================================================================================
+
+For technical issues or inquiries:
+
+  Email    : support@ayamkings.com
+  Phone    : +60 12-345 6789
+  
+  Developer: Muhammad Haikal
+  Project  : Final Year Project (PSM)
+
+================================================================================
+                         END OF USER GUIDELINE
+================================================================================
