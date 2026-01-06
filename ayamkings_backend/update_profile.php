@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once 'db_config.php';
+$conn = getDbConnection();
 
 $input = json_decode(file_get_contents('php://input'), true);
 
