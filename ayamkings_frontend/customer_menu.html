@@ -311,7 +311,7 @@
             }
         }
 
-        /* ===== MOBILE LIST VIEW ===== */
+        /* ===== MOBILE LIST VIEW - IMAGE LEFT 30%, DETAILS RIGHT 70% ===== */
         @media (max-width: 640px) {
 
             /* Transform grid to single column list */
@@ -319,129 +319,201 @@
                 display: flex !important;
                 flex-direction: column !important;
                 gap: 12px !important;
+                padding: 0 8px !important;
+            }
+
+            /* Hide desktop card view on mobile */
+            .desktop-card-view {
+                display: none !important;
+            }
+
+            /* Show mobile list view */
+            .mobile-list-item {
+                display: flex !important;
             }
 
             /* List-style card layout */
             .menu-item-card {
                 flex-direction: row !important;
-                padding: 12px !important;
+                padding: 0 !important;
                 border-radius: 16px !important;
                 min-height: auto !important;
                 height: auto !important;
+                overflow: hidden !important;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
             }
 
-            /* Hide the large image container, show mobile image instead */
-            .menu-item-card>.relative.h-48 {
-                display: none !important;
-            }
-
-            /* Mobile card inner wrapper */
-            .menu-item-card>.p-5 {
-                padding: 0 !important;
-                flex-direction: row !important;
-                align-items: center !important;
-                width: 100% !important;
-            }
-
-            /* Hide category badge on mobile list for cleaner look */
-            .menu-item-card .uppercase.tracking-wider {
-                display: none !important;
-            }
-
-            /* Mobile description - hide for cleaner list */
-            .menu-item-card .line-clamp-2 {
-                display: none !important;
-            }
-
-            /* Mobile price styling */
-            .menu-item-card .text-2xl {
-                font-size: 1rem !important;
+            .menu-item-card:hover {
+                transform: none !important;
             }
         }
 
-        /* Mobile list item image (we'll add this via JS) */
+        /* Desktop: show grid, hide mobile list */
+        @media (min-width: 641px) {
+            .mobile-list-item {
+                display: none !important;
+            }
+
+            .desktop-card-view {
+                display: block !important;
+            }
+        }
+
+        /* Mobile List Item - Main Container */
+        .mobile-list-item {
+            display: none;
+            width: 100%;
+            align-items: stretch;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        /* Mobile Image - LEFT 30% */
         .mobile-item-img {
-            width: 72px;
-            height: 72px;
-            min-width: 72px;
-            border-radius: 12px;
+            width: 30%;
+            min-width: 100px;
+            max-width: 120px;
+            height: 100%;
+            min-height: 110px;
             object-fit: cover;
-            margin-right: 12px;
             flex-shrink: 0;
         }
 
-        /* Mobile content wrapper */
-        .mobile-content {
+        /* Mobile Details - RIGHT 70% */
+        .mobile-details {
             flex: 1;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: space-between;
             min-width: 0;
         }
 
-        .mobile-content h3 {
-            font-size: 14px !important;
-            margin-bottom: 2px !important;
-            white-space: nowrap;
+        .mobile-details .item-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
             overflow: hidden;
-            text-overflow: ellipsis;
         }
 
-        .mobile-content .mobile-price {
-            font-size: 15px !important;
-            font-weight: 700;
+        .mobile-details .item-desc {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .mobile-details .item-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .mobile-details .item-rating {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        .mobile-details .item-rating i {
+            color: #f59e0b;
+            font-size: 10px;
+        }
+
+        .mobile-details .item-category {
+            font-size: 10px;
+            font-weight: 600;
+            color: #9ca3af;
+            background: #f3f4f6;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        /* Mobile Bottom Row - Price & Button */
+        .mobile-bottom {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .mobile-price {
+            font-size: 18px;
+            font-weight: 800;
+            color: #1f2937;
+        }
+
+        .mobile-price span {
             color: #d97706;
         }
 
-        .mobile-content .mobile-rating {
-            font-size: 11px;
-            color: #9ca3af;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            margin-top: 2px;
-        }
-
-        /* Mobile add button */
+        /* Mobile Add Button */
         .mobile-add-btn {
-            width: 40px;
-            height: 40px;
-            min-width: 40px;
-            border-radius: 50%;
-            background: #1f2937;
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-left: 8px;
-            flex-shrink: 0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);
         }
 
-        .mobile-add-btn:hover,
         .mobile-add-btn:active {
-            background: #f59e0b;
+            transform: scale(0.95);
         }
 
-        /* Mobile quantity control - compact version */
+        /* Mobile Quantity Control */
         .mobile-qty-control {
             display: flex;
             align-items: center;
             background: #1f2937;
             border-radius: 10px;
             padding: 3px;
-            margin-left: 8px;
-            flex-shrink: 0;
+            gap: 2px;
         }
 
         .mobile-qty-control .qty-btn {
-            width: 32px;
-            height: 32px;
+            width: 28px;
+            height: 28px;
             font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .mobile-qty-control .qty-btn:active {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .mobile-qty-control .qty-display {
-            width: 28px;
-            font-size: 14px;
+            width: 24px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: white;
         }
     </style>
 </head>
@@ -1867,20 +1939,26 @@
                 }
 
                 menuItemDiv.innerHTML = `
-                    <!-- Mobile List View (shown only on mobile via CSS) -->
-                    <div class="mobile-list-item sm:hidden flex items-center w-full">
-                        <div class="mobile-content">
-                            <h3 class="font-bold text-gray-800">${item.name}</h3>
-                            <span class="mobile-price">RM ${displayedPrice}</span>
-                            <div class="mobile-rating">
-                                <i class="fas fa-star text-amber-400"></i>
-                                <span>${averageRating}</span>
-                                <span class="text-gray-300">•</span>
-                                <span>${reviewCount} reviews</span>
+                    <!-- Mobile List View - IMAGE LEFT 30%, DETAILS RIGHT 70% -->
+                    <div class="mobile-list-item">
+                        <img src="${getUploadUrl(item.image_url)}" alt="${item.name}" class="mobile-item-img">
+                        <div class="mobile-details">
+                            <div>
+                                <div class="item-meta">
+                                    <span class="item-category">${item.category}</span>
+                                    <div class="item-rating">
+                                        <i class="fas fa-star"></i>
+                                        <span>${averageRating}</span>
+                                    </div>
+                                </div>
+                                <h3 class="item-name">${item.name}</h3>
+                                <p class="item-desc">${item.description || ''}</p>
+                            </div>
+                            <div class="mobile-bottom">
+                                <span class="mobile-price">RM <span>${displayedPrice}</span></span>
+                                ${mobileButtonHtml}
                             </div>
                         </div>
-                        <img src="${getUploadUrl(item.image_url)}" alt="${item.name}" class="mobile-item-img">
-                        ${mobileButtonHtml}
                     </div>
 
                     <!-- Desktop Grid View (hidden on mobile via CSS) -->
