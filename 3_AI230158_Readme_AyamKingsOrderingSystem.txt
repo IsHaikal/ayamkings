@@ -285,13 +285,8 @@ SOLUTION:
   - Try smaller image
 
 ================================================================================
-7. CONTACT SUPPORT
+7. Conclusion
 ================================================================================
-
-For technical issues or inquiries:
-
-  Email    : support@ayamkings.com
-  Phone    : +60 12-345 6789
   
   Developer: Muhammad Haikal
   Project  : Final Year Project (PSM)
