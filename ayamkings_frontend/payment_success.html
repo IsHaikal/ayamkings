@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Success - Ayam Kings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fbbf24 100%);
+            min-height: 100vh;
+        }
+
+        .success-icon {
+            animation: bounce 1s ease-in-out;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-20px);
+            }
+
+            60% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f59e0b;
+            animation: confetti-fall 3s ease-in-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body class="flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 text-center">
+        <!-- Success Icon -->
+        <div class="success-icon mb-6">
+            <div
+                class="w-24 h-24 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
+                <i class="fas fa-check text-white text-4xl"></i>
+            </div>
+        </div>
+
+        <!-- Title -->
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-2">Payment Successful!</h1>
+        <p class="text-gray-500 mb-6">Thank you for your order</p>
+
+        <!-- Order Details -->
+        <div id="orderDetails" class="bg-gray-50 rounded-2xl p-6 mb-6 text-left">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-gray-500 text-sm">Order ID</span>
+                <span id="orderId" class="font-bold text-gray-800">#---</span>
+            </div>
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-gray-500 text-sm">Bill Code</span>
+                <span id="billCode" class="font-bold text-gray-800">---</span>
+            </div>
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-gray-500 text-sm">Status</span>
+                <span id="paymentStatus"
+                    class="px-3 py-1 bg-emerald-100 text-emerald-600 font-bold rounded-full text-xs uppercase">Paid</span>
+            </div>
+        </div>
+
+        <!-- Message -->
+        <div class="bg-amber-50 border border-amber-100 rounded-xl p-4 mb-6">
+            <p class="text-amber-700 text-sm">
+                <i class="fas fa-info-circle mr-2"></i>
+                Your order is being prepared. You will be notified when it's ready!
+            </p>
+        </div>
+
+        <!-- Actions -->
+        <div class="space-y-3">
+            <a href="customer_menu.html"
+                class="block w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-4 rounded-xl hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg">
+                <i class="fas fa-utensils mr-2"></i>Back to Menu
+            </a>
+            <a href="customer_profile.html"
+                class="block w-full bg-gray-100 text-gray-700 font-bold py-4 rounded-xl hover:bg-gray-200 transition-all">
+                <i class="fas fa-history mr-2"></i>View Order History
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-gray-400 text-xs mt-6">
+            <i class="fas fa-crown text-amber-500 mr-1"></i>
+            Ayam Kings - Premium Quality
+        </p>
+    </div>
+
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const statusId = urlParams.get('status_id');
+        const billCode = urlParams.get('billcode');
+        const orderId = urlParams.get('order_id');
+
+        // Update display
+        if (billCode) {
+            document.getElementById('billCode').textContent = billCode;
+        }
+        if (orderId) {
+            document.getElementById('orderId').textContent = '#' + orderId.replace('AK', '');
+        }
+
+        // Check payment status
+        if (statusId === '1') {
+            document.getElementById('paymentStatus').textContent = 'PAID';
+            document.getElementById('paymentStatus').className = 'px-3 py-1 bg-emerald-100 text-emerald-600 font-bold rounded-full text-xs uppercase';
+        } else if (statusId === '2') {
+            document.getElementById('paymentStatus').textContent = 'PENDING';
+            document.getElementById('paymentStatus').className = 'px-3 py-1 bg-yellow-100 text-yellow-600 font-bold rounded-full text-xs uppercase';
+        } else if (statusId === '3') {
+            document.getElementById('paymentStatus').textContent = 'FAILED';
+            document.getElementById('paymentStatus').className = 'px-3 py-1 bg-red-100 text-red-600 font-bold rounded-full text-xs uppercase';
+        }
+
+        // Create confetti effect
+        function createConfetti() {
+            const colors = ['#f59e0b', '#10b981', '#ef4444', '#3b82f6', '#8b5cf6'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 50);
+            }
+        }
+
+        // Show confetti on successful payment
+        if (statusId === '1' || !statusId) {
+            createConfetti();
+        }
+
+        // Clear cart after successful payment
+        localStorage.removeItem('cart');
+    </script>
+</body>
+
+</html>
