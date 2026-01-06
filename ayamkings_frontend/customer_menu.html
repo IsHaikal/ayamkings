@@ -310,6 +310,139 @@
                 transform: translateY(-10px);
             }
         }
+
+        /* ===== MOBILE LIST VIEW ===== */
+        @media (max-width: 640px) {
+
+            /* Transform grid to single column list */
+            #menu-items-grid {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+
+            /* List-style card layout */
+            .menu-item-card {
+                flex-direction: row !important;
+                padding: 12px !important;
+                border-radius: 16px !important;
+                min-height: auto !important;
+                height: auto !important;
+            }
+
+            /* Hide the large image container, show mobile image instead */
+            .menu-item-card>.relative.h-48 {
+                display: none !important;
+            }
+
+            /* Mobile card inner wrapper */
+            .menu-item-card>.p-5 {
+                padding: 0 !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                width: 100% !important;
+            }
+
+            /* Hide category badge on mobile list for cleaner look */
+            .menu-item-card .uppercase.tracking-wider {
+                display: none !important;
+            }
+
+            /* Mobile description - hide for cleaner list */
+            .menu-item-card .line-clamp-2 {
+                display: none !important;
+            }
+
+            /* Mobile price styling */
+            .menu-item-card .text-2xl {
+                font-size: 1rem !important;
+            }
+        }
+
+        /* Mobile list item image (we'll add this via JS) */
+        .mobile-item-img {
+            width: 72px;
+            height: 72px;
+            min-width: 72px;
+            border-radius: 12px;
+            object-fit: cover;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Mobile content wrapper */
+        .mobile-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-width: 0;
+        }
+
+        .mobile-content h3 {
+            font-size: 14px !important;
+            margin-bottom: 2px !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mobile-content .mobile-price {
+            font-size: 15px !important;
+            font-weight: 700;
+            color: #d97706;
+        }
+
+        .mobile-content .mobile-rating {
+            font-size: 11px;
+            color: #9ca3af;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        /* Mobile add button */
+        .mobile-add-btn {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            border-radius: 50%;
+            background: #1f2937;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        .mobile-add-btn:hover,
+        .mobile-add-btn:active {
+            background: #f59e0b;
+        }
+
+        /* Mobile quantity control - compact version */
+        .mobile-qty-control {
+            display: flex;
+            align-items: center;
+            background: #1f2937;
+            border-radius: 10px;
+            padding: 3px;
+            margin-left: 8px;
+            flex-shrink: 0;
+        }
+
+        .mobile-qty-control .qty-btn {
+            width: 32px;
+            height: 32px;
+            font-size: 14px;
+        }
+
+        .mobile-qty-control .qty-display {
+            width: 28px;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -1714,26 +1847,64 @@
                     `;
                 }
 
-                menuItemDiv.innerHTML = `
-                    <div class="relative h-48 w-full overflow-hidden rounded-t-3xl">
-                        <img src="${getUploadUrl(item.image_url)}" alt="${item.name}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
-                        <div class="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/20 backdrop-blur-md rounded-lg border border-white/20">
-                            <i class="fas fa-star text-amber-400 text-xs shadow-sm"></i>
-                            <span class="text-white text-xs font-bold shadow-sm">${averageRating}</span>
+                // Mobile button (smaller)
+                let mobileButtonHtml = '';
+                if (quantity > 0) {
+                    mobileButtonHtml = `
+                        <div class="mobile-qty-control" onclick="event.stopPropagation()">
+                            <div class="qty-btn bg-gray-700 hover:bg-gray-600" onclick="updateItemQuantityFromCard('${item.id}', -1)">-</div>
+                            <div class="qty-display">${quantity}</div>
+                            <div class="qty-btn bg-gray-700 hover:bg-gray-600" onclick="updateItemQuantityFromCard('${item.id}', 1)">+</div>
                         </div>
+                    `;
+                } else {
+                    mobileButtonHtml = `
+                        <button class="mobile-add-btn" 
+                            onclick="event.stopPropagation(); addToCart({ id: '${item.id}', name: '${item.name.replace(/'/g, "\\'")}', price: ${item.price}, quantity: 1, image_url: '${item.image_url}' })">
+                            <i class="fas fa-plus text-sm"></i>
+                        </button>
+                    `;
+                }
+
+                menuItemDiv.innerHTML = `
+                    <!-- Mobile List View (shown only on mobile via CSS) -->
+                    <div class="mobile-list-item sm:hidden flex items-center w-full">
+                        <div class="mobile-content">
+                            <h3 class="font-bold text-gray-800">${item.name}</h3>
+                            <span class="mobile-price">RM ${displayedPrice}</span>
+                            <div class="mobile-rating">
+                                <i class="fas fa-star text-amber-400"></i>
+                                <span>${averageRating}</span>
+                                <span class="text-gray-300">•</span>
+                                <span>${reviewCount} reviews</span>
+                            </div>
+                        </div>
+                        <img src="${getUploadUrl(item.image_url)}" alt="${item.name}" class="mobile-item-img">
+                        ${mobileButtonHtml}
                     </div>
-                    
-                    <div class="p-5 flex-1 flex flex-col">
-                        <div class="mb-4">
-                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 mb-2">${item.category}</span>
-                            <h3 class="text-lg font-bold text-gray-800 leading-tight mb-1 group-hover:text-amber-600 transition-colors">${item.name}</h3>
-                            <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${item.description}</p>
+
+                    <!-- Desktop Grid View (hidden on mobile via CSS) -->
+                    <div class="desktop-card-view hidden sm:block">
+                        <div class="relative h-48 w-full overflow-hidden rounded-t-3xl">
+                            <img src="${getUploadUrl(item.image_url)}" alt="${item.name}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
+                            <div class="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/20 backdrop-blur-md rounded-lg border border-white/20">
+                                <i class="fas fa-star text-amber-400 text-xs shadow-sm"></i>
+                                <span class="text-white text-xs font-bold shadow-sm">${averageRating}</span>
+                            </div>
                         </div>
                         
-                        <div class="mt-auto flex justify-between items-end">
-                            <span class="text-2xl font-bold text-gray-900 tracking-tight">RM <span class="text-amber-600">${displayedPrice}</span></span>
-                            ${buttonHtml}
+                        <div class="p-5 flex-1 flex flex-col">
+                            <div class="mb-4">
+                                <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-100 text-gray-500 mb-2">${item.category}</span>
+                                <h3 class="text-lg font-bold text-gray-800 leading-tight mb-1 group-hover:text-amber-600 transition-colors">${item.name}</h3>
+                                <p class="text-xs text-gray-500 line-clamp-2 leading-relaxed">${item.description}</p>
+                            </div>
+                            
+                            <div class="mt-auto flex justify-between items-end">
+                                <span class="text-2xl font-bold text-gray-900 tracking-tight">RM <span class="text-amber-600">${displayedPrice}</span></span>
+                                ${buttonHtml}
+                            </div>
                         </div>
                     </div>
                 `;
@@ -1865,7 +2036,7 @@
             // Populate detail modal
             detailItemImage.src = getUploadUrl(item.image_url);
             detailItemName.textContent = item.name;
-            detailItemPrice.textContent = `RM ${parseFloat(item.price).toFixed(2)}`;
+            detailItemPrice.textContent = `RM ${parseFloat(item.price).toFixed(2)} `;
             detailItemCategory.textContent = item.category;
             detailItemDescription.textContent = item.description;
 
@@ -1888,7 +2059,7 @@
 
             try {
                 // IMPORTANT: This uses get_reviews.php
-                const response = await fetch(getApiUrl(`get_reviews.php?menu_item_id=${itemId}`));
+                const response = await fetch(getApiUrl(`get_reviews.php ? menu_item_id = ${itemId} `));
                 const data = await response.json();
 
                 if (data.success && data.reviews.length > 0) {
@@ -1897,7 +2068,7 @@
                         const reviewDiv = document.createElement('div');
                         reviewDiv.className = 'bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100';
                         reviewDiv.innerHTML = `
-                            <div class="flex justify-between items-center mb-2">
+                    < div class="flex justify-between items-center mb-2" >
                                 <span class="font-semibold text-gray-800">${review.reviewer_name || 'Anonymous'}</span>
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm text-gray-500">${new Date(review.review_date).toLocaleDateString()}</span>
@@ -1908,12 +2079,12 @@
                                         </button>
                                     ` : ''}
                                 </div>
-                            </div>
+                            </div >
                             <div class="text-yellow-500 text-lg mb-2">
                                 ${getStarHTML(review.rating)}
                             </div>
                             <p class="text-gray-700">${review.comment || 'No comment provided.'}</p>
-                        `;
+                `;
                         itemReviewsList.appendChild(reviewDiv);
                     });
                     // After reviews are displayed, update the overall average rating and count on the detail modal
@@ -1943,7 +2114,7 @@
             editingMenuItemId = menuItemId;
 
             // Set the star rating (radio buttons)
-            const starInput = document.getElementById(`star${rating}`);
+            const starInput = document.getElementById(`star${rating} `);
             if (starInput) {
                 starInput.checked = true;
             }
@@ -2178,17 +2349,17 @@
 
         async function fetchOrderHistory() {
             try {
-                const response = await fetch(getApiUrl(`get_order_history.php?user_id=${currentUserId}`));
+                const response = await fetch(getApiUrl(`get_order_history.php ? user_id = ${currentUserId} `));
                 const data = await response.json();
 
                 if (data.success) {
                     displayOrderHistory(data.orders);
                 } else {
-                    orderHistoryList.innerHTML = `<p class="text-center text-red-500 py-8">${data.message || 'Failed to load history.'}</p>`;
+                    orderHistoryList.innerHTML = `< p class="text-center text-red-500 py-8" > ${data.message || 'Failed to load history.'}</p > `;
                 }
             } catch (error) {
                 console.error('Error fetching history:', error);
-                orderHistoryList.innerHTML = `<p class="text-center text-red-500 py-8">An error occurred.</p>`;
+                orderHistoryList.innerHTML = `< p class="text-center text-red-500 py-8" > An error occurred.</p > `;
             }
         }
 
@@ -2197,12 +2368,12 @@
 
             if (orders.length === 0) {
                 orderHistoryList.innerHTML = `
-                     <div class="flex flex-col items-center justify-center h-64 text-gray-400">
+                    < div class="flex flex-col items-center justify-center h-64 text-gray-400" >
                         <i class="fas fa-history text-4xl mb-4 text-gray-200"></i>
                         <p class="font-medium text-lg">No past orders</p>
                         <p class="text-sm">Time to order something delicious!</p>
-                    </div>
-                `;
+                    </div >
+                    `;
                 return;
             }
 
@@ -2247,11 +2418,11 @@
                 if (items.length > 0) {
                     items.forEach(item => {
                         itemsHtml += `
-                            <div class="flex justify-between items-center text-sm py-1 border-b border-gray-50 last:border-0">
+                    < div class="flex justify-between items-center text-sm py-1 border-b border-gray-50 last:border-0" >
                                 <span class="text-gray-700"><span class="font-bold text-gray-900">${item.quantity}x</span> ${item.name}</span>
                                 <span class="text-gray-500 font-mono text-xs">RM ${(item.price * item.quantity).toFixed(2)}</span>
-                            </div>
-                        `;
+                            </div >
+                    `;
                     });
                 } else {
                     itemsHtml = '<p class="text-xs text-gray-400 italic">Items info unavailable</p>';
@@ -2260,7 +2431,7 @@
                 const orderCard = document.createElement('div');
                 orderCard.className = 'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4 transition-all hover:shadow-md';
                 orderCard.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
+                    < div class="flex justify-between items-start mb-4" >
                         <div class="flex items-center gap-3">
                             <div class="bg-gray-50 p-2 rounded-lg text-xs font-bold font-mono text-gray-500">
                                 #${order.id}
@@ -2274,7 +2445,7 @@
                             ${statusIcon}
                             <span>${statusText}</span>
                         </div>
-                    </div>
+                    </div >
 
                     <div class="bg-gray-50/50 rounded-xl p-3 mb-4">
                         ${itemsHtml}
