@@ -2736,11 +2736,11 @@
 
             if (orders.length === 0) {
                 orderHistoryList.innerHTML = `
-                    < div class="flex flex-col items-center justify-center h-64 text-gray-400" >
+                    <div class="flex flex-col items-center justify-center h-64 text-gray-400">
                         <i class="fas fa-history text-4xl mb-4 text-gray-200"></i>
                         <p class="font-medium text-lg">No past orders</p>
                         <p class="text-sm">Time to order something delicious!</p>
-                    </div >
+                    </div>
                     `;
                 return;
             }
@@ -2786,10 +2786,10 @@
                 if (items.length > 0) {
                     items.forEach(item => {
                         itemsHtml += `
-                    < div class="flex justify-between items-center text-sm py-1 border-b border-gray-50 last:border-0" >
+                    <div class="flex justify-between items-center text-sm py-1 border-b border-gray-50 last:border-0">
                                 <span class="text-gray-700"><span class="font-bold text-gray-900">${item.quantity}x</span> ${item.name}</span>
                                 <span class="text-gray-500 font-mono text-xs">RM ${(item.price * item.quantity).toFixed(2)}</span>
-                            </div >
+                            </div>
                     `;
                     });
                 } else {
@@ -2799,7 +2799,7 @@
                 const orderCard = document.createElement('div');
                 orderCard.className = 'bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-4 transition-all hover:shadow-md';
                 orderCard.innerHTML = `
-                    < div class="flex justify-between items-start mb-4" >
+                    <div class="flex justify-between items-start mb-4">
                         <div class="flex items-center gap-3">
                             <div class="bg-gray-50 p-2 rounded-lg text-xs font-bold font-mono text-gray-500">
                                 #${order.id}
@@ -2813,7 +2813,7 @@
                             ${statusIcon}
                             <span>${statusText}</span>
                         </div>
-                    </div >
+                    </div>
 
                     <div class="bg-gray-50/50 rounded-xl p-3 mb-4">
                         ${itemsHtml}
