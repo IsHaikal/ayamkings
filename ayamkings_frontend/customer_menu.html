@@ -2717,17 +2717,17 @@
 
         async function fetchOrderHistory() {
             try {
-                const response = await fetch(getApiUrl(`get_order_history.php ? user_id = ${currentUserId} `));
+                const response = await fetch(getApiUrl(`get_order_history.php?user_id=${currentUserId}`));
                 const data = await response.json();
 
                 if (data.success) {
                     displayOrderHistory(data.orders);
                 } else {
-                    orderHistoryList.innerHTML = `< p class="text-center text-red-500 py-8" > ${data.message || 'Failed to load history.'}</p > `;
+                    orderHistoryList.innerHTML = `<p class="text-center text-red-500 py-8">${data.message || 'Failed to load history.'}</p>`;
                 }
             } catch (error) {
                 console.error('Error fetching history:', error);
-                orderHistoryList.innerHTML = `< p class="text-center text-red-500 py-8" > An error occurred.</p > `;
+                orderHistoryList.innerHTML = `<p class="text-center text-red-500 py-8">An error occurred.</p>`;
             }
         }
 
