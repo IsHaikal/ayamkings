@@ -515,6 +515,76 @@
             font-weight: 700;
             color: white;
         }
+
+        /* ===== ITEM DETAIL MODAL - MOBILE RESPONSIVE FONTS ===== */
+        @media (max-width: 640px) {
+
+            /* Modal container - smaller padding */
+            .modal-content {
+                padding: 16px !important;
+                max-height: 90vh !important;
+            }
+
+            /* Item name - smaller on mobile */
+            #detailItemName {
+                font-size: 20px !important;
+                line-height: 1.2 !important;
+            }
+
+            /* Item price - smaller on mobile */
+            #detailItemPrice {
+                font-size: 22px !important;
+            }
+
+            /* Description - smaller on mobile */
+            #detailItemDescription {
+                font-size: 13px !important;
+                line-height: 1.5 !important;
+            }
+
+            /* Category badge */
+            #detailItemCategory {
+                font-size: 10px !important;
+                padding: 4px 10px !important;
+            }
+
+            /* Rating display */
+            #detailAverageRatingDisplay {
+                font-size: 14px !important;
+            }
+
+            #detailReviewCount {
+                font-size: 11px !important;
+            }
+
+            /* Modal image - smaller height */
+            #detailItemImage {
+                max-height: 200px !important;
+            }
+
+            /* Review items */
+            .review-item {
+                padding: 12px !important;
+            }
+
+            .review-item h4 {
+                font-size: 13px !important;
+            }
+
+            .review-item p {
+                font-size: 12px !important;
+            }
+
+            /* Add to cart button in modal */
+            .modal-content .qty-control {
+                transform: scale(0.9);
+            }
+
+            /* Modal title/headers */
+            .modal-content h3 {
+                font-size: 16px !important;
+            }
+        }
     </style>
 </head>
 
