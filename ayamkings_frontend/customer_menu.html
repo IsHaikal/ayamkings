@@ -585,6 +585,129 @@
                 font-size: 16px !important;
             }
         }
+
+        /* ===== FLOATING CATEGORY BUTTON FOR MOBILE ===== */
+        .floating-category-btn {
+            display: none;
+            position: fixed;
+            bottom: 90px;
+            left: 16px;
+            z-index: 1000;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .floating-category-btn:active {
+            transform: scale(0.95);
+        }
+
+        .floating-category-btn i {
+            font-size: 20px;
+        }
+
+        /* Mobile Category Dropdown */
+        .mobile-category-dropdown {
+            display: none;
+            position: fixed;
+            bottom: 150px;
+            left: 16px;
+            z-index: 999;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            padding: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            min-width: 180px;
+            animation: slideUp 0.3s ease;
+        }
+
+        .mobile-category-dropdown.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mobile-category-dropdown button {
+            width: 100%;
+            text-align: left;
+            padding: 12px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .mobile-category-dropdown button:hover,
+        .mobile-category-dropdown button.active {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .mobile-category-dropdown button i {
+            width: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .mobile-category-dropdown button.active i {
+            color: #d97706;
+        }
+
+        /* Backdrop for mobile dropdown */
+        .category-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 998;
+        }
+
+        .category-backdrop.active {
+            display: block;
+        }
+
+        /* Show floating button only on mobile */
+        @media (max-width: 1023px) {
+            .floating-category-btn {
+                display: flex;
+            }
+
+            /* Hide sidebar on mobile */
+            aside {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 
@@ -763,6 +886,23 @@
             </div>
         </main>
     </div>
+
+    <!-- Floating Category Button (Mobile Only) -->
+    <button class="floating-category-btn" id="floatingCategoryBtn" onclick="toggleMobileCategories()">
+        <i class="fas fa-filter"></i>
+    </button>
+
+    <!-- Mobile Category Dropdown -->
+    <div class="mobile-category-dropdown" id="mobileCategoryDropdown">
+        <button onclick="selectMobileCategory('All')" class="active" data-category="All">
+            <i class="fas fa-utensils"></i>
+            All Items
+        </button>
+        <!-- Dynamic categories added by JS -->
+    </div>
+
+    <!-- Backdrop for closing dropdown -->
+    <div class="category-backdrop" id="categoryBackdrop" onclick="closeMobileCategories()"></div>
 
     <!-- Cart Modal -->
     <div id="cartModal" class="modal">
@@ -2085,6 +2225,9 @@
             const categoriesSet = new Set(items.map(item => item.category));
             const categoryFilterContainer = document.getElementById('categoryFilter');
 
+            // Also populate mobile categories
+            populateMobileCategories(items);
+
             // Predefined order
             const order = ['Set', 'Chicken', 'Drinks', 'Add-on'];
 
@@ -2153,6 +2296,83 @@
             const currentCategory = activeCategoryButton ? activeCategoryButton.dataset.category : 'All';
             filterMenuItems(currentCategory);
         });
+
+        // --- Mobile Floating Category Button Functions ---
+        function toggleMobileCategories() {
+            const dropdown = document.getElementById('mobileCategoryDropdown');
+            const backdrop = document.getElementById('categoryBackdrop');
+            dropdown.classList.toggle('active');
+            backdrop.classList.toggle('active');
+        }
+
+        function closeMobileCategories() {
+            const dropdown = document.getElementById('mobileCategoryDropdown');
+            const backdrop = document.getElementById('categoryBackdrop');
+            dropdown.classList.remove('active');
+            backdrop.classList.remove('active');
+        }
+
+        function selectMobileCategory(category) {
+            // Filter menu items
+            filterMenuItems(category);
+
+            // Update active state in mobile dropdown
+            const dropdown = document.getElementById('mobileCategoryDropdown');
+            dropdown.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.category === category) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Also update desktop sidebar active state
+            const categoryFilterContainer = document.getElementById('categoryFilter');
+            categoryFilterContainer.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('active-category', 'bg-gray-100');
+                if (btn.dataset.category === category) {
+                    btn.classList.add('active-category', 'bg-gray-100');
+                }
+            });
+
+            // Close dropdown
+            closeMobileCategories();
+        }
+
+        function populateMobileCategories(items) {
+            const categoriesSet = new Set(items.map(item => item.category));
+            const dropdown = document.getElementById('mobileCategoryDropdown');
+
+            // Clear existing except "All Items"
+            dropdown.querySelectorAll('button:not([data-category="All"])').forEach(btn => btn.remove());
+
+            // Icon mapping for categories
+            const iconMap = {
+                'Set': 'fa-box',
+                'Chicken': 'fa-drumstick-bite',
+                'Drinks': 'fa-glass-water',
+                'Add-on': 'fa-plus-circle'
+            };
+
+            // Predefined order
+            const order = ['Set', 'Chicken', 'Drinks', 'Add-on'];
+            const categories = Array.from(categoriesSet).sort((a, b) => {
+                const indexA = order.indexOf(a);
+                const indexB = order.indexOf(b);
+                if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                if (indexA !== -1) return -1;
+                if (indexB !== -1) return 1;
+                return a.localeCompare(b);
+            });
+
+            categories.forEach(category => {
+                const btn = document.createElement('button');
+                btn.dataset.category = category;
+                btn.onclick = () => selectMobileCategory(category);
+                const icon = iconMap[category] || 'fa-tag';
+                btn.innerHTML = `<i class="fas ${icon}"></i> ${category}`;
+                dropdown.appendChild(btn);
+            });
+        }
 
 
         // --- Menu Item Detail Modal Logic (NEW) ---
