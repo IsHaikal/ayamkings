@@ -10,18 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-$servername = "localhost";
-$db_username = "root";
-$db_password = "";
-$dbname = "ayamkings_db";
-
-$conn = new mysqli($servername, $db_username, $db_password, $dbname);
-
-if ($conn->connect_error) {
-    header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $conn->connect_error]);
-    exit();
-}
+// Database connection
+require_once __DIR__ . '/db_config.php';
+$conn = getDbConnection();
 
 // Get format parameter (default to CSV)
 $format = isset($_GET['format']) ? strtolower($_GET['format']) : 'csv';

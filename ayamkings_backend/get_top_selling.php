@@ -15,18 +15,8 @@ $response = ['success' => false, 'message' => 'An unknown error occurred.', 'ite
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // Database connection
-    $servername = "localhost";
-    $db_username = "root";
-    $db_password = "";
-    $dbname = "ayamkings_db";
-
-    $conn = new mysqli($servername, $db_username, $db_password, $dbname);
-
-    if ($conn->connect_error) {
-        $response['message'] = 'Database connection failed: ' . $conn->connect_error;
-        echo json_encode($response);
-        exit();
-    }
+    require_once __DIR__ . '/db_config.php';
+    $conn = getDbConnection();
 
     // Get limit parameter (default 10)
     $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 10;

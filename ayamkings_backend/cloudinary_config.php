@@ -2,12 +2,12 @@
 // ==========================================
 // Cloudinary Configuration
 // ==========================================
-// Store these as environment variables in production!
+// Credentials are loaded from environment variables for security
 
-define('CLOUDINARY_CLOUD_NAME', 'dacdibj8e');
-define('CLOUDINARY_API_KEY', '624615619382876');
-define('CLOUDINARY_API_SECRET', '8bfk4eIIaZPZLB7peJj-01df_3k');
-define('CLOUDINARY_UPLOAD_PRESET', 'ayamkings'); // Optional, for unsigned uploads
+define('CLOUDINARY_CLOUD_NAME', getenv('CLOUDINARY_CLOUD_NAME') ?: 'dacdibj8e');
+define('CLOUDINARY_API_KEY', getenv('CLOUDINARY_API_KEY') ?: '');
+define('CLOUDINARY_API_SECRET', getenv('CLOUDINARY_API_SECRET') ?: '');
+define('CLOUDINARY_UPLOAD_PRESET', getenv('CLOUDINARY_UPLOAD_PRESET') ?: 'ayamkings');
 
 /**
  * Upload image to Cloudinary

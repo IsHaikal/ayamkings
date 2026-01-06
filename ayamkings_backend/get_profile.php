@@ -2,16 +2,9 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json");
 
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "ayamkings_db";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die(json_encode(['success' => false, 'message' => 'Database connection failed']));
-}
+// Database connection
+require_once __DIR__ . '/db_config.php';
+$conn = getDbConnection();
 
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 

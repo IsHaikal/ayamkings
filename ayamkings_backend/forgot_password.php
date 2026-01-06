@@ -17,10 +17,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/db_config.php';
 
-// Email configuration
-$SMTP_EMAIL = 'haikaliskandar735@gmail.com';
-$SMTP_PASSWORD = 'xazk kndz iiny lwdj';
-$FRONTEND_URL = 'https://ayamkings.vercel.app';
+// Email configuration (from environment variables)
+$SMTP_EMAIL = getenv('SMTP_EMAIL') ?: 'haikaliskandar735@gmail.com';
+$SMTP_PASSWORD = getenv('SMTP_PASSWORD') ?: '';
+$FRONTEND_URL = getenv('FRONTEND_URL') ?: 'https://ayamkings.vercel.app';
 
 $response = ['success' => false, 'message' => 'An error occurred.'];
 
