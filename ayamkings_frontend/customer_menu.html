@@ -584,6 +584,28 @@
             .modal-content h3 {
                 font-size: 16px !important;
             }
+
+            /* Order History - Smaller status badges on mobile */
+            #orderHistoryList .rounded-full {
+                font-size: 9px !important;
+                padding: 4px 8px !important;
+                gap: 4px !important;
+            }
+
+            #orderHistoryList .rounded-full i {
+                font-size: 10px !important;
+            }
+
+            /* Order card header - stack vertically on mobile */
+            #orderHistoryList>div>div:first-child {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+
+            /* Order ID and date smaller */
+            #orderHistoryList .font-mono {
+                font-size: 10px !important;
+            }
         }
 
         /* ===== FLOATING CATEGORY BUTTON FOR MOBILE ===== */
