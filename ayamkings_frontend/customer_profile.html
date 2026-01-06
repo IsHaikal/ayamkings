@@ -276,11 +276,11 @@
                 <!-- Dynamic content will be inserted here -->
                 <div id="editFormContent"></div>
 
-                <!-- Current Password (always required) -->
-                <div>
+                <!-- Current Password (only for password change) -->
+                <div id="passwordFieldWrapper" class="hidden">
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Current Password
                         (Required)</label>
-                    <input type="password" id="modalCurrentPassword" required
+                    <input type="password" id="modalCurrentPassword"
                         class="input-glass w-full px-4 py-3 rounded-xl text-gray-900 font-medium"
                         placeholder="Enter your current password">
                 </div>
@@ -361,6 +361,7 @@
                             placeholder="Enter new name" value="${document.getElementById('displayName').textContent}">
                     </div>
                 `;
+                document.getElementById('passwordFieldWrapper').classList.add('hidden');
             } else if (field === 'phone') {
                 title.textContent = 'Edit Phone Number';
                 content.innerHTML = `
@@ -371,6 +372,7 @@
                             placeholder="0123456789" value="${document.getElementById('displayPhone').textContent}">
                     </div>
                 `;
+                document.getElementById('passwordFieldWrapper').classList.add('hidden');
             } else if (field === 'password') {
                 title.textContent = 'Change Password';
                 content.innerHTML = `
@@ -387,6 +389,7 @@
                             placeholder="Re-enter new password">
                     </div>
                 `;
+                document.getElementById('passwordFieldWrapper').classList.remove('hidden');
             }
 
             document.getElementById('modalCurrentPassword').value = '';
@@ -408,7 +411,9 @@
             e.preventDefault();
 
             const currentPassword = document.getElementById('modalCurrentPassword').value;
-            if (!currentPassword) {
+
+            // Only require password for password change
+            if (currentEditField === 'password' && !currentPassword) {
                 showMessage("Please enter your current password.", true);
                 return;
             }

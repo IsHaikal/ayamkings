@@ -9,70 +9,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+require_once 'db_config.php';
+
 $input = json_decode(file_get_contents('php://input'), true);
 
-if (!isset($input['user_id'], $input['current_password'])) {
-    echo json_encode(['success' => false, 'message' => 'Missing required fields.']);
+if (!isset($input['user_id'])) {
+    echo json_encode(['success' => false, 'message' => 'User ID is required.']);
     exit();
 }
 
 $user_id = $input['user_id'];
-$full_name = $input['full_name'];
-$phone = $input['phone'];
-$current_password = $input['current_password'];
+$full_name = isset($input['full_name']) ? $input['full_name'] : null;
+$phone = isset($input['phone']) ? $input['phone'] : null;
+$current_password = isset($input['current_password']) ? $input['current_password'] : null;
 $new_password = isset($input['new_password']) && !empty($input['new_password']) ? $input['new_password'] : null;
 
-// Database Connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "ayamkings_db";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    echo json_encode(['success' => false, 'message' => 'Database connection failed.']);
-    exit();
-}
-
-// 1. Verify Current Password
-$stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if ($result->num_rows === 0) {
-    echo json_encode(['success' => false, 'message' => 'User not found.']);
-    $conn->close();
-    exit();
-}
-
-$user = $result->fetch_assoc();
-if (!password_verify($current_password, $user['password'])) {
-    echo json_encode(['success' => false, 'message' => 'Incorrect current password.']);
-    $conn->close();
-    exit();
-}
-$stmt->close();
-
-// 2. Update Profile
+// If changing password, require current password
 if ($new_password) {
-    // Update Name, Phone AND Password
+    if (!$current_password) {
+        echo json_encode(['success' => false, 'message' => 'Current password is required to change password.']);
+        exit();
+    }
+    
+    // Verify current password
+    $stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        echo json_encode(['success' => false, 'message' => 'User not found.']);
+        $conn->close();
+        exit();
+    }
+    
+    $user = $result->fetch_assoc();
+    if (!password_verify($current_password, $user['password'])) {
+        echo json_encode(['success' => false, 'message' => 'Incorrect current password.']);
+        $conn->close();
+        exit();
+    }
+    $stmt->close();
+    
+    // Update password
     $hashed_new_password = password_hash($new_password, PASSWORD_DEFAULT);
-    $update_stmt = $conn->prepare("UPDATE users SET full_name = ?, phone = ?, password = ? WHERE id = ?");
-    $update_stmt->bind_param("sssi", $full_name, $phone, $hashed_new_password, $user_id);
+    $update_stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+    $update_stmt->bind_param("si", $hashed_new_password, $user_id);
+    
+    if ($update_stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Password updated successfully.']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to update password.']);
+    }
+    $update_stmt->close();
+    
+} else if ($full_name !== null) {
+    // Update name only (no password required)
+    $update_stmt = $conn->prepare("UPDATE users SET full_name = ? WHERE id = ?");
+    $update_stmt->bind_param("si", $full_name, $user_id);
+    
+    if ($update_stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Name updated successfully.']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to update name.']);
+    }
+    $update_stmt->close();
+    
+} else if ($phone !== null) {
+    // Update phone only (no password required)
+    $update_stmt = $conn->prepare("UPDATE users SET phone = ? WHERE id = ?");
+    $update_stmt->bind_param("si", $phone, $user_id);
+    
+    if ($update_stmt->execute()) {
+        echo json_encode(['success' => true, 'message' => 'Phone updated successfully.']);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Failed to update phone.']);
+    }
+    $update_stmt->close();
+    
 } else {
-    // Update Name and Phone ONLY
-    $update_stmt = $conn->prepare("UPDATE users SET full_name = ?, phone = ? WHERE id = ?");
-    $update_stmt->bind_param("ssi", $full_name, $phone, $user_id);
+    echo json_encode(['success' => false, 'message' => 'Nothing to update.']);
 }
 
-if ($update_stmt->execute()) {
-    echo json_encode(['success' => true, 'message' => 'Profile updated successfully.']);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Failed to update profile: ' . $update_stmt->error]);
-}
-
-$update_stmt->close();
 $conn->close();
 ?>
