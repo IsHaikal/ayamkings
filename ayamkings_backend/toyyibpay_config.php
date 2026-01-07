@@ -50,9 +50,9 @@ function createToyyibPayBill($billData) {
         'billReturnUrl' => FRONTEND_URL . '/payment_success.html',
         'billCallbackUrl' => BACKEND_URL . '/toyyibpay_callback.php',
         'billExternalReferenceNo' => $billData['order_id'] ?? uniqid('AK'),
-        'billTo' => $billData['customer_name'] ?? '',
-        'billEmail' => $billData['customer_email'] ?? '',
-        'billPhone' => $billData['customer_phone'] ?? '',
+        'billTo' => $billData['customer_name'] ?? 'Customer',
+        'billEmail' => $billData['customer_email'] ?? 'customer@ayamkings.com',
+        'billPhone' => !empty($billData['customer_phone']) ? $billData['customer_phone'] : '0123456789',
         'billSplitPayment' => 0,
         'billSplitPaymentArgs' => '',
         'billPaymentChannel' => 2, // 0=FPX, 1=Card, 2=Both
