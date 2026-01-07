@@ -51,19 +51,17 @@ try {
         $actualOrderId = (int)$matches[1];
     }
     
-    // Update order by bill code or order ID
+    // Update order by bill code
     if ($billCode) {
         $stmt = $conn->prepare("UPDATE orders SET 
             payment_status = ?, 
-            payment_ref_no = ?,
-            payment_reason = ?,
             status = ?
             WHERE payment_bill_code = ?");
-        $stmt->bind_param("sssss", $paymentStatus, $refNo, $reason, $orderStatus, $billCode);
+        $stmt->bind_param("sss", $paymentStatus, $orderStatus, $billCode);
         $stmt->execute();
         
         if ($stmt->affected_rows > 0) {
-            error_log("[ToyyibPay Callback] Order updated via bill code: $billCode");
+            error_log("[ToyyibPay Callback] Order updated via bill code: $billCode, Status: $paymentStatus");
             $response['success'] = true;
         }
         $stmt->close();
@@ -72,15 +70,14 @@ try {
     // Also try updating by order ID if bill code didn't work
     if (!$response['success'] && $actualOrderId) {
         $stmt = $conn->prepare("UPDATE orders SET 
-            payment_status = ?, 
-            payment_ref_no = ?,
-            payment_reason = ?
+            payment_status = ?,
+            status = ?
             WHERE id = ?");
-        $stmt->bind_param("sssi", $paymentStatus, $refNo, $reason, $actualOrderId);
+        $stmt->bind_param("ssi", $paymentStatus, $orderStatus, $actualOrderId);
         $stmt->execute();
         
         if ($stmt->affected_rows > 0) {
-            error_log("[ToyyibPay Callback] Order updated via order ID: $actualOrderId");
+            error_log("[ToyyibPay Callback] Order updated via order ID: $actualOrderId, Status: $paymentStatus");
             $response['success'] = true;
         }
         $stmt->close();

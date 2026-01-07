@@ -19,21 +19,24 @@ $conn = getDbConnection();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // This SQL query specifically uses 'o.total_amount' and 'o.items_json'
-    // It does NOT reference any 'order_items' table.
+    // Only show orders where payment is confirmed (paid)
     $sql = "SELECT
                 o.id AS order_id,
                 o.user_id,
                 u.full_name AS customer_name,
                 u.email AS customer_email,
                 u.phone AS customer_phone,
-                o.total_amount AS total_amount, -- *** Using total_amount from your DB ***
+                o.total_amount AS total_amount,
                 o.status,
                 o.order_date,
-                o.items_json          -- Fetch the items_json column
+                o.items_json,
+                o.payment_status
             FROM
                 orders o
             JOIN
                 users u ON o.user_id = u.id
+            WHERE
+                o.payment_status = 'paid' OR o.payment_status IS NULL
             ORDER BY
                 o.order_date DESC"; // Order by most recent
 
