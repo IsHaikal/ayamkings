@@ -2475,7 +2475,7 @@
 
             try {
                 // IMPORTANT: This uses get_reviews.php
-                const response = await fetch(getApiUrl(`get_reviews.php ? menu_item_id = ${itemId} `));
+                const response = await fetch(getApiUrl(`get_reviews.php?menu_item_id=${itemId}`));
                 const data = await response.json();
 
                 if (data.success && data.reviews.length > 0) {
@@ -2484,7 +2484,7 @@
                         const reviewDiv = document.createElement('div');
                         reviewDiv.className = 'bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100';
                         reviewDiv.innerHTML = `
-                    < div class="flex justify-between items-center mb-2" >
+                    <div class="flex justify-between items-center mb-2">
                                 <span class="font-semibold text-gray-800">${review.reviewer_name || 'Anonymous'}</span>
                                 <div class="flex items-center gap-2">
                                     <span class="text-sm text-gray-500">${new Date(review.review_date).toLocaleDateString()}</span>
@@ -2495,7 +2495,7 @@
                                         </button>
                                     ` : ''}
                                 </div>
-                            </div >
+                            </div>
                             <div class="text-yellow-500 text-lg mb-2">
                                 ${getStarHTML(review.rating)}
                             </div>
