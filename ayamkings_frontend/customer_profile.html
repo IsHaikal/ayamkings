@@ -236,8 +236,8 @@
             </div>
         </div>
 
-        <!-- Security Section -->
-        <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-xl shadow-gray-200/50">
+        <!-- Security Section (only for email registered users) -->
+        <div id="securitySection" class="glass-panel rounded-3xl p-6 sm:p-8 shadow-xl shadow-gray-200/50 hidden">
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 text-lg">
                     <i class="fas fa-lock"></i>
@@ -503,6 +503,12 @@
 
         // Initialize
         fetchUserData();
+
+        // Show security section only for email-registered users
+        const loginMethod = localStorage.getItem('loginMethod');
+        if (loginMethod === 'email') {
+            document.getElementById('securitySection').classList.remove('hidden');
+        }
 
     </script>
 </body>
