@@ -1738,9 +1738,9 @@
             });
         }
 
-        // Logic to simulate payment processing
-        window.processPayment = function (method) {
-            // 1. Hide Options, Show Loader
+        // ToyyibPay Payment Processing
+        window.processPayment = async function (method) {
+            // 1. Show Processing View
             const methodsView = document.getElementById('paymentMethodsView');
             const processingView = document.getElementById('paymentProcessingView');
 
@@ -1748,29 +1748,96 @@
             processingView.classList.remove('hidden');
             processingView.classList.add('flex');
 
-            // 2. Simulate Delay (2.5 seconds)
-            setTimeout(() => {
-                // 3. Hide Loader, Show Success
+            try {
+                // 2. Calculate order total
+                let total_price = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                const user_id = currentUserId;
+
+                // Calculate Discount
+                let discount_amount = 0;
+                let final_coupon_code = null;
+
+                if (currentCoupon) {
+                    if (currentCoupon.type === 'percent') {
+                        discount_amount = total_price * (parseFloat(currentCoupon.value) / 100);
+                    } else if (currentCoupon.type === 'fixed') {
+                        discount_amount = parseFloat(currentCoupon.value);
+                    }
+                    if (discount_amount > total_price) discount_amount = total_price;
+                    final_coupon_code = currentCoupon.code;
+                }
+
+                const finalAmount = total_price - discount_amount;
+
+                const items = cart.map(item => ({
+                    id: item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    subtotal: item.price * item.quantity
+                }));
+
+                // 3. Create Order First (status pending)
+                const orderResponse = await fetch(getApiUrl('place_order.php'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user_id,
+                        total_price: total_price,
+                        items: items,
+                        coupon_code: final_coupon_code,
+                        discount_amount: discount_amount,
+                        payment_method: method
+                    })
+                });
+
+                const orderData = await orderResponse.json();
+                console.log('Order created:', orderData);
+
+                if (!orderData.success) {
+                    throw new Error(orderData.message || 'Failed to create order');
+                }
+
+                const orderId = orderData.order_id;
+
+                // 4. Create ToyyibPay Bill
+                const paymentResponse = await fetch(getApiUrl('create_payment.php'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order_id: orderId,
+                        amount: finalAmount,
+                        customer_name: localStorage.getItem('userFullName') || '',
+                        customer_email: localStorage.getItem('userEmail') || '',
+                        customer_phone: '' // Can add if stored
+                    })
+                });
+
+                const paymentData = await paymentResponse.json();
+                console.log('Payment bill created:', paymentData);
+
+                if (paymentData.success && paymentData.payment_url) {
+                    // 5. Clear cart before redirect
+                    localStorage.removeItem('cart');
+                    cart = [];
+                    updateCartDisplay();
+
+                    // 6. Redirect to ToyyibPay
+                    showMessage("Redirecting to payment gateway...");
+                    window.location.href = paymentData.payment_url;
+                } else {
+                    throw new Error(paymentData.message || 'Failed to create payment bill');
+                }
+
+            } catch (error) {
+                console.error('Payment Error:', error);
+                showMessage(error.message || "Payment failed. Please try again.", true);
+
+                // Reset views
                 processingView.classList.add('hidden');
                 processingView.classList.remove('flex');
-
-                const successView = document.getElementById('paymentSuccessView');
-                successView.classList.remove('hidden');
-                successView.classList.add('flex');
-
-                // Play Success Sound (optional)
-                try {
-                    const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-software-interface-start-2574.mp3');
-                    audio.volume = 0.5;
-                    audio.play().catch(e => console.log('Audio play failed', e));
-                } catch (e) { }
-
-                // 4. Actually Place Order after 1.5s success visual
-                setTimeout(() => {
-                    placeOrder();
-                    document.getElementById('paymentModal').style.display = 'none';
-                }, 1500);
-            }, 2500);
+                methodsView.classList.remove('hidden');
+            }
         };
 
         // 3. Override Checkout Button
