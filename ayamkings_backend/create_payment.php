@@ -73,7 +73,8 @@ try {
         $response['bill_code'] = $result['bill_code'];
         $response['payment_url'] = $result['payment_url'];
     } else {
-        throw new Exception($result['message'] ?? 'Failed to create payment bill.');
+        $response['debug'] = $result;
+        $response['message'] = $result['message'] ?? 'Failed to create payment bill.';
     }
     
 } catch (Exception $e) {
