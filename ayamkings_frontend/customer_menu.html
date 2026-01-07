@@ -2740,8 +2740,8 @@
                     showMessage(data.message || (editingReviewId ? "Review updated!" : "Review submitted!"));
                     reviewModal.style.display = 'none';
 
-                    // Reset edit mode
-                    const wasEditing = editingReviewId;
+                    // Reset edit mode - save values BEFORE resetting
+                    const savedItemId = editingMenuItemId || currentDetailItemId;
                     editingReviewId = null;
                     editingMenuItemId = null;
 
@@ -2751,8 +2751,8 @@
                         submitBtn.innerHTML = 'Submit Review';
                     }
 
-                    // Re-fetch and display reviews
-                    await fetchAndDisplayReviews(wasEditing ? editingMenuItemId : currentDetailItemId);
+                    // Re-fetch and display reviews with saved item ID
+                    await fetchAndDisplayReviews(savedItemId);
                     await fetchMenuItems();
 
                 } else {
