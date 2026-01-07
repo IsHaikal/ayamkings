@@ -68,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($stmt->execute()) {
         $response['success'] = true;
+        $response['order_id'] = $conn->insert_id; // Return the new order ID
         // Include usage info
         $response['message'] = 'Order placed successfully!' . ($coupon_code ? ' (Coupon Applied)' : '');
     } else {
