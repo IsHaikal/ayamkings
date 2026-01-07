@@ -2479,10 +2479,13 @@
 
                 const addReviewBtn = document.getElementById('addReviewButton');
 
+                // Reset button state first
+                addReviewBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                addReviewBtn.disabled = false;
+
                 if (data.can_review) {
                     // User can review - show button
                     addReviewBtn.style.display = 'flex';
-                    addReviewBtn.disabled = false;
                     addReviewBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Review';
                 } else if (data.already_reviewed) {
                     // Already reviewed - hide button
