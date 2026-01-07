@@ -31,6 +31,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once __DIR__ . '/db_config.php';
     $conn = getDbConnection();
 
+    // Check if the user has PURCHASED this item (completed order)
+    $purchase_stmt = $conn->prepare("
+        SELECT oi.id 
+        FROM order_items oi
+        JOIN orders o ON oi.order_id = o.id
+        WHERE o.user_id = ? 
+        AND oi.menu_item_id = ? 
+        AND o.status IN ('completed', 'finished', 'ready', 'Ready for Pickup')
+        LIMIT 1
+    ");
+    $purchase_stmt->bind_param("ii", $user_id, $menu_item_id);
+    $purchase_stmt->execute();
+    $purchase_result = $purchase_stmt->get_result();
+
+    if ($purchase_result->num_rows === 0) {
+        $response['message'] = 'You can only review items you have purchased.';
+        echo json_encode($response);
+        $purchase_stmt->close();
+        $conn->close();
+        exit();
+    }
+    $purchase_stmt->close();
+
     // Check if the user has already reviewed this item
     $check_stmt = $conn->prepare("SELECT id FROM reviews WHERE menu_item_id = ? AND user_id = ?");
     $check_stmt->bind_param("ii", $menu_item_id, $user_id);
