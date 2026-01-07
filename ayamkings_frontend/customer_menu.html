@@ -2486,7 +2486,7 @@
                 if (data.can_review) {
                     // User can review - show button
                     addReviewBtn.style.display = 'flex';
-                    addReviewBtn.innerHTML = '<i class="fas fa-plus mr-2"></i> Add Review';
+                    addReviewBtn.innerHTML = '<i class="fas fa-star mr-2"></i> Give a Review';
                 } else if (data.already_reviewed) {
                     // Already reviewed - hide button
                     addReviewBtn.style.display = 'none';
@@ -2494,7 +2494,7 @@
                     // Not purchased - show disabled button with message
                     addReviewBtn.style.display = 'flex';
                     addReviewBtn.disabled = true;
-                    addReviewBtn.innerHTML = '<i class="fas fa-lock mr-2"></i> Purchase to Review';
+                    addReviewBtn.innerHTML = '<i class="fas fa-lock mr-2"></i> You can review after purchased';
                     addReviewBtn.classList.add('opacity-50', 'cursor-not-allowed');
                 }
             } catch (error) {
