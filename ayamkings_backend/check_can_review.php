@@ -23,19 +23,31 @@ require_once __DIR__ . '/db_config.php';
 $conn = getDbConnection();
 
 // Check if user has purchased this item (completed order)
+// Orders table stores items in items_json column
 $purchase_stmt = $conn->prepare("
-    SELECT oi.id 
-    FROM order_items oi
-    JOIN orders o ON oi.order_id = o.id
-    WHERE o.user_id = ? 
-    AND oi.menu_item_id = ? 
-    AND o.status IN ('completed', 'finished', 'ready', 'Ready for Pickup')
-    LIMIT 1
+    SELECT id, items_json 
+    FROM orders 
+    WHERE user_id = ? 
+    AND status IN ('completed', 'finished', 'ready', 'Ready for Pickup', 'Finished')
 ");
-$purchase_stmt->bind_param("ii", $user_id, $menu_item_id);
+$purchase_stmt->bind_param("i", $user_id);
 $purchase_stmt->execute();
 $purchase_result = $purchase_stmt->get_result();
-$has_purchased = $purchase_result->num_rows > 0;
+
+$has_purchased = false;
+
+// Check each order's items_json for the menu_item_id
+while ($order = $purchase_result->fetch_assoc()) {
+    $items = json_decode($order['items_json'], true);
+    if (is_array($items)) {
+        foreach ($items as $item) {
+            if (isset($item['id']) && $item['id'] == $menu_item_id) {
+                $has_purchased = true;
+                break 2; // Break out of both loops
+            }
+        }
+    }
+}
 $purchase_stmt->close();
 
 // Check if user already reviewed this item

@@ -32,27 +32,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $conn = getDbConnection();
 
     // Check if the user has PURCHASED this item (completed order)
+    // Orders table stores items in items_json column
     $purchase_stmt = $conn->prepare("
-        SELECT oi.id 
-        FROM order_items oi
-        JOIN orders o ON oi.order_id = o.id
-        WHERE o.user_id = ? 
-        AND oi.menu_item_id = ? 
-        AND o.status IN ('completed', 'finished', 'ready', 'Ready for Pickup')
-        LIMIT 1
+        SELECT id, items_json 
+        FROM orders 
+        WHERE user_id = ? 
+        AND status IN ('completed', 'finished', 'ready', 'Ready for Pickup', 'Finished')
     ");
-    $purchase_stmt->bind_param("ii", $user_id, $menu_item_id);
+    $purchase_stmt->bind_param("i", $user_id);
     $purchase_stmt->execute();
     $purchase_result = $purchase_stmt->get_result();
 
-    if ($purchase_result->num_rows === 0) {
+    $has_purchased = false;
+
+    // Check each order's items_json for the menu_item_id
+    while ($order = $purchase_result->fetch_assoc()) {
+        $items = json_decode($order['items_json'], true);
+        if (is_array($items)) {
+            foreach ($items as $item) {
+                if (isset($item['id']) && $item['id'] == $menu_item_id) {
+                    $has_purchased = true;
+                    break 2;
+                }
+            }
+        }
+    }
+    $purchase_stmt->close();
+
+    if (!$has_purchased) {
         $response['message'] = 'You can only review items you have purchased.';
         echo json_encode($response);
-        $purchase_stmt->close();
         $conn->close();
         exit();
     }
-    $purchase_stmt->close();
 
     // Check if the user has already reviewed this item
     $check_stmt = $conn->prepare("SELECT id FROM reviews WHERE menu_item_id = ? AND user_id = ?");
