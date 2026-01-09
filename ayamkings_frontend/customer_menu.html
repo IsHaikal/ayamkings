@@ -1534,7 +1534,7 @@
                                         <span class="font-extrabold text-gray-800 text-lg">#${order.id}</span>
                                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${statusColor}">${order.status}</span>
                                     </div>
-                                    <p class="text-xs text-gray-400 font-medium"><i class="${statusIcon} mr-1"></i> ${new Date(order.order_date).toLocaleString()}</p>
+                                    <p class="text-xs text-gray-400 font-medium"><i class="${statusIcon} mr-1"></i> ${new Date(order.order_date).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' })}</p>
                                 </div>
                                 <div class="text-right">
                                     <span class="block text-xs text-gray-400 font-bold uppercase tracking-wider">Total</span>
@@ -2589,7 +2589,7 @@
                     <div class="flex justify-between items-center mb-2">
                                 <span class="font-semibold text-gray-800">${review.reviewer_name || 'Anonymous'}</span>
                                 <div class="flex items-center gap-2">
-                                    <span class="text-sm text-gray-500">${new Date(review.review_date).toLocaleDateString()}</span>
+                                    <span class="text-sm text-gray-500">${new Date(review.review_date).toLocaleDateString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' })}</span>
                                     ${isOwnReview ? `
                                         <button onclick="openEditReviewModal(${review.id}, ${review.rating}, '${(review.comment || '').replace(/'/g, "\\'").replace(/\n/g, "\\n")}', ${itemId})" 
                                             class="text-xs bg-amber-100 text-amber-600 px-2 py-1 rounded-lg hover:bg-amber-200 transition-colors font-medium">
@@ -2956,7 +2956,7 @@
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">Date</span>
-                                <span class="text-xs font-bold text-gray-700">${new Date(order.order_date).toLocaleString()}</span>
+                                <span class="text-xs font-bold text-gray-700">${new Date(order.order_date).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' })}</span>
                             </div>
                         </div>
                         <div class="px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide flex items-center gap-2 ${statusClass}">

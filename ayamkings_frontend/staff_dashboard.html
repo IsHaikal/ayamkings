@@ -493,7 +493,7 @@
             document.getElementById('modalCustomerPhone').textContent = order.customer_phone || '-';
             document.getElementById('modalCustomerEmail').textContent = order.customer_email;
             document.getElementById('modalTotalAmount').textContent = `RM ${parseFloat(order.total_amount).toFixed(2)}`;
-            document.getElementById('modalOrderDate').textContent = new Date(order.order_date).toLocaleString();
+            document.getElementById('modalOrderDate').textContent = new Date(order.order_date).toLocaleString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' });
 
             const itemsList = document.getElementById('modalItemsList');
             itemsList.innerHTML = '';
@@ -681,7 +681,7 @@
                                 <button onclick="showOrderDetails(${order.id})" class="text-gray-400 hover:text-amber-500 transition-colors" title="View Full Details">
                                     <i class="fas fa-eye text-xs"></i>
                                 </button>
-                                <span class="text-xs text-gray-500 font-medium ml-1"><i class="far fa-clock mr-1"></i>${new Date(order.order_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span class="text-xs text-gray-500 font-medium ml-1"><i class="far fa-clock mr-1"></i>${new Date(order.order_date).toLocaleTimeString('en-MY', { timeZone: 'Asia/Kuala_Lumpur', hour: '2-digit', minute: '2-digit' })}</span>
                             </div>
                             <h3 class="text-lg font-bold text-black">${order.customer_name}</h3>
                         </div>
@@ -1026,7 +1026,7 @@
                    <td class="p-3 text-sm text-gray-500 capitalize">${coupon.discount_type}</td>
                    <td class="p-3 text-sm font-bold text-amber-600">${parseFloat(coupon.discount_value).toFixed(2)}</td>
                    <td class="p-3 text-sm text-gray-500">${coupon.times_used}</td>
-                   <td class="p-3 text-sm text-gray-500">${new Date(coupon.created_at).toLocaleDateString()}</td>
+                   <td class="p-3 text-sm text-gray-500">${new Date(coupon.created_at).toLocaleDateString('en-MY', { timeZone: 'Asia/Kuala_Lumpur' })}</td>
                    <td class="p-3 text-right">
                        <button onclick="window.deleteCoupon(${coupon.id})" class="text-red-400 hover:text-red-600 font-bold text-xs uppercase tracking-wide">Delete</button>
                    </td>
