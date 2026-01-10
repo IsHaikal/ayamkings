@@ -2865,6 +2865,15 @@
             }
         });
 
+        // Auto-open order history if URL has #orderHistory hash (from payment success)
+        if (window.location.hash === '#orderHistory' && currentUserId) {
+            setTimeout(() => {
+                viewOrderHistoryButton.click();
+                // Clear hash from URL
+                history.replaceState(null, null, ' ');
+            }, 500);
+        }
+
         async function fetchOrderHistory() {
             try {
                 const response = await fetch(getApiUrl(`get_order_history.php?user_id=${currentUserId}`));
