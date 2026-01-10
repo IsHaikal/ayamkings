@@ -2,9 +2,9 @@
 
 ## System Overview
 **Project Name:** AyamKings Food Ordering System  
-**Version:** 1.0  
-**Date:** 24 December 2025  
-**Technology Stack:** HTML, CSS (Tailwind), JavaScript, PHP, MySQL
+**Version:** 2.0  
+**Date:** 11 January 2026  
+**Technology Stack:** HTML, CSS (Tailwind), JavaScript, PHP, MySQL, ToyyibPay API
 
 ---
 
@@ -13,14 +13,15 @@
 2. [Module 2: Customer Menu & Ordering](#module-2-customer-menu--ordering)
 3. [Module 3: Cart Management](#module-3-cart-management)
 4. [Module 4: Order Processing](#module-4-order-processing)
-5. [Module 5: Review System](#module-5-review-system)
-6. [Module 6: Coupon System](#module-6-coupon-system)
-7. [Module 7: Daily Specials](#module-7-daily-specials)
-8. [Module 8: User Profile Management](#module-8-user-profile-management)
-9. [Module 9: Staff Dashboard](#module-9-staff-dashboard)
-10. [Module 10: Admin Dashboard](#module-10-admin-dashboard)
-11. [Module 11: Financial Reports](#module-11-financial-reports)
-12. [Module 12: Session Management](#module-12-session-management)
+5. [Module 5: Payment Integration (ToyyibPay)](#module-5-payment-integration-toyyibpay)
+6. [Module 6: Review System](#module-6-review-system)
+7. [Module 7: Coupon System](#module-7-coupon-system)
+8. [Module 8: Daily Specials](#module-8-daily-specials)
+9. [Module 9: User Profile Management](#module-9-user-profile-management)
+10. [Module 10: Staff Dashboard](#module-10-staff-dashboard)
+11. [Module 11: Admin Dashboard](#module-11-admin-dashboard)
+12. [Module 12: Financial Reports](#module-12-financial-reports)
+13. [Module 13: Session Management](#module-13-session-management)
 
 ---
 
@@ -83,6 +84,17 @@
 | **Pre-conditions** | User is logged in |
 | **Test Steps** | 1. Click logout button<br>2. Confirm logout |
 | **Expected Result** | Session cleared, localStorage cleared, redirected to index page |
+| **Status** | ☐ Pass / ☐ Fail |
+
+### TC-AUTH-006: Google Login
+| Field | Description |
+|-------|-------------|
+| **Test Case ID** | TC-AUTH-006 |
+| **Module** | Authentication |
+| **Test Scenario** | Customer login using Google account |
+| **Pre-conditions** | User has valid Google account |
+| **Test Steps** | 1. Navigate to customer_login.html<br>2. Click "Continue with Google" button<br>3. Select Google account<br>4. Authorize access |
+| **Expected Result** | Login successful, new account created if first time, redirected to customer menu, password section hidden in profile |
 | **Status** | ☐ Pass / ☐ Fail |
 
 ---
@@ -233,7 +245,55 @@
 
 ---
 
-## Module 5: Review System
+## Module 5: Payment Integration (ToyyibPay)
+
+### TC-PAY-001: Online Payment - Successful
+| Field | Description |
+|-------|-------------|
+| **Test Case ID** | TC-PAY-001 |
+| **Module** | Payment |
+| **Test Scenario** | Customer completes online payment via ToyyibPay |
+| **Pre-conditions** | Items in cart, customer logged in |
+| **Test Steps** | 1. Click Checkout<br>2. Select payment method (Card/FPX/QR)<br>3. Redirect to ToyyibPay<br>4. Complete payment<br>5. Redirect back to success page |
+| **Expected Result** | Order created, payment_status = 'paid', order visible to staff, success page shown |
+| **Status** | ☐ Pass / ☐ Fail |
+
+### TC-PAY-002: Online Payment - Failed/Cancelled
+| Field | Description |
+|-------|-------------|
+| **Test Case ID** | TC-PAY-002 |
+| **Module** | Payment |
+| **Test Scenario** | Customer cancels or fails payment |
+| **Pre-conditions** | Order created, redirected to ToyyibPay |
+| **Test Steps** | 1. At ToyyibPay payment page<br>2. Click cancel or payment fails<br>3. Redirect back |
+| **Expected Result** | Order remains with payment_status = 'pending', not visible to staff |
+| **Status** | ☐ Pass / ☐ Fail |
+
+### TC-PAY-003: Order Only Visible After Payment
+| Field | Description |
+|-------|-------------|
+| **Test Case ID** | TC-PAY-003 |
+| **Module** | Payment |
+| **Test Scenario** | Staff only sees paid orders |
+| **Pre-conditions** | Unpaid and paid orders exist |
+| **Test Steps** | 1. Create order without completing payment<br>2. Check staff dashboard<br>3. Complete payment<br>4. Check staff dashboard again |
+| **Expected Result** | Unpaid orders hidden from staff, paid orders visible |
+| **Status** | ☐ Pass / ☐ Fail |
+
+### TC-PAY-004: Payment Success Page Flow
+| Field | Description |
+|-------|-------------|
+| **Test Case ID** | TC-PAY-004 |
+| **Module** | Payment |
+| **Test Scenario** | After payment, user can navigate to order history |
+| **Pre-conditions** | Payment completed |
+| **Test Steps** | 1. Complete payment<br>2. View success page<br>3. Click "View Order History" |
+| **Expected Result** | Redirect to customer menu with order history modal auto-opened |
+| **Status** | ☐ Pass / ☐ Fail |
+
+---
+
+## Module 6: Review System
 
 ### TC-REV-001: Submit New Review
 | Field | Description |
@@ -269,9 +329,31 @@
 | **Expected Result** | All reviews displayed with reviewer name, date, rating stars, comment |
 | **Status** | ☐ Pass / ☐ Fail |
 
+### TC-REV-004: Review Restricted to Purchasers
+| Field | Description |
+|-------|-------------|
+| **Test Case ID** | TC-REV-004 |
+| **Module** | Review |
+| **Test Scenario** | Customer cannot review item they haven't purchased |
+| **Pre-conditions** | Customer logged in, item NOT purchased by this customer |
+| **Test Steps** | 1. Open item detail for unpurchased item<br>2. Check review button |
+| **Expected Result** | Review button disabled, shows "You can review after purchased" message |
+| **Status** | ☐ Pass / ☐ Fail |
+
+### TC-REV-005: Review Enabled After Purchase
+| Field | Description |
+|-------|-------------|
+| **Test Case ID** | TC-REV-005 |
+| **Module** | Review |
+| **Test Scenario** | Customer can review item after purchasing |
+| **Pre-conditions** | Customer has completed order containing the item |
+| **Test Steps** | 1. Purchase item and complete payment<br>2. Open item detail<br>3. Check review button |
+| **Expected Result** | Review button enabled with "Give a Review" text |
+| **Status** | ☐ Pass / ☐ Fail |
+
 ---
 
-## Module 6: Coupon System
+## Module 7: Coupon System
 
 ### TC-COUP-001: Apply Valid Coupon
 | Field | Description |
@@ -299,7 +381,7 @@
 
 ---
 
-## Module 7: Daily Specials
+## Module 8: Daily Specials
 
 ### TC-SPEC-001: View Daily Specials Carousel
 | Field | Description |
@@ -336,7 +418,7 @@
 
 ---
 
-## Module 8: User Profile Management
+## Module 9: User Profile Management
 
 ### TC-PROF-001: View Profile
 | Field | Description |
@@ -363,7 +445,7 @@
 
 ---
 
-## Module 9: Staff Dashboard
+## Module 10: Staff Dashboard
 
 ### TC-STAFF-001: View Active Orders
 | Field | Description |
@@ -422,7 +504,7 @@
 
 ---
 
-## Module 10: Admin Dashboard
+## Module 11: Admin Dashboard
 
 ### TC-ADMIN-001: View Dashboard Overview
 | Field | Description |
@@ -505,7 +587,7 @@
 
 ---
 
-## Module 11: Financial Reports
+## Module 12: Financial Reports
 
 ### TC-FIN-001: View Financial Statistics
 | Field | Description |
@@ -565,7 +647,7 @@
 
 ---
 
-## Module 12: Session Management
+## Module 13: Session Management
 
 ### TC-SESS-001: Session Timeout
 | Field | Description |
@@ -595,11 +677,12 @@
 
 | Module | Total Test Cases | Pass | Fail | Pending |
 |--------|-----------------|------|------|---------|
-| User Authentication | 5 | ☐ | ☐ | 5 |
+| User Authentication | 6 | ☐ | ☐ | 6 |
 | Customer Menu & Ordering | 4 | ☐ | ☐ | 4 |
 | Cart Management | 4 | ☐ | ☐ | 4 |
 | Order Processing | 4 | ☐ | ☐ | 4 |
-| Review System | 3 | ☐ | ☐ | 3 |
+| Payment Integration (ToyyibPay) | 4 | ☐ | ☐ | 4 |
+| Review System | 5 | ☐ | ☐ | 5 |
 | Coupon System | 2 | ☐ | ☐ | 2 |
 | Daily Specials | 3 | ☐ | ☐ | 3 |
 | User Profile Management | 2 | ☐ | ☐ | 2 |
@@ -607,7 +690,7 @@
 | Admin Dashboard | 7 | ☐ | ☐ | 7 |
 | Financial Reports | 5 | ☐ | ☐ | 5 |
 | Session Management | 2 | ☐ | ☐ | 2 |
-| **TOTAL** | **46** | ☐ | ☐ | **46** |
+| **TOTAL** | **53** | ☐ | ☐ | **53** |
 
 ---
 
@@ -616,11 +699,13 @@
 | Component | Details |
 |-----------|---------|
 | **Operating System** | Windows 10/11 |
-| **Web Server** | Apache (XAMPP) |
-| **Database** | MySQL (XAMPP) |
+| **Web Server** | Apache (XAMPP) / Railway (Production) |
+| **Database** | MySQL (XAMPP/Railway) |
 | **PHP Version** | 8.x |
+| **Frontend Hosting** | Vercel |
+| **Payment Gateway** | ToyyibPay (Sandbox/Production) |
 | **Browser** | Google Chrome (Latest) |
-| **Screen Resolution** | 1920x1080 |
+| **Screen Resolution** | 1920x1080 / Mobile Responsive |
 
 ---
 
@@ -629,7 +714,7 @@
 | Field | Details |
 |-------|---------|
 | **Tester Name** | __________________ |
-| **Date** | 24 December 2025 |
+| **Date** | 11 January 2026 |
 | **Signature** | __________________ |
 
 ---
