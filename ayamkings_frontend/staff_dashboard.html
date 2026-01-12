@@ -754,10 +754,8 @@
 
                 tr.innerHTML = `
                     <td class="py-4 px-2 font-mono text-xs font-bold text-gray-600">#${order.id}</td>
-                    <td class="py-4 px-2 font-semibold text-black">${order.customer_name}
-                         <button onclick="showOrderDetails(${order.id})" class="ml-2 text-gray-400 hover:text-amber-500 transition-colors"><i class="fas fa-eye text-xs"></i></button>
-                    </td>
-                    <td class="py-4 px-2 text-gray-700 truncate max-w-xs cursor-pointer hover:text-amber-600" title="Click to view details" onclick="showOrderDetails(${order.id})">${itemsSummary}</td>
+                    <td class="py-4 px-2 font-semibold text-black">${order.customer_name}</td>
+                    <td class="py-4 px-2 text-gray-700 truncate max-w-xs cursor-pointer hover:text-amber-600 underline" title="Click to view details" onclick="showOrderDetails(${order.id})">${itemsSummary}</td>
                     <td class="py-4 px-2 font-bold text-black">RM ${parseFloat(order.total_amount).toFixed(2)}</td>
                     <td class="py-4 px-2"><span class="px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${badgeClass}">${order.status}</span></td>
                     <td class="py-4 px-2 text-right">${actionBtn}</td>
@@ -784,10 +782,8 @@
 
                 tr.innerHTML = `
                     <td class="py-4 px-2 font-mono text-xs font-bold text-gray-600">#${order.id}</td>
-                    <td class="py-4 px-2 font-semibold text-black">${order.customer_name}
-                         <button onclick="showOrderDetails(${order.id})" class="ml-2 text-gray-400 hover:text-amber-500 transition-colors"><i class="fas fa-eye text-xs"></i></button>
-                    </td>
-                    <td class="py-4 px-2 text-gray-500 cursor-pointer hover:text-red-500" onclick="showOrderDetails(${order.id})">Rejected</td>
+                    <td class="py-4 px-2 font-semibold text-black">${order.customer_name}</td>
+                    <td class="py-4 px-2 text-gray-500 cursor-pointer hover:text-red-500 underline" onclick="showOrderDetails(${order.id})">View Details</td>
                     <td class="py-4 px-2 font-bold text-gray-800">RM ${parseFloat(order.total_amount).toFixed(2)}</td>
                     <td class="py-4 px-2 text-right text-xs text-gray-400">${new Date(order.order_date).toLocaleString()}</td>
                 `;
