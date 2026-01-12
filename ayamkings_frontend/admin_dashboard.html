@@ -988,7 +988,6 @@
                     document.getElementById('dailySales').textContent = `RM ${parseFloat(data.daily_sales || 0).toFixed(2)}`;
                     document.getElementById('monthlySales').textContent = `RM ${parseFloat(data.monthly_sales || 0).toFixed(2)}`;
                     document.getElementById('monthlyProfit').textContent = `RM ${parseFloat(data.monthly_profit || 0).toFixed(2)}`;
-                    document.getElementById('monthlyExpenses').textContent = `RM ${parseFloat(data.monthly_expenses || 0).toFixed(2)}`;
 
                     // Charts
                     renderSalesHelper(data.chart_data);
