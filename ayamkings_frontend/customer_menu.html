@@ -1508,14 +1508,25 @@
                 }
             }
 
-            // Logic to show/hide points section
-            if (userPointsBalance > 0 && finalTotal > 0) {
+            // Logic to show/hide points section (Always show for visibility, disable if 0)
+            if (finalTotal > 0) {
                 pointsSection.classList.remove('hidden');
                 document.getElementById('modalAvailablePoints').textContent = userPointsBalance.toFixed(2);
 
-                // Update Logic
                 const checkbox = document.getElementById('redeemPointsCheckbox');
-                // Remove old listener to avoid dupes? It's okay, we can overwrite onchange.
+
+                // Disable if 0 points
+                if (userPointsBalance <= 0) {
+                    checkbox.disabled = true;
+                    checkbox.checked = false;
+                    checkbox.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
+                    document.querySelector('label[for="redeemPointsCheckbox"]').title = "No points available";
+                } else {
+                    checkbox.disabled = false;
+                    checkbox.parentElement.classList.remove('opacity-50', 'cursor-not-allowed');
+                }
+
+                // Update Logic
                 checkbox.onchange = function () {
                     const isChecked = this.checked;
                     let redeemAmount = 0;
@@ -1530,13 +1541,10 @@
                     cartTotalEl.textContent = `RM ${payAmount.toFixed(2)}`;
                     document.getElementById('checkoutButton').textContent = payAmount <= 0 ? 'Place Order (Free)' : `Checkout (RM ${payAmount.toFixed(2)})`;
                 };
-                // Trigger once to set state if already checked (e.g. re-render)
-                if (checkbox.checked) checkbox.onchange();
-                else {
-                    // Reset text if unchecked
-                    cartTotalEl.textContent = `RM ${finalTotal.toFixed(2)}`;
-                    document.getElementById('checkoutButton').textContent = 'Proceed to Checkout';
-                }
+
+                // Trigger logic to ensure correct initial state
+                checkbox.onchange();
+
             } else {
                 pointsSection.classList.add('hidden');
             }
