@@ -26,24 +26,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     require_once __DIR__ . '/db_config.php';
     $conn = getDbConnection();
 
-    // Fetch orders for this user with review status
-    $sql = "SELECT o.id, o.total_amount, o.status, o.order_date, o.items_json,
-                            orv.id as review_id, orv.rating as review_rating
-                            FROM orders o
-                            LEFT JOIN order_reviews orv ON o.id = orv.order_id
-                            WHERE o.user_id = ? 
-                            ORDER BY o.order_date DESC 
-                            LIMIT 50";
-    
-    $stmt = $conn->prepare($sql);
-    
-    if (!$stmt) {
-        $response['message'] = 'SQL Error: ' . $conn->error;
-        echo json_encode($response);
-        $conn->close();
-        exit();
-    }
-    
+    // Fetch orders for this user
+    $stmt = $conn->prepare("SELECT id, total_amount, status, order_date, items_json 
+                            FROM orders 
+                            WHERE user_id = ? 
+                            ORDER BY order_date DESC 
+                            LIMIT 50");
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
@@ -58,9 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
             'total_amount' => floatval($row['total_amount']),
             'status' => $row['status'],
             'order_date' => $row['order_date'],
-            'items' => $items ? $items : [],
-            'has_review' => !empty($row['review_id']),
-            'review_rating' => $row['review_rating'] ? intval($row['review_rating']) : null
+            'items' => $items ? $items : []
         ];
     }
 
