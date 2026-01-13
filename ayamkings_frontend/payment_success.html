@@ -198,6 +198,30 @@
         // Clear cart only after successful payment
         if (statusId === '1') {
             localStorage.removeItem('cart');
+
+            // Award rebate points
+            fetch('../ayamkings_backend/award_points.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    billcode: billCode,
+                    order_id: orderId
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.points_earned > 0) {
+                        // Show points earned notification
+                        const pointsBadge = document.createElement('div');
+                        pointsBadge.className = 'bg-amber-100 border border-amber-300 rounded-xl p-3 mt-4 text-center';
+                        pointsBadge.innerHTML = `
+                        <i class="fas fa-coins text-amber-500 mr-2"></i>
+                        <span class="text-amber-700 font-bold">You earned RM ${data.points_earned.toFixed(2)} rebate points!</span>
+                    `;
+                        document.getElementById('orderDetails').appendChild(pointsBadge);
+                    }
+                })
+                .catch(err => console.error('Points award error:', err));
         }
     </script>
 </body>
