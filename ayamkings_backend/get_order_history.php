@@ -27,13 +27,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $conn = getDbConnection();
 
     // Fetch orders for this user with review status
-    $stmt = $conn->prepare("SELECT o.id, o.total_amount, o.status, o.order_date, o.items_json,
+    $sql = "SELECT o.id, o.total_amount, o.status, o.order_date, o.items_json,
                             orv.id as review_id, orv.rating as review_rating
                             FROM orders o
                             LEFT JOIN order_reviews orv ON o.id = orv.order_id
                             WHERE o.user_id = ? 
                             ORDER BY o.order_date DESC 
-                            LIMIT 50");
+                            LIMIT 50";
+    
+    $stmt = $conn->prepare($sql);
+    
+    if (!$stmt) {
+        $response['message'] = 'SQL Error: ' . $conn->error;
+        echo json_encode($response);
+        $conn->close();
+        exit();
+    }
+    
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
