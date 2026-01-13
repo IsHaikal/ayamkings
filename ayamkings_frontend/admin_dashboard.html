@@ -282,7 +282,6 @@
                                     <th class="py-4 px-2">Description</th>
                                     <th class="py-4 px-2">Price</th>
                                     <th class="py-4 px-2">Category</th>
-                                    <th class="py-4 px-2 text-center">Status</th>
                                     <th class="py-4 px-2 text-center">Actions</th>
                                 </tr>
                             </thead>
@@ -729,25 +728,17 @@
                 return;
             }
             items.forEach(item => {
-                const isSoldOut = item.is_sold_out == 1;
                 const tr = document.createElement('tr');
-                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors group' + (isSoldOut ? ' opacity-60' : '');
+                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors group';
                 tr.innerHTML = `
                     <td class="py-4 px-2 font-mono text-xs text-gray-500">#${item.id}</td>
-                    <td class="py-4 px-2 relative">
-                        <img src="${getUploadUrl(item.image_url)}" class="w-12 h-12 rounded-lg object-cover shadow-sm group-hover:scale-105 transition-transform ${isSoldOut ? 'grayscale' : ''}">
-                        ${isSoldOut ? '<span class="absolute top-2 left-2 bg-red-500 text-white text-[8px] px-1 py-0.5 rounded font-bold">SOLD OUT</span>' : ''}
+                    <td class="py-4 px-2">
+                        <img src="${getUploadUrl(item.image_url)}" class="w-12 h-12 rounded-lg object-cover shadow-sm group-hover:scale-105 transition-transform">
                     </td>
-                    <td class="py-4 px-2 font-bold text-black ${isSoldOut ? 'line-through text-gray-400' : ''}">${item.name}</td>
+                    <td class="py-4 px-2 font-bold text-black">${item.name}</td>
                     <td class="py-4 px-2 text-xs text-gray-700 max-w-xs truncate">${item.description}</td>
                     <td class="py-4 px-2 font-bold text-black">RM ${parseFloat(item.price).toFixed(2)}</td>
                     <td class="py-4 px-2"><span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">${item.category}</span></td>
-                    <td class="py-4 px-2 text-center">
-                        <button class="sold-out-btn ${isSoldOut ? 'bg-red-100 text-red-600 hover:bg-red-200' : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100'} px-2 py-1 rounded-lg transition-colors text-xs font-bold" 
-                                data-id="${item.id}" data-sold-out="${isSoldOut ? 1 : 0}">
-                            <i class="fas ${isSoldOut ? 'fa-times-circle' : 'fa-check-circle'} mr-1"></i>${isSoldOut ? 'Sold Out' : 'Available'}
-                        </button>
-                    </td>
                     <td class="py-4 px-2 text-center">
                         <button class="edit-btn text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors mr-2" data-id="${item.id}"><i class="fas fa-edit"></i></button>
                         <button class="delete-btn text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors" data-id="${item.id}"><i class="fas fa-trash"></i></button>
@@ -759,30 +750,9 @@
             // Re-attach listeners
             document.querySelectorAll('.edit-btn').forEach(b => b.onclick = (e) => editMenuItem(e.currentTarget.dataset.id));
             document.querySelectorAll('.delete-btn').forEach(b => b.onclick = (e) => deleteMenuItem(e.currentTarget.dataset.id));
-            document.querySelectorAll('.sold-out-btn').forEach(b => b.onclick = (e) => toggleSoldOut(e.currentTarget.dataset.id, e.currentTarget.dataset.soldOut));
         }
 
-        // Toggle Sold Out Status
-        async function toggleSoldOut(itemId, currentStatus) {
-            const newStatus = currentStatus == 1 ? 0 : 1;
-            try {
-                const res = await fetch(getApiUrl('toggle_sold_out.php'), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ item_id: itemId, is_sold_out: newStatus })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    showMessage(data.message);
-                    fetchMenuItems(); // Refresh the list
-                } else {
-                    showMessage(data.message, true);
-                }
-            } catch (e) {
-                console.error(e);
-                showMessage('Error toggling sold out status', true);
-            }
-        }
+
 
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();

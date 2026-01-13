@@ -24,8 +24,8 @@ try {
         require_once __DIR__ . '/db_config.php';
         $conn = getDbConnection();
 
-        // Fetch menu items including is_sold_out
-        $sql = "SELECT id, name, description, price, category, image_url, is_sold_out FROM menu ORDER BY id ASC";
+        // Fetch menu items (REVERTED: Removed is_sold_out)
+        $sql = "SELECT id, name, description, price, category, image_url FROM menu ORDER BY id ASC";
         $result = $conn->query($sql);
 
         if ($result) {
@@ -34,7 +34,6 @@ try {
                 // Ensure numeric types are correct
                 $row['price'] = (float)$row['price'];
                 $row['id'] = (int)$row['id'];
-                $row['is_sold_out'] = (int)$row['is_sold_out']; // Cast to int
                 $menuItems[] = $row;
             }
             $response['success'] = true;
@@ -49,13 +48,8 @@ try {
         $response['message'] = 'Invalid request method.';
     }
 } catch (Exception $e) {
-    if (isset($conn)) {
-        $dbInfo = "[DB: " . DB_NAME . " @ " . DB_HOST . "]";
-    } else {
-        $dbInfo = "[DB: Not Connected]";
-    }
     $response['success'] = false;
-    $response['message'] = 'Server Error ' . $dbInfo . ': ' . $e->getMessage();
+    $response['message'] = 'Server Error: ' . $e->getMessage();
 }
 
 echo json_encode($response);
