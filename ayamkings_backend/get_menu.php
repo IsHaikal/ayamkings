@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $conn = getDbConnection();
 
     // Fetch menu items, ordered by ID
-    $sql = "SELECT id, name, description, price, category, image_url FROM menu ORDER BY id ASC";
+    $sql = "SELECT id, name, description, price, category, image_url, is_sold_out FROM menu ORDER BY id ASC";
     $result = $conn->query($sql);
 
     if ($result) {
