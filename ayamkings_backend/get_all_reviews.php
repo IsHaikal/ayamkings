@@ -28,7 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 r.comment, 
                 r.review_date,
                 u.full_name as user_name,
-                u.profile_picture as user_image,
                 m.name as menu_item_name,
                 m.image_url as menu_item_image
             FROM reviews r
