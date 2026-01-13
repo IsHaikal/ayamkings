@@ -1144,6 +1144,61 @@
         </div>
     </div>
 
+    <!-- Order Review Modal -->
+    <div id="orderReviewModal" class="modal">
+        <div class="modal-content max-w-md p-0 overflow-hidden">
+            <div
+                class="p-6 border-b border-gray-50 flex justify-between items-center bg-gradient-to-r from-purple-500 to-purple-600 text-white">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i class="fas fa-star"></i> Review Your Order
+                </h3>
+                <button
+                    class="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors"
+                    id="closeOrderReviewModalButton">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="orderReviewForm" class="p-6 space-y-6">
+                <div class="text-center">
+                    <p class="text-sm text-gray-500 mb-1">How was your experience with</p>
+                    <h4 class="text-xl font-bold text-gray-900 mb-4">Order <span id="orderReviewOrderId">#0</span></h4>
+
+                    <div
+                        class="inline-flex flex-col items-center p-4 bg-purple-50/50 rounded-2xl border border-purple-100 w-full">
+                        <div class="stars" id="orderStarRating">
+                            <input type="radio" id="orderStar5" name="orderRating" value="5" required /><label
+                                for="orderStar5" title="Excellent"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="orderStar4" name="orderRating" value="4" /><label for="orderStar4"
+                                title="Good"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="orderStar3" name="orderRating" value="3" /><label for="orderStar3"
+                                title="Average"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="orderStar2" name="orderRating" value="2" /><label for="orderStar2"
+                                title="Poor"><i class="fas fa-star"></i></label>
+                            <input type="radio" id="orderStar1" name="orderRating" value="1" /><label for="orderStar1"
+                                title="Terrible"><i class="fas fa-star"></i></label>
+                        </div>
+                        <span class="text-[10px] font-bold text-purple-600/70 uppercase tracking-widest mt-2">Tap to
+                            Rate</span>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="orderReviewComment"
+                        class="block text-xs font-bold text-gray-700 uppercase tracking-widest mb-2 ml-1">Your
+                        Feedback</label>
+                    <textarea id="orderReviewComment" name="comment" rows="3"
+                        class="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all resize-none placeholder-gray-400"
+                        placeholder="Tell us about your experience... Was the service good? Was the order on time?"></textarea>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-purple-200 hover:shadow-xl hover:-translate-y-0.5">
+                    Submit Review
+                </button>
+            </form>
+        </div>
+    </div>
 
     <!-- Daily Specials Modal -->
     <div id="specialsModal" class="modal">
@@ -2841,48 +2896,35 @@
         const orderHistoryList = document.getElementById('orderHistoryList');
         let orderHistoryInterval = null;
 
-        // --- Function to open review modal from order history ---
-        async function openReviewFromHistory(itemId, itemName, orderId) {
+        // --- Function to open ORDER review modal from order history ---
+        let currentReviewOrderId = null;
+
+        async function openOrderReviewModal(orderId) {
             if (!currentUserId) {
                 showMessage("Please log in to submit a review.", true);
                 return;
             }
 
-            // Check if user can review this item (hasn't already reviewed)
+            // Check if order has already been reviewed
             try {
-                const checkResponse = await fetch(getApiUrl(`check_can_review.php?user_id=${currentUserId}&menu_item_id=${itemId}`));
+                const checkResponse = await fetch(getApiUrl(`get_order_review.php?order_id=${orderId}`));
                 const checkData = await checkResponse.json();
 
-                if (!checkData.can_review) {
-                    if (checkData.already_reviewed) {
-                        showMessage("You have already reviewed this item.", true);
-                    } else {
-                        showMessage(checkData.message || "Cannot review this item.", true);
-                    }
+                if (checkData.has_review) {
+                    showMessage("You have already reviewed this order.", true);
                     return;
                 }
 
-                // Open review modal with item details
-                const reviewModal = document.getElementById('reviewModal');
-                const reviewItemName = document.getElementById('reviewItemName');
-                const reviewMenuItemIdInput = document.getElementById('reviewMenuItemId');
-                const reviewUserIdInput = document.getElementById('reviewUserId');
-                const reviewForm = document.getElementById('reviewForm');
+                // Store current order ID for form submission
+                currentReviewOrderId = orderId;
 
-                reviewItemName.textContent = itemName;
-                reviewMenuItemIdInput.value = itemId;
-                reviewUserIdInput.value = currentUserId;
-                reviewForm.reset();
+                // Open order review modal
+                const orderReviewModal = document.getElementById('orderReviewModal');
+                const orderReviewForm = document.getElementById('orderReviewForm');
+                document.getElementById('orderReviewOrderId').textContent = `#${orderId}`;
 
-                // Reset editing mode
-                editingReviewId = null;
-                editingMenuItemId = null;
-                const submitBtn = reviewForm.querySelector('button[type="submit"]');
-                if (submitBtn) {
-                    submitBtn.innerHTML = 'Submit Review';
-                }
-
-                reviewModal.style.display = 'flex';
+                orderReviewForm.reset();
+                orderReviewModal.style.display = 'flex';
             } catch (error) {
                 console.error('Error checking review status:', error);
                 showMessage("Error checking review status.", true);
@@ -2890,7 +2932,69 @@
         }
 
         // Make function globally accessible for onclick handlers
-        window.openReviewFromHistory = openReviewFromHistory;
+        window.openOrderReviewModal = openOrderReviewModal;
+
+        // --- Order Review Modal Close Handler ---
+        const orderReviewModal = document.getElementById('orderReviewModal');
+        const closeOrderReviewModalButton = document.getElementById('closeOrderReviewModalButton');
+        const orderReviewForm = document.getElementById('orderReviewForm');
+
+        closeOrderReviewModalButton.addEventListener('click', () => {
+            orderReviewModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === orderReviewModal) {
+                orderReviewModal.style.display = 'none';
+            }
+        });
+
+        // --- Order Review Form Submission ---
+        orderReviewForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const rating = document.querySelector('input[name="orderRating"]:checked');
+            const comment = document.getElementById('orderReviewComment').value;
+
+            if (!rating) {
+                showMessage("Please select a star rating.", true);
+                return;
+            }
+
+            if (!currentReviewOrderId) {
+                showMessage("Order ID not found.", true);
+                return;
+            }
+
+            try {
+                const response = await fetch(getApiUrl('add_order_review.php'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        order_id: currentReviewOrderId,
+                        user_id: currentUserId,
+                        rating: parseInt(rating.value),
+                        comment: comment
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage(data.message || "Thank you for your feedback!");
+                    orderReviewModal.style.display = 'none';
+                    orderReviewForm.reset();
+                    currentReviewOrderId = null;
+                    // Refresh order history to update UI
+                    fetchOrderHistory();
+                } else {
+                    showMessage(data.message || "Failed to submit review.", true);
+                }
+            } catch (error) {
+                console.error('Error submitting order review:', error);
+                showMessage("An error occurred while submitting your review.", true);
+            }
+        });
 
         viewOrderHistoryButton.addEventListener('click', () => {
             if (!currentUserId) {
@@ -2998,27 +3102,37 @@
 
                 if (items.length > 0) {
                     items.forEach(item => {
-                        // Add review button for completed orders
-                        const reviewBtn = isCompleted
-                            ? `<button onclick="openReviewFromHistory(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${order.id})" 
-                                   class="ml-2 px-2 py-0.5 text-[10px] font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full border border-purple-200 transition-all hover:scale-105"
-                                   title="Write a review">
-                                   <i class="fas fa-star mr-1"></i>Review
-                               </button>`
-                            : '';
-
                         itemsHtml += `
-                    <div class="flex justify-between items-center text-sm py-2 border-b border-gray-50 last:border-0">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-gray-700"><span class="font-bold text-gray-900">${item.quantity}x</span> ${item.name}</span>
-                                    ${reviewBtn}
-                                </div>
-                                <span class="text-gray-500 font-mono text-xs whitespace-nowrap">RM ${(item.price * item.quantity).toFixed(2)}</span>
+                    <div class="flex justify-between items-center text-sm py-1.5 border-b border-gray-50 last:border-0">
+                                <span class="text-gray-700"><span class="font-bold text-gray-900">${item.quantity}x</span> ${item.name}</span>
+                                <span class="text-gray-500 font-mono text-xs">RM ${(item.price * item.quantity).toFixed(2)}</span>
                             </div>
                     `;
                     });
                 } else {
                     itemsHtml = '<p class="text-xs text-gray-400 italic">Items info unavailable</p>';
+                }
+
+                // Generate review button or reviewed badge for completed orders
+                let orderReviewBtn = '';
+                if (isCompleted) {
+                    if (order.has_review) {
+                        // Show "Reviewed" badge with stars
+                        const starHtml = '★'.repeat(order.review_rating || 0) + '☆'.repeat(5 - (order.review_rating || 0));
+                        orderReviewBtn = `
+                            <div class="w-full mt-3 py-2.5 bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 font-bold text-sm rounded-xl flex items-center justify-center gap-2 border border-emerald-200">
+                                <i class="fas fa-check-circle"></i> 
+                                <span>Reviewed</span>
+                                <span class="text-amber-500 ml-1">${starHtml}</span>
+                            </div>`;
+                    } else {
+                        // Show review button
+                        orderReviewBtn = `
+                            <button onclick="openOrderReviewModal(${order.id})" 
+                                   class="w-full mt-3 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-purple-200 hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                                   <i class="fas fa-star"></i> Review This Order
+                            </button>`;
+                    }
                 }
 
                 const orderCard = document.createElement('div');
@@ -3048,6 +3162,8 @@
                          <span class="text-xs text-gray-500 font-bold uppercase tracking-widest">Total Paid</span>
                          <span class="text-xl font-extrabold text-gray-900">RM ${parseFloat(order.total_amount).toFixed(2)}</span>
                     </div>
+                    
+                    ${orderReviewBtn}
                 `;
                 orderHistoryList.appendChild(orderCard);
             });
