@@ -526,6 +526,17 @@
                         </select>
                     </div>
 
+                    <div>
+                        <label for="itemStatus"
+                            class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Availability</label>
+                        <select id="itemStatus" name="is_sold_out"
+                            class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm font-semibold text-gray-800"
+                            required>
+                            <option value="0">Available</option>
+                            <option value="1">Unavailable (Sold Out)</option>
+                        </select>
+                    </div>
+
                     <div class="md:col-span-2">
                         <label for="itemDescription"
                             class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Description</label>
@@ -768,16 +779,22 @@
             }
             items.forEach(item => {
                 const tr = document.createElement('tr');
-                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors group';
+                const isSoldOut = item.is_sold_out == 1;
+                tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors group' + (isSoldOut ? ' bg-gray-50/50' : '');
                 tr.innerHTML = `
                     <td class="py-4 px-2 font-mono text-xs text-gray-500">#${item.id}</td>
                     <td class="py-4 px-2">
-                        <img src="${getUploadUrl(item.image_url)}" class="w-12 h-12 rounded-lg object-cover shadow-sm group-hover:scale-105 transition-transform">
+                        <div class="relative w-12 h-12">
+                            <img src="${getUploadUrl(item.image_url)}" class="w-full h-full rounded-lg object-cover shadow-sm group-hover:scale-105 transition-transform ${isSoldOut ? 'grayscale' : ''}">
+                            ${isSoldOut ? '<span class="absolute -top-2 -right-2 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full shadow-sm z-10">SOLD</span>' : ''}
+                        </div>
                     </td>
-                    <td class="py-4 px-2 font-bold text-black">${item.name}</td>
+                    <td class="py-4 px-2 font-bold text-black ${isSoldOut ? 'text-gray-400 line-through decoration-gray-400/50' : ''}">${item.name}</td>
                     <td class="py-4 px-2 text-xs text-gray-700 max-w-xs truncate">${item.description}</td>
                     <td class="py-4 px-2 font-bold text-black">RM ${parseFloat(item.price).toFixed(2)}</td>
-                    <td class="py-4 px-2"><span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">${item.category}</span></td>
+                    <td class="py-4 px-2">
+                        <span class="px-2 py-1 rounded text-xs font-bold uppercase tracking-wider ${isSoldOut ? 'bg-red-50 text-red-500 border border-red-100' : 'bg-gray-100 text-gray-800'}">${item.category}</span>
+                    </td>
                     <td class="py-4 px-2 text-center">
                         <button class="edit-btn text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors mr-2" data-id="${item.id}"><i class="fas fa-edit"></i></button>
                         <button class="delete-btn text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors" data-id="${item.id}"><i class="fas fa-trash"></i></button>
@@ -1212,6 +1229,40 @@
             modal.style.display = 'none';
         }
 
+        function openMenuItemModal(item = null) {
+            const modal = document.getElementById('itemModal');
+            const form = document.getElementById('itemForm'); // Reset form
+            form.reset();
+            document.getElementById('itemId').value = '';
+            document.getElementById('itemImageUrl').value = ''; // Clear image url
+            document.getElementById('imagePreview').classList.add('hidden'); // correct img preview hide
+
+            // Set default status to Available (0)
+            document.getElementById('itemStatus').value = "0";
+
+            if (item) {
+                document.getElementById('modalTitle').textContent = 'Edit Menu Item';
+                document.getElementById('itemId').value = item.id;
+                document.getElementById('itemName').value = item.name;
+                document.getElementById('itemDescription').value = item.description;
+                document.getElementById('itemPrice').value = item.price;
+                document.getElementById('itemCategory').value = item.category;
+                document.getElementById('itemImageUrl').value = item.image_url || '';
+
+                // Set status
+                document.getElementById('itemStatus').value = item.is_sold_out == 1 ? "1" : "0";
+
+                if (item.image_url) {
+                    document.getElementById('imagePreview').src = getUploadUrl(item.image_url);
+                    document.getElementById('imagePreview').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('modalTitle').textContent = 'Add Menu Item';
+            }
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
+
         function openSpecialModal(special = null) {
             const modal = document.getElementById('specialModal');
             const form = document.getElementById('specialForm');
@@ -1309,7 +1360,8 @@
                 price: parseFloat(document.getElementById('specialPrice').value),
                 image_url: imageUrl,
                 end_date: document.getElementById('specialEndDate').value,
-                created_by: localStorage.getItem('userId')
+                created_by: localStorage.getItem('userId'),
+                is_sold_out: parseInt(document.getElementById('itemStatus').value)
             };
 
             const method = id ? 'PUT' : 'POST';
