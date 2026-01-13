@@ -1325,7 +1325,7 @@
 
         async function fetchUserProfile() {
             try {
-                const response = await fetch(`${API_BASE_URL}/get_profile.php?id=${currentUserId}`);
+                const response = await fetch(getApiUrl(`get_profile.php?id=${currentUserId}`));
                 const data = await response.json();
                 if (data.success) {
                     // Update Points
@@ -1520,7 +1520,8 @@
                     checkbox.disabled = true;
                     checkbox.checked = false;
                     checkbox.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
-                    document.querySelector('label[for="redeemPointsCheckbox"]').title = "No points available";
+                    const label = document.querySelector('label');
+                    if (label) label.title = "No points available";
                 } else {
                     checkbox.disabled = false;
                     checkbox.parentElement.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -1750,7 +1751,7 @@
 
         async function initiatePayment(orderId, amount, user, redeemPoints) {
             try {
-                const response = await fetch(`${API_BASE_URL}/create_payment.php`, {
+                const response = await fetch(getApiUrl('create_payment.php'), {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
