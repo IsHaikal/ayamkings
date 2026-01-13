@@ -1515,16 +1515,20 @@
 
                 const checkbox = document.getElementById('redeemPointsCheckbox');
 
-                // Disable if 0 points
-                if (userPointsBalance <= 0) {
-                    checkbox.disabled = true;
-                    checkbox.checked = false;
-                    checkbox.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
-                    const label = document.querySelector('label');
-                    if (label) label.title = "No points available";
-                } else {
-                    checkbox.disabled = false;
-                    checkbox.parentElement.classList.remove('opacity-50', 'cursor-not-allowed');
+                // Disable if 0 points (with null check)
+                if (checkbox) {
+                    if (userPointsBalance <= 0) {
+                        checkbox.disabled = true;
+                        checkbox.checked = false;
+                        if (checkbox.parentElement) {
+                            checkbox.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
+                        }
+                    } else {
+                        checkbox.disabled = false;
+                        if (checkbox.parentElement) {
+                            checkbox.parentElement.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }
+                    }
                 }
 
                 // Update Logic
