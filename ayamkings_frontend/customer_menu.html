@@ -2992,9 +2992,6 @@
                     try { items = JSON.parse(order.items); } catch (e) { }
                 }
 
-                // Check if order is completed (can review)
-                const isCompleted = ['finished', 'completed', 'done', ''].includes(s);
-
                 if (items.length > 0) {
                     items.forEach(item => {
                         itemsHtml += `
@@ -3006,28 +3003,6 @@
                     });
                 } else {
                     itemsHtml = '<p class="text-xs text-gray-400 italic">Items info unavailable</p>';
-                }
-
-                // Generate review button or reviewed badge for completed orders
-                let orderReviewBtn = '';
-                if (isCompleted) {
-                    if (order.has_review) {
-                        // Show "Reviewed" badge with stars
-                        const starHtml = '★'.repeat(order.review_rating || 0) + '☆'.repeat(5 - (order.review_rating || 0));
-                        orderReviewBtn = `
-                            <div class="w-full mt-3 py-2.5 bg-gradient-to-r from-emerald-50 to-emerald-100 text-emerald-700 font-bold text-sm rounded-xl flex items-center justify-center gap-2 border border-emerald-200">
-                                <i class="fas fa-check-circle"></i> 
-                                <span>Reviewed</span>
-                                <span class="text-amber-500 ml-1">${starHtml}</span>
-                            </div>`;
-                    } else {
-                        // Show review button
-                        orderReviewBtn = `
-                            <button onclick="openOrderReviewModal(${order.id})" 
-                                   class="w-full mt-3 py-2.5 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-purple-200 hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-2">
-                                   <i class="fas fa-star"></i> Review This Order
-                            </button>`;
-                    }
                 }
 
                 const orderCard = document.createElement('div');
@@ -3057,9 +3032,8 @@
                          <span class="text-xs text-gray-500 font-bold uppercase tracking-widest">Total Paid</span>
                          <span class="text-xl font-extrabold text-gray-900">RM ${parseFloat(order.total_amount).toFixed(2)}</span>
                     </div>
-                    
-                    ${orderReviewBtn}
                 `;
+
                 orderHistoryList.appendChild(orderCard);
             });
         }
