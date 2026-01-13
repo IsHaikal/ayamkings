@@ -40,12 +40,12 @@ try {
             $response['menuItems'] = $menuItems;
             $response['message'] = 'Menu items fetched successfully.';
         } else {
-            throw new Exception("Database query failed: " . $conn->error);
+            throw new Exception("Query failed on " . DB_NAME . "@" . DB_HOST . ": " . $conn->error);
         }
 
         $conn->close();
     } else {
-        $response['message'] = 'Invalid request method.';
+        $response['message'] = 'Server Error (' . DB_NAME . ' on ' . DB_HOST . '): ' . $conn->error;
     }
 } catch (Exception $e) {
     $response['success'] = false;
