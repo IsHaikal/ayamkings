@@ -121,8 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     }
 
     // --- Top Selling Items (Aggregation from JSON) ---
-    // Fetch orders from last 30 days
-    $sql_top_items = "SELECT items_json FROM orders WHERE order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY) AND status != 'cancelled'";
+    // Fetch orders within the selected date range
+    $sql_top_items = "SELECT items_json FROM orders WHERE DATE(order_date) BETWEEN '$start_date' AND '$end_date' AND status != 'cancelled'";
     $res_top = $conn->query($sql_top_items);
     $item_sales = [];
 
