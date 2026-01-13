@@ -22,12 +22,20 @@ require_once __DIR__ . '/db_config.php';
 $conn = getDbConnection();
 
 // Get the review for this order
-$stmt = $conn->prepare("
+$sql = "
     SELECT orv.id, orv.rating, orv.comment, orv.review_date, u.full_name 
     FROM order_reviews orv
     JOIN users u ON orv.user_id = u.id
     WHERE orv.order_id = ?
-");
+";
+$stmt = $conn->prepare($sql);
+
+if (!$stmt) {
+    echo json_encode(['success' => false, 'message' => 'SQL Error: ' . $conn->error]);
+    $conn->close();
+    exit();
+}
+
 $stmt->bind_param("i", $order_id);
 $stmt->execute();
 $result = $stmt->get_result();
