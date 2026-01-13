@@ -100,6 +100,17 @@ try {
         if ($stmt->affected_rows > 0) {
             error_log("[ToyyibPay Callback] Order updated via order ID: $actualOrderId, Status: $paymentStatus");
             $response['success'] = true;
+            
+            // --- POINT EARNING LOGIC (Order ID path) ---
+            if ($paymentStatus == 'paid' && $amount > 0) {
+                $orderQ = $conn->query("SELECT user_id FROM orders WHERE id = $actualOrderId LIMIT 1");
+                if ($orderRow = $orderQ->fetch_assoc()) {
+                    $userId = (int)$orderRow['user_id'];
+                    $pointsEarned = (float)$amount * 0.10;
+                    $conn->query("UPDATE users SET points = points + $pointsEarned WHERE id = $userId");
+                    error_log("[Loyalty] User $userId earned RM $pointsEarned points from Order ID $actualOrderId");
+                }
+            }
         }
         $stmt->close();
     }
