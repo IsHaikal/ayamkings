@@ -49,8 +49,13 @@ try {
         $response['message'] = 'Invalid request method.';
     }
 } catch (Exception $e) {
+    if (isset($conn)) {
+        $dbInfo = "[DB: " . DB_NAME . " @ " . DB_HOST . "]";
+    } else {
+        $dbInfo = "[DB: Not Connected]";
+    }
     $response['success'] = false;
-    $response['message'] = 'Server Error: ' . $e->getMessage();
+    $response['message'] = 'Server Error ' . $dbInfo . ': ' . $e->getMessage();
 }
 
 echo json_encode($response);
