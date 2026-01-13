@@ -37,9 +37,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $price = $data['price'] ?? 0.00;
         $category = $data['category'] ?? ''; // Expecting string
         $category = $data['category'] ?? ''; // Expecting string
+        $category = $data['category'] ?? ''; // Expecting string
         $image_url = $data['image_url'] ?? 'https://placehold.co/100x100/FFD700/8B4513?text=Item';
-        $is_sold_out = isset($data['is_sold_out']) ? (int)$data['is_sold_out'] : 0;
-        error_log("[DEBUG POST] Name: '$name', Desc: '$description', Price: '$price', Category: '$category', Image_URL: '$image_url', SoldOut: '$is_sold_out'");
+        error_log("[DEBUG POST] Name: '$name', Desc: '$description', Price: '$price', Category: '$category', Image_URL: '$image_url'");
 
         if (empty($name) || !is_numeric($price) || empty($category)) {
             $response['message'] = 'Name, price, and category are required.';
@@ -54,14 +54,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
             exit();
         }
 
-        $stmt = $conn->prepare("INSERT INTO menu (name, description, price, category, image_url, is_sold_out) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO menu (name, description, price, category, image_url) VALUES (?, ?, ?, ?, ?)");
         if ($stmt === false) {
              error_log("[ERROR POST] Prepare failed: (" . $conn->errno . ") " . $conn->error);
              $response['message'] = 'Prepare failed: ' . $conn->error;
              echo json_encode($response);
              exit();
         }
-        $stmt->bind_param("ssdssi", $name, $description, $price, $category, $image_url, $is_sold_out);
+        $stmt->bind_param("ssdss", $name, $description, $price, $category, $image_url);
 
         if ($stmt->execute()) {
             $response['success'] = true;
@@ -82,13 +82,11 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $price = $data['price'] ?? 0.00;
         $category = $data['category'] ?? ''; // Expecting string
         $image_url = $data['image_url'] ?? null;
-        $is_sold_out = isset($data['is_sold_out']) ? (int)$data['is_sold_out'] : null;
 
         error_log("[DEBUG PUT] ID from GET: '$id'");
         error_log("[DEBUG PUT] Name from POST data: '$name'");
         error_log("[DEBUG PUT] Category from POST data: '$category'");
         error_log("[DEBUG PUT] Image_URL from POST data: " . ($image_url === null ? 'null' : "'$image_url'"));
-        error_log("[DEBUG PUT] SoldOut from POST data: " . ($is_sold_out === null ? 'null' : "'$is_sold_out'"));
 
         if (empty($id) || empty($name) || empty($price) || empty($category)) {
             $response['message'] = 'ID, name, price, and category are required for update.';
@@ -113,13 +111,6 @@ switch ($_SERVER['REQUEST_METHOD']) {
             $bind_params .= "s";
             $bind_values[] = $image_url;
             error_log("[DEBUG PUT] Image URL included in update: '$image_url'");
-        }
-
-        // Only update is_sold_out if provided
-        if ($is_sold_out !== null) {
-            $update_fields[] = "is_sold_out = ?";
-            $bind_params .= "i";
-            $bind_values[] = $is_sold_out;
         }
 
         if (empty($update_fields)) {

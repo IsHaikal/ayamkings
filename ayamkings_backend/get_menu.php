@@ -25,7 +25,7 @@ try {
         $conn = getDbConnection();
 
         // Fetch menu items
-        $sql = "SELECT id, name, description, price, category, image_url, is_sold_out FROM menu ORDER BY id ASC";
+        $sql = "SELECT id, name, description, price, category, image_url FROM menu ORDER BY id ASC";
         $result = $conn->query($sql);
 
         if ($result) {
@@ -40,12 +40,12 @@ try {
             $response['menuItems'] = $menuItems;
             $response['message'] = 'Menu items fetched successfully.';
         } else {
-            throw new Exception("Query failed on " . DB_NAME . "@" . DB_HOST . ": " . $conn->error);
+            throw new Exception("Database query failed: " . $conn->error);
         }
 
         $conn->close();
     } else {
-        $response['message'] = 'Server Error (' . DB_NAME . ' on ' . DB_HOST . '): ' . $conn->error;
+        $response['message'] = 'Invalid request method.';
     }
 } catch (Exception $e) {
     $response['success'] = false;
