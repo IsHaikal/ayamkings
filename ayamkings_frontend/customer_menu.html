@@ -2841,6 +2841,57 @@
         const orderHistoryList = document.getElementById('orderHistoryList');
         let orderHistoryInterval = null;
 
+        // --- Function to open review modal from order history ---
+        async function openReviewFromHistory(itemId, itemName, orderId) {
+            if (!currentUserId) {
+                showMessage("Please log in to submit a review.", true);
+                return;
+            }
+
+            // Check if user can review this item (hasn't already reviewed)
+            try {
+                const checkResponse = await fetch(getApiUrl(`check_can_review.php?user_id=${currentUserId}&menu_item_id=${itemId}`));
+                const checkData = await checkResponse.json();
+
+                if (!checkData.can_review) {
+                    if (checkData.already_reviewed) {
+                        showMessage("You have already reviewed this item.", true);
+                    } else {
+                        showMessage(checkData.message || "Cannot review this item.", true);
+                    }
+                    return;
+                }
+
+                // Open review modal with item details
+                const reviewModal = document.getElementById('reviewModal');
+                const reviewItemName = document.getElementById('reviewItemName');
+                const reviewMenuItemIdInput = document.getElementById('reviewMenuItemId');
+                const reviewUserIdInput = document.getElementById('reviewUserId');
+                const reviewForm = document.getElementById('reviewForm');
+
+                reviewItemName.textContent = itemName;
+                reviewMenuItemIdInput.value = itemId;
+                reviewUserIdInput.value = currentUserId;
+                reviewForm.reset();
+
+                // Reset editing mode
+                editingReviewId = null;
+                editingMenuItemId = null;
+                const submitBtn = reviewForm.querySelector('button[type="submit"]');
+                if (submitBtn) {
+                    submitBtn.innerHTML = 'Submit Review';
+                }
+
+                reviewModal.style.display = 'flex';
+            } catch (error) {
+                console.error('Error checking review status:', error);
+                showMessage("Error checking review status.", true);
+            }
+        }
+
+        // Make function globally accessible for onclick handlers
+        window.openReviewFromHistory = openReviewFromHistory;
+
         viewOrderHistoryButton.addEventListener('click', () => {
             if (!currentUserId) {
                 showMessage("Please log in to view history.", true);
@@ -2942,12 +2993,27 @@
                     try { items = JSON.parse(order.items); } catch (e) { }
                 }
 
+                // Check if order is completed (can review)
+                const isCompleted = ['finished', 'completed', 'done', ''].includes(s);
+
                 if (items.length > 0) {
                     items.forEach(item => {
+                        // Add review button for completed orders
+                        const reviewBtn = isCompleted
+                            ? `<button onclick="openReviewFromHistory(${item.id}, '${item.name.replace(/'/g, "\\'")}', ${order.id})" 
+                                   class="ml-2 px-2 py-0.5 text-[10px] font-bold text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full border border-purple-200 transition-all hover:scale-105"
+                                   title="Write a review">
+                                   <i class="fas fa-star mr-1"></i>Review
+                               </button>`
+                            : '';
+
                         itemsHtml += `
-                    <div class="flex justify-between items-center text-sm py-1 border-b border-gray-50 last:border-0">
-                                <span class="text-gray-700"><span class="font-bold text-gray-900">${item.quantity}x</span> ${item.name}</span>
-                                <span class="text-gray-500 font-mono text-xs">RM ${(item.price * item.quantity).toFixed(2)}</span>
+                    <div class="flex justify-between items-center text-sm py-2 border-b border-gray-50 last:border-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-gray-700"><span class="font-bold text-gray-900">${item.quantity}x</span> ${item.name}</span>
+                                    ${reviewBtn}
+                                </div>
+                                <span class="text-gray-500 font-mono text-xs whitespace-nowrap">RM ${(item.price * item.quantity).toFixed(2)}</span>
                             </div>
                     `;
                     });
