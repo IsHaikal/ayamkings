@@ -240,6 +240,14 @@
                                 class="fas fa-fire"></i></span>
                         Daily Specials
                     </a>
+                    <a href="#customer-feedback"
+                        class="flex items-center p-3.5 rounded-xl text-gray-600 hover:bg-white/50 transition-all font-semibold group"
+                        data-section="customer-feedback">
+                        <span
+                            class="w-8 h-8 rounded-lg bg-gray-100 group-hover:bg-white flex items-center justify-center mr-3 transition-colors text-gray-400 group-hover:text-blue-500"><i
+                                class="fas fa-comment-dots"></i></span>
+                        Customer Feedback
+                    </a>
                 </nav>
                 <div class="mt-auto pt-6 border-t border-gray-200/50">
                     <p class="text-xs text-gray-500 text-center font-medium">Ayam Kings Admin v2.0</p>
@@ -290,6 +298,35 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+            </section>
+
+            <!-- Customer Feedback Section -->
+            <section id="customer-feedback" class="dashboard-section animate-fade-in hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-extrabold text-black tracking-tight">Customer Live Feedback</h2>
+                        <p class="text-gray-700 font-medium">Real-time reviews from your customers.</p>
+                    </div>
+                    <div class="glass px-5 py-2.5 rounded-xl flex items-center gap-3 shadow-sm border border-white/60">
+                        <div class="flex flex-col items-end">
+                            <span class="text-2xl font-black text-amber-500 leading-none"
+                                id="feedbackAverageRating">0.0</span>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Avg Rating</span>
+                        </div>
+                        <div class="h-8 w-px bg-gray-200"></div>
+                        <div class="flex text-amber-400 text-sm gap-0.5">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="feedbackGrid">
+                    <!-- Reviews will be loaded here -->
                 </div>
             </section>
 
@@ -654,6 +691,8 @@
                 if (targetId === 'statistics-management') {
                     fetchStatistics();
                     fetchTopSelling();
+                } else if (targetId === 'customer-feedback') {
+                    fetchCustomerFeedback();
                 }
             });
         });
@@ -1094,7 +1133,9 @@
             fetchUsers();
             initDateFilters();
             fetchStatistics();
+            fetchStatistics();
             fetchSpecials();
+            fetchCustomerFeedback();
 
             // Daily Specials Button
             document.getElementById('addSpecialButton').addEventListener('click', () => openSpecialModal());
@@ -1319,6 +1360,94 @@
                 document.getElementById('specialImageUrl').value = '';
             }
         });
+        // ========== CUSTOMER FEEDBACK LOGIC ==========
+        async function fetchCustomerFeedback() {
+            try {
+                const res = await fetch(getApiUrl('get_all_reviews.php'));
+                const data = await res.json();
+                if (data.success) {
+                    displayCustomerReviews(data.reviews);
+                }
+            } catch (e) { console.error('Error fetching feedback:', e); }
+        }
+
+        function displayCustomerReviews(reviews) {
+            const grid = document.getElementById('feedbackGrid');
+            const avgDisplay = document.getElementById('feedbackAverageRating');
+
+            if (!reviews || reviews.length === 0) {
+                grid.innerHTML = `
+                    <div class="col-span-full text-center py-20">
+                        <div class="w-20 h-20 bg-gray-100 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-3">
+                            <i class="far fa-comments text-4xl text-gray-300"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-700 mb-2">No feedback yet</h3>
+                        <p class="text-gray-400 font-medium">Customer reviews will appear here.</p>
+                    </div>`;
+                avgDisplay.textContent = "0.0";
+                return;
+            }
+
+            // Calculate overall average
+            const totalRating = reviews.reduce((sum, r) => sum + parseFloat(r.rating), 0);
+            const avg = (totalRating / reviews.length).toFixed(1);
+            avgDisplay.textContent = avg;
+
+            grid.innerHTML = reviews.map((r, index) => {
+                const stars = Array(5).fill(0).map((_, i) =>
+                    i < Math.round(r.rating)
+                        ? '<i class="fas fa-star text-amber-400 text-[10px]"></i>'
+                        : '<i class="fas fa-star text-gray-200 text-[10px]"></i>'
+                ).join('');
+
+                const date = new Date(r.review_date).toLocaleDateString(undefined, {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+
+                // Random gradient for user avatar fallback if no image
+                const gradients = ['from-pink-500 to-rose-500', 'from-blue-400 to-indigo-500', 'from-emerald-400 to-teal-500', 'from-orange-400 to-amber-500'];
+                const randGradient = gradients[index % gradients.length];
+
+                return `
+                    <div class="group relative bg-white/60 backdrop-blur-sm rounded-3xl p-6 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/50 hover:bg-white transition-all duration-300 flex flex-col h-full hover:-translate-y-1">
+                        <div class="absolute -inset-0.5 bg-gradient-to-r ${randGradient} rounded-3xl opacity-0 group-hover:opacity-10 blur transition duration-500 -z-10"></div>
+                        
+                        <div class="flex justify-between items-start mb-5">
+                            <div class="flex items-center gap-3.5">
+                                <div class="relative">
+                                    <img src="${getUploadUrl(r.user_image)}" alt="${r.user_name}" class="w-11 h-11 rounded-2xl object-cover bg-gray-100 shadow-sm border border-white">
+                                    <div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
+                                        <div class="w-2.5 h-2.5 rounded-full bg-emerald-500 border border-white"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-gray-900 text-sm leading-tight mb-0.5">${r.user_name}</h4>
+                                    <span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">${date}</span>
+                                </div>
+                            </div>
+                            <div class="bg-amber-50/50 px-2.5 py-1.5 rounded-xl border border-amber-100/50 flex gap-0.5 group-hover:bg-amber-50 transition-colors">
+                                ${stars}
+                            </div>
+                        </div>
+
+                        <div class="mb-5 flex-1 relative">
+                            <i class="fas fa-quote-left absolute -top-1 -left-1 text-gray-100 text-4xl -z-10 group-hover:text-amber-500/10 transition-colors"></i>
+                            <p class="text-gray-600 text-sm leading-relaxed relative z-0 pl-1">"${r.comment}"</p>
+                        </div>
+
+                        <div class="mt-auto pt-4 border-t border-gray-100/50 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 border border-gray-100">
+                                <img src="${getUploadUrl(r.menu_item_image)}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="min-w-0">
+                                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Reviewed Item</p>
+                                <p class="text-xs font-bold text-gray-800 truncate group-hover:text-amber-600 transition-colors">${r.menu_item_name}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
     </script>
 </body>
 
