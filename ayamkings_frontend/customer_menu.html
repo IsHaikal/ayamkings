@@ -798,6 +798,21 @@
     <!-- Main Content Area -->
     <div class="container mx-auto px-6 py-8 flex flex-col lg:flex-row gap-8">
 
+        <!-- Points Display (Mobile/Desktop) -->
+        <div
+            class="w-full bg-amber-50 border border-amber-200 rounded-2xl p-4 flex justify-between items-center shadow-sm mb-4 lg:hidden">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                    <i class="fas fa-coins"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">My Points</p>
+                    <p class="text-lg font-extrabold text-gray-800">RM <span id="mobileUserPoints">0.00</span></p>
+                </div>
+            </div>
+            <div class="text-[10px] text-amber-600 font-bold bg-amber-100 px-2 py-1 rounded">10% Rebate</div>
+        </div>
+
         <!-- Premium Sidebar -->
         <aside class="w-full lg:w-72 flex-shrink-0">
             <div class="lg:sticky lg:top-24 space-y-6">
@@ -1302,7 +1317,49 @@
                     window.location.href = 'index.html'; // Redirect to main index page
                 }, 1000);
             });
-        })();
+        });
+        }) ();
+
+        // --- Points Logic ---
+        let userPointsBalance = 0.00;
+
+        async function fetchUserProfile() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/get_profile.php?id=${currentUserId}`);
+                const data = await response.json();
+                if (data.success) {
+                    // Update Points
+                    userPointsBalance = parseFloat(data.user.points || 0);
+                    const formattedPoints = userPointsBalance.toFixed(2);
+
+                    // Mobile
+                    if (document.getElementById('mobileUserPoints')) {
+                        document.getElementById('mobileUserPoints').textContent = formattedPoints;
+                    }
+
+                    // Desktop (inject if needed)
+                    const desktopPointsContainer = document.querySelector('nav .items-center.gap-2.px-3');
+                    if (desktopPointsContainer && !document.getElementById('desktopUserPoints')) {
+                        // Insert separator and points
+                        const separator = document.createElement('div');
+                        separator.className = 'h-4 w-px bg-gray-300 mx-2 hidden md:block';
+                        desktopPointsContainer.parentElement.insertBefore(separator, desktopPointsContainer.nextSibling);
+
+                        const pointsDiv = document.createElement('div');
+                        pointsDiv.className = 'hidden md:flex items-center gap-2 px-3 py-1.5 bg-amber-50 rounded-full border border-amber-200 text-amber-700';
+                        pointsDiv.innerHTML = `<i class="fas fa-coins"></i> <span class="text-xs font-bold uppercase tracking-wide">RM <span id="desktopUserPoints">${formattedPoints}</span></span>`;
+                        desktopPointsContainer.parentElement.insertBefore(pointsDiv, separator.nextSibling);
+                    } else if (document.getElementById('desktopUserPoints')) {
+                        document.getElementById('desktopUserPoints').textContent = formattedPoints;
+                    }
+                }
+            } catch (error) {
+                console.error('Error fetching profile:', error);
+            }
+        }
+
+        // Call on load
+        if (currentUserId) fetchUserProfile();
 
         // --- Cart Management ---
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -1417,6 +1474,74 @@
             }
 
             cartTotalEl.textContent = `RM ${finalTotal.toFixed(2)}`;
+
+            // --- Points Redemption UI in Cart ---
+            // Remove existing points section if re-rendering is tricky, or just re-inject?
+            // Since we clear cartItemsList, we can append points section AFTER it but BEFORE checkout button area.
+            // Or simpler: Manipulate a dedicated container.
+
+            let pointsSection = document.getElementById('pointsRedemptionSection');
+            if (!pointsSection) {
+                // Create if not exists (insert after discountRow)
+                pointsSection = document.createElement('div');
+                pointsSection.id = 'pointsRedemptionSection';
+                pointsSection.className = 'mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3 mb-4 hidden';
+                pointsSection.innerHTML = `
+                    <label class="flex items-center gap-3 cursor-pointer select-none">
+                        <div class="relative flex items-center">
+                            <input type="checkbox" id="redeemPointsCheckbox" class="peer sr-only">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                        </div>
+                        <div class="flex-1">
+                            <span class="text-sm font-bold text-gray-800">Use Points (Rebate)</span>
+                            <p class="text-xs text-gray-500">Available: RM <span id="modalAvailablePoints">0.00</span></p>
+                        </div>
+                        <div class="text-sm font-bold text-amber-600">- RM <span id="modalDiscountAmount">0.00</span></div>
+                    </label>
+                 `;
+                // Insert before cartTotal container (which is typically near checkout button?)
+                // Actually, let's insert it before the "Total" display or inside the modal content flow.
+                // Finding a good insertion point:
+                const discountRow = document.getElementById('discountRow');
+                if (discountRow && discountRow.parentNode) {
+                    discountRow.parentNode.insertBefore(pointsSection, discountRow.nextSibling);
+                }
+            }
+
+            // Logic to show/hide points section
+            if (userPointsBalance > 0 && finalTotal > 0) {
+                pointsSection.classList.remove('hidden');
+                document.getElementById('modalAvailablePoints').textContent = userPointsBalance.toFixed(2);
+
+                // Update Logic
+                const checkbox = document.getElementById('redeemPointsCheckbox');
+                // Remove old listener to avoid dupes? It's okay, we can overwrite onchange.
+                checkbox.onchange = function () {
+                    const isChecked = this.checked;
+                    let redeemAmount = 0;
+
+                    if (isChecked) {
+                        redeemAmount = Math.min(finalTotal, userPointsBalance);
+                    }
+
+                    document.getElementById('modalDiscountAmount').textContent = redeemAmount.toFixed(2);
+                    const payAmount = Math.max(0, finalTotal - redeemAmount);
+
+                    cartTotalEl.textContent = `RM ${payAmount.toFixed(2)}`;
+                    document.getElementById('checkoutButton').textContent = payAmount <= 0 ? 'Place Order (Free)' : `Checkout (RM ${payAmount.toFixed(2)})`;
+                };
+                // Trigger once to set state if already checked (e.g. re-render)
+                if (checkbox.checked) checkbox.onchange();
+                else {
+                    // Reset text if unchecked
+                    cartTotalEl.textContent = `RM ${finalTotal.toFixed(2)}`;
+                    document.getElementById('checkoutButton').textContent = 'Proceed to Checkout';
+                }
+            } else {
+                pointsSection.classList.add('hidden');
+            }
+
+
             // Update Payment Modal Total logic
             if (document.getElementById('paymentTotalAmount')) {
                 document.getElementById('paymentTotalAmount').textContent = `RM ${finalTotal.toFixed(2)}`;
@@ -1521,71 +1646,140 @@
         // --- Payment Simulation Logic (NEW) ---
 
         // 1. Extract original checkout logic into a standalone function
-        async function placeOrder() {
-            // Ensure items array structure matches what place_order.php expects
-            let total_price = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            const user_id = currentUserId; // Use the authenticated user from page load, not live localStorage
+        // Calculate Points Redemption
+        const redeemPointsCheckbox = document.getElementById('redeemPointsCheckbox');
+        const redeemPoints = redeemPointsCheckbox && redeemPointsCheckbox.checked;
+        // Recalculate everything to be safe
+        // Ensure items array structure matches what place_order.php expects
+        let total_price = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-            // Calculate Discount
-            let discount_amount = 0;
-            let final_coupon_code = null;
+        // Calculate Coupon Discount
+        let discount_amount = 0;
+        let final_coupon_code = null;
 
-            if (currentCoupon) {
-                if (currentCoupon.type === 'percent') {
-                    discount_amount = total_price * (parseFloat(currentCoupon.value) / 100);
-                } else if (currentCoupon.type === 'fixed') {
-                    discount_amount = parseFloat(currentCoupon.value);
-                }
-                if (discount_amount > total_price) discount_amount = total_price;
-                final_coupon_code = currentCoupon.code;
+        if (currentCoupon) {
+            if (currentCoupon.type === 'percent') {
+                discount_amount = total_price * (parseFloat(currentCoupon.value) / 100);
+            } else if (currentCoupon.type === 'fixed') {
+                discount_amount = parseFloat(currentCoupon.value);
             }
+            if (discount_amount > total_price) discount_amount = total_price;
+            final_coupon_code = currentCoupon.code;
+        }
 
-            const items = cart.map(item => ({
-                id: item.id, // menu_item_id
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity,
-                subtotal: item.price * item.quantity
-            }));
+        // NOTE: place_order.php creates the order record. It doesn't handle payments.
+        // But if we redeem points, the amount TO PAY decreases. 
+        // The ORDER TOTAL remains the same (conceptually), but the payment requested will be less.
+        // OR do we treat points as a discount on the order itself? 
+        // Let's pass `redeem_points` to `create_payment.php` NOT `place_order.php`.`place_order.php` just records items.
+        // Wait, if order is "paid", `place_order` might not care about points. 
+        // But `create_payment` needs to know.
 
-            // Debug: Log what we're sending
-            console.log('Placing order with:', { user_id, total_price, discount_amount, final_coupon_code, items_count: items.length });
+        // However, verify if place_order needs to know about points? Ideally yes for reporting.
+        // For MVP, we handle points in `create_payment` (the transaction layer).
 
+        const user_id = currentUserId;
+        const items = cart.map(item => ({
+            id: item.id, // menu_item_id
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            subtotal: item.price * item.quantity
+        }));
+
+        // Debug: Log what we're sending
+        console.log('Placing order with:', { user_id, total_price, discount_amount, final_coupon_code, items_count: items.length });
+
+        try {
+            // 1. Create Order
+            const response = await fetch(getApiUrl('place_order.php'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: user_id,
+                    total_price: total_price,
+                    items: items,
+                    coupon_code: final_coupon_code,
+                    discount_amount: discount_amount
+                })
+            });
+
+            const data = await response.json();
+            console.log('Place order response:', data);
+
+            if (data.success) {
+                // 2. Initiate Payment (ToyyibPay)
+                // We need to calculate the actual amount to charge (Total - Coupon - Points)
+                let amountToPay = total_price - discount_amount;
+                if (redeemPoints) {
+                    // Logic duplicated from UI, but safe
+                    const maxRedeem = Math.min(amountToPay, userPointsBalance);
+                    amountToPay -= maxRedeem;
+                    // Optimization: We pass `redeem_points: true` to backend, let backend calc exact amount for security.
+                    // But we send the *base* amount (Total - Coupon) as `amount`. 
+                    // Wait, `create_payment` expects `amount`. If we send reduced amount, backend might deduct points AGAIN?
+                    // FIX: `create_payment` logic I wrote:
+                    // $originalAmount = (float)$amount;
+                    // if ($redeemPoints) { ... deduce logic ... $finalAmount = $originalAmount - points ... }
+                    // So we should send the POST-COUPON amount here.
+                }
+
+                // Actually, if we send `redeem_points: true`, the Backend calculates deduction from User DB.
+                // So we send `amount` = (Total - Coupon). Backend will subtract points from that.
+                const amountForPayment = total_price - discount_amount;
+
+                initiatePayment(data.order_id, amountForPayment, { full_name: currentUserFullName, email: localStorage.getItem('userEmail'), phone: '0123456789' }, redeemPoints);
+
+            } else {
+                showMessage(data.message || "Failed to place order.", true);
+            }
+        } catch (error) {
+            console.error('Error placing order:', error);
+            showMessage("An error occurred while placing your order.", true);
+        }
+        }
+
+        async function initiatePayment(orderId, amount, user, redeemPoints) {
             try {
-                const response = await fetch(getApiUrl('place_order.php'), {
+                const response = await fetch(`${API_BASE_URL}/create_payment.php`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        user_id: user_id,
-                        total_price: total_price,
-                        items: items,
-                        coupon_code: final_coupon_code,
-                        discount_amount: discount_amount
+                        order_id: orderId,
+                        amount: amount,
+                        customer_name: user.full_name,
+                        customer_email: user.email || 'customer@ayamkings.com',
+                        customer_phone: user.phone || '0123456789',
+                        user_id: currentUserId,
+                        redeem_points: redeemPoints
                     })
                 });
 
-                const data = await response.json();
-                console.log('Place order response:', data);
+                const result = await response.json();
 
-                if (data.success) {
-                    // showMessage is redundant here as modal success visual covers it, but good for fallback
-                    // Clear cart
-                    localStorage.removeItem('cart');
-                    cart = [];
-                    updateCartDisplay();
-                    document.getElementById('cartModal').style.display = 'none';
-
-                    // Redirect to order history or refresh after a moment
-                    setTimeout(() => {
-                        document.getElementById('viewOrderHistoryButton').click();
-                        showMessage("Order placed! Track your order status here.");
-                    }, 500);
+                if (result.success) {
+                    if (result.is_free) {
+                        // Full redemption success
+                        localStorage.removeItem('cart');
+                        cart = [];
+                        updateCartDisplay();
+                        document.getElementById('cartModal').style.display = 'none';
+                        showMessage('Payment successful (Redeemed Points)!', false);
+                        setTimeout(() => {
+                            document.getElementById('viewOrderHistoryButton').click();
+                            // Reload profile to update points
+                            fetchUserProfile();
+                        }, 1000);
+                    } else {
+                        // Redirect to ToyyibPay
+                        window.location.href = result.payment_url;
+                    }
                 } else {
-                    showMessage(data.message || "Failed to place order.", true);
+                    showMessage(result.message || 'Payment initiation failed.', true);
                 }
             } catch (error) {
-                console.error('Error placing order:', error);
-                showMessage("An error occurred while placing your order.", true);
+                console.error('Payment Error:', error);
+                showMessage('Payment error. Please try again.', true);
             }
         }
 

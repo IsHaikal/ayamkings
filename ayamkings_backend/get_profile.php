@@ -13,7 +13,7 @@ if ($id <= 0) {
     exit();
 }
 
-$stmt = $conn->prepare("SELECT id, full_name, email, phone FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, full_name, email, phone, points FROM users WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();

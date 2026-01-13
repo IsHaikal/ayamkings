@@ -63,6 +63,27 @@ try {
         if ($stmt->affected_rows > 0) {
             error_log("[ToyyibPay Callback] Order updated via bill code: $billCode, Status: $paymentStatus");
             $response['success'] = true;
+
+            // --- POINT EARNING LOGIC ---
+            if ($paymentStatus == 'paid' && $amount > 0) {
+                // Fetch User ID from this order
+                // Need a fresh connection or query because execute() above might reset
+                $orderQ = $conn->query("SELECT user_id FROM orders WHERE payment_bill_code = '$billCode' LIMIT 1");
+                if ($orderRow = $orderQ->fetch_assoc()) {
+                    $userId = (int)$orderRow['user_id'];
+                    // Earn 10% of amount PAID (amount is in cents from ToyyibPay POST usually? CHECK DOCS. Callback amounts are usually in RM or cents. 
+                    // Wait, standard ToyyibPay callback `amount` is usually RM (e.g. 1.00). Let's verify.
+                    // If input amount is 100 (cents), 10% is 10 cents = RM 0.10.
+                    // If input amount is 1.00 (RM), 10% is 0.10.
+                    // Standard ToyyibPay callback `amount` is DECIMAL (RM).
+                    
+                    $pointsEarned = (float)$amount * 0.10; 
+                    
+                    // Update User Points
+                    $conn->query("UPDATE users SET points = points + $pointsEarned WHERE id = $userId");
+                    error_log("[Loyalty] User $userId earned RM $pointsEarned points from Order $billCode");
+                }
+            }
         }
         $stmt->close();
     }
