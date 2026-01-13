@@ -1320,6 +1320,7 @@
         })();
 
         // --- Points Logic ---
+        console.log("Initializing Points System...");
         let userPointsBalance = 0.00;
 
         async function fetchUserProfile() {
@@ -1645,97 +1646,98 @@
         // --- Payment Simulation Logic (NEW) ---
 
         // 1. Extract original checkout logic into a standalone function
-        // Calculate Points Redemption
-        const redeemPointsCheckbox = document.getElementById('redeemPointsCheckbox');
-        const redeemPoints = redeemPointsCheckbox && redeemPointsCheckbox.checked;
-        // Recalculate everything to be safe
-        // Ensure items array structure matches what place_order.php expects
-        let total_price = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        async function placeOrder() {
+            // Calculate Points Redemption
+            const redeemPointsCheckbox = document.getElementById('redeemPointsCheckbox');
+            const redeemPoints = redeemPointsCheckbox && redeemPointsCheckbox.checked;
+            // Recalculate everything to be safe
+            // Ensure items array structure matches what place_order.php expects
+            let total_price = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-        // Calculate Coupon Discount
-        let discount_amount = 0;
-        let final_coupon_code = null;
+            // Calculate Coupon Discount
+            let discount_amount = 0;
+            let final_coupon_code = null;
 
-        if (currentCoupon) {
-            if (currentCoupon.type === 'percent') {
-                discount_amount = total_price * (parseFloat(currentCoupon.value) / 100);
-            } else if (currentCoupon.type === 'fixed') {
-                discount_amount = parseFloat(currentCoupon.value);
-            }
-            if (discount_amount > total_price) discount_amount = total_price;
-            final_coupon_code = currentCoupon.code;
-        }
-
-        // NOTE: place_order.php creates the order record. It doesn't handle payments.
-        // But if we redeem points, the amount TO PAY decreases. 
-        // The ORDER TOTAL remains the same (conceptually), but the payment requested will be less.
-        // OR do we treat points as a discount on the order itself? 
-        // Let's pass `redeem_points` to `create_payment.php` NOT `place_order.php`.`place_order.php` just records items.
-        // Wait, if order is "paid", `place_order` might not care about points. 
-        // But `create_payment` needs to know.
-
-        // However, verify if place_order needs to know about points? Ideally yes for reporting.
-        // For MVP, we handle points in `create_payment` (the transaction layer).
-
-        const user_id = currentUserId;
-        const items = cart.map(item => ({
-            id: item.id, // menu_item_id
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            subtotal: item.price * item.quantity
-        }));
-
-        // Debug: Log what we're sending
-        console.log('Placing order with:', { user_id, total_price, discount_amount, final_coupon_code, items_count: items.length });
-
-        try {
-            // 1. Create Order
-            const response = await fetch(getApiUrl('place_order.php'), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: user_id,
-                    total_price: total_price,
-                    items: items,
-                    coupon_code: final_coupon_code,
-                    discount_amount: discount_amount
-                })
-            });
-
-            const data = await response.json();
-            console.log('Place order response:', data);
-
-            if (data.success) {
-                // 2. Initiate Payment (ToyyibPay)
-                // We need to calculate the actual amount to charge (Total - Coupon - Points)
-                let amountToPay = total_price - discount_amount;
-                if (redeemPoints) {
-                    // Logic duplicated from UI, but safe
-                    const maxRedeem = Math.min(amountToPay, userPointsBalance);
-                    amountToPay -= maxRedeem;
-                    // Optimization: We pass `redeem_points: true` to backend, let backend calc exact amount for security.
-                    // But we send the *base* amount (Total - Coupon) as `amount`. 
-                    // Wait, `create_payment` expects `amount`. If we send reduced amount, backend might deduct points AGAIN?
-                    // FIX: `create_payment` logic I wrote:
-                    // $originalAmount = (float)$amount;
-                    // if ($redeemPoints) { ... deduce logic ... $finalAmount = $originalAmount - points ... }
-                    // So we should send the POST-COUPON amount here.
+            if (currentCoupon) {
+                if (currentCoupon.type === 'percent') {
+                    discount_amount = total_price * (parseFloat(currentCoupon.value) / 100);
+                } else if (currentCoupon.type === 'fixed') {
+                    discount_amount = parseFloat(currentCoupon.value);
                 }
-
-                // Actually, if we send `redeem_points: true`, the Backend calculates deduction from User DB.
-                // So we send `amount` = (Total - Coupon). Backend will subtract points from that.
-                const amountForPayment = total_price - discount_amount;
-
-                initiatePayment(data.order_id, amountForPayment, { full_name: currentUserFullName, email: localStorage.getItem('userEmail'), phone: '0123456789' }, redeemPoints);
-
-            } else {
-                showMessage(data.message || "Failed to place order.", true);
+                if (discount_amount > total_price) discount_amount = total_price;
+                final_coupon_code = currentCoupon.code;
             }
-        } catch (error) {
-            console.error('Error placing order:', error);
-            showMessage("An error occurred while placing your order.", true);
-        }
+
+            // NOTE: place_order.php creates the order record. It doesn't handle payments.
+            // But if we redeem points, the amount TO PAY decreases. 
+            // The ORDER TOTAL remains the same (conceptually), but the payment requested will be less.
+            // OR do we treat points as a discount on the order itself? 
+            // Let's pass `redeem_points` to `create_payment.php` NOT `place_order.php`.`place_order.php` just records items.
+            // Wait, if order is "paid", `place_order` might not care about points. 
+            // But `create_payment` needs to know.
+
+            // However, verify if place_order needs to know about points? Ideally yes for reporting.
+            // For MVP, we handle points in `create_payment` (the transaction layer).
+
+            const user_id = currentUserId;
+            const items = cart.map(item => ({
+                id: item.id, // menu_item_id
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                subtotal: item.price * item.quantity
+            }));
+
+            // Debug: Log what we're sending
+            console.log('Placing order with:', { user_id, total_price, discount_amount, final_coupon_code, items_count: items.length });
+
+            try {
+                // 1. Create Order
+                const response = await fetch(getApiUrl('place_order.php'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user_id,
+                        total_price: total_price,
+                        items: items,
+                        coupon_code: final_coupon_code,
+                        discount_amount: discount_amount
+                    })
+                });
+
+                const data = await response.json();
+                console.log('Place order response:', data);
+
+                if (data.success) {
+                    // 2. Initiate Payment (ToyyibPay)
+                    // We need to calculate the actual amount to charge (Total - Coupon - Points)
+                    let amountToPay = total_price - discount_amount;
+                    if (redeemPoints) {
+                        // Logic duplicated from UI, but safe
+                        const maxRedeem = Math.min(amountToPay, userPointsBalance);
+                        amountToPay -= maxRedeem;
+                        // Optimization: We pass `redeem_points: true` to backend, let backend calc exact amount for security.
+                        // But we send the *base* amount (Total - Coupon) as `amount`. 
+                        // Wait, `create_payment` expects `amount`. If we send reduced amount, backend might deduct points AGAIN?
+                        // FIX: `create_payment` logic I wrote:
+                        // $originalAmount = (float)$amount;
+                        // if ($redeemPoints) { ... deduce logic ... $finalAmount = $originalAmount - points ... }
+                        // So we should send the POST-COUPON amount here.
+                    }
+
+                    // Actually, if we send `redeem_points: true`, the Backend calculates deduction from User DB.
+                    // So we send `amount` = (Total - Coupon). Backend will subtract points from that.
+                    const amountForPayment = total_price - discount_amount;
+
+                    initiatePayment(data.order_id, amountForPayment, { full_name: currentUserFullName, email: localStorage.getItem('userEmail'), phone: '0123456789' }, redeemPoints);
+
+                } else {
+                    showMessage(data.message || "Failed to place order.", true);
+                }
+            } catch (error) {
+                console.error('Error placing order:', error);
+                showMessage("An error occurred while placing your order.", true);
+            }
         }
 
         async function initiatePayment(orderId, amount, user, redeemPoints) {
