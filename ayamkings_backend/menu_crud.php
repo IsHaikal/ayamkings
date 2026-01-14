@@ -38,8 +38,9 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $category = $data['category'] ?? ''; // Expecting string
         $category = $data['category'] ?? ''; // Expecting string
         $category = $data['category'] ?? ''; // Expecting string
+        $is_available = isset($data['is_available']) ? intval($data['is_available']) : 1; // Default to 1 (Available)
         $image_url = $data['image_url'] ?? 'https://placehold.co/100x100/FFD700/8B4513?text=Item';
-        error_log("[DEBUG POST] Name: '$name', Desc: '$description', Price: '$price', Category: '$category', Image_URL: '$image_url'");
+        error_log("[DEBUG POST] Name: '$name', Desc: '$description', Price: '$price', Category: '$category', Image_URL: '$image_url', Available: '$is_available'");
 
         if (empty($name) || !is_numeric($price) || empty($category)) {
             $response['message'] = 'Name, price, and category are required.';
@@ -54,14 +55,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
             exit();
         }
 
-        $stmt = $conn->prepare("INSERT INTO menu (name, description, price, category, image_url) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO menu (name, description, price, category, image_url, is_available) VALUES (?, ?, ?, ?, ?, ?)");
         if ($stmt === false) {
              error_log("[ERROR POST] Prepare failed: (" . $conn->errno . ") " . $conn->error);
              $response['message'] = 'Prepare failed: ' . $conn->error;
              echo json_encode($response);
              exit();
         }
-        $stmt->bind_param("ssdss", $name, $description, $price, $category, $image_url);
+        $stmt->bind_param("ssdssi", $name, $description, $price, $category, $image_url, $is_available);
 
         if ($stmt->execute()) {
             $response['success'] = true;
@@ -82,11 +83,13 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $price = $data['price'] ?? 0.00;
         $category = $data['category'] ?? ''; // Expecting string
         $image_url = $data['image_url'] ?? null;
+        $is_available = isset($data['is_available']) ? intval($data['is_available']) : null; // Only update if provided
 
         error_log("[DEBUG PUT] ID from GET: '$id'");
         error_log("[DEBUG PUT] Name from POST data: '$name'");
         error_log("[DEBUG PUT] Category from POST data: '$category'");
         error_log("[DEBUG PUT] Image_URL from POST data: " . ($image_url === null ? 'null' : "'$image_url'"));
+        error_log("[DEBUG PUT] Available from POST data: " . ($is_available === null ? 'null' : "'$is_available'"));
 
         if (empty($id) || empty($name) || empty($price) || empty($category)) {
             $response['message'] = 'ID, name, price, and category are required for update.';
@@ -106,7 +109,15 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $update_fields[] = "price = ?"; $bind_params .= "d"; $bind_values[] = $price;
         $update_fields[] = "category = ?"; $bind_params .= "s"; $bind_values[] = $category;
 
+        // Update is_available if provided
+        if ($is_available !== null) {
+            $update_fields[] = "is_available = ?";
+            $bind_params .= "i";
+            $bind_values[] = $is_available;
+        }
+
         // Only update image_url if it was explicitly provided (e.g., from a new upload)
+        if ($image_url !== null) {
             $update_fields[] = "image_url = ?";
             $bind_params .= "s";
             $bind_values[] = $image_url;

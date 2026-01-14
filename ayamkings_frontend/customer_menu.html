@@ -2378,6 +2378,7 @@
                 const displayedPrice = parseFloat(item.price).toFixed(2);
                 const averageRating = parseFloat(item.average_rating || 0).toFixed(1);
                 const reviewCount = item.review_count || 0;
+                const isAvailable = (item.is_available == 1 || item.is_available === undefined);
 
                 // Check if item is in cart
                 const cartItem = cart.find(c => c.id == item.id);
@@ -2385,7 +2386,13 @@
 
                 // Button Logic: Add vs Quantity Control
                 let buttonHtml = '';
-                if (quantity > 0) {
+                if (!isAvailable) {
+                    buttonHtml = `
+                        <button class="w-full bg-gray-300 text-gray-500 font-bold py-2 px-4 rounded-xl cursor-not-allowed text-xs uppercase tracking-wider" disabled>
+                            Sold Out
+                        </button>
+                    `;
+                } else if (quantity > 0) {
                     buttonHtml = `
                         <div class="qty-control min-h-[50px] shadow-lg" onclick="event.stopPropagation()">
                             <div class="qty-btn bg-gray-700 hover:bg-gray-600" onclick="updateItemQuantityFromCard('${item.id}', -1)">-</div>
@@ -2404,7 +2411,13 @@
 
                 // Mobile button (smaller)
                 let mobileButtonHtml = '';
-                if (quantity > 0) {
+                if (!isAvailable) {
+                    mobileButtonHtml = `
+                        <button class="bg-gray-200 text-gray-400 font-bold py-1.5 px-3 rounded-lg text-[10px] uppercase cursor-not-allowed" disabled>
+                            Sold Out
+                        </button>
+                    `;
+                } else if (quantity > 0) {
                     mobileButtonHtml = `
                         <div class="mobile-qty-control" onclick="event.stopPropagation()">
                             <div class="qty-btn bg-gray-700 hover:bg-gray-600" onclick="updateItemQuantityFromCard('${item.id}', -1)">-</div>
@@ -2421,10 +2434,21 @@
                     `;
                 }
 
+                const soldOutOverlay = !isAvailable ? `
+                    <div class="absolute inset-0 bg-white/50 z-10 flex items-center justify-center pointer-events-none">
+                        <span class="bg-red-500 text-white text-xs font-bold px-2 py-1 transform -rotate-12 uppercase border border-white shadow-sm">Sold Out</span>
+                    </div>
+                ` : '';
+
+                const imgClass = !isAvailable ? 'grayscale opacity-70' : '';
+
                 menuItemDiv.innerHTML = `
                     <!-- Mobile List View - IMAGE LEFT 30%, DETAILS RIGHT 70% -->
-                    <div class="mobile-list-item">
-                        <img src="${getUploadUrl(item.image_url)}" alt="${item.name}" class="mobile-item-img">
+                    <div class="mobile-list-item ${!isAvailable ? 'opacity-75' : ''}">
+                        <div class="relative">
+                            <img src="${getUploadUrl(item.image_url)}" alt="${item.name}" class="mobile-item-img ${imgClass}">
+                            ${!isAvailable ? '<div class="absolute inset-0 flex items-center justify-center pointer-events-none"><span class="bg-red-600/90 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow-sm">SOLD OUT</span></div>' : ''}
+                        </div>
                         <div class="mobile-details">
                             <div>
                                 <div class="item-meta">
@@ -2445,9 +2469,10 @@
                     </div>
 
                     <!-- Desktop Grid View (hidden on mobile via CSS) -->
-                    <div class="desktop-card-view hidden sm:block">
-                        <div class="relative h-48 w-full overflow-hidden rounded-t-3xl">
-                            <img src="${getUploadUrl(item.image_url)}" alt="${item.name}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                    <div class="desktop-card-view hidden sm:block ${!isAvailable ? 'opacity-80' : ''}">
+                        <div class="relative h-48 w-full overflow-hidden rounded-t-3xl border-b border-gray-50">
+                            <img src="${getUploadUrl(item.image_url)}" alt="${item.name}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${imgClass}">
+                            ${soldOutOverlay}
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
                             <div class="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-white/20 backdrop-blur-md rounded-lg border border-white/20">
                                 <i class="fas fa-star text-amber-400 text-xs shadow-sm"></i>
