@@ -1,21 +1,7 @@
 <?php
 // update_order_status.php (NEW FILE: Handles updating order status)
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header('Content-Type: application/json');
-
-// Disable error display to prevent HTML in JSON response
-ini_set('display_errors', 0);
-error_reporting(E_ALL);
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/php_error_log.txt');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require_once __DIR__ . '/cors.php';
 
 $response = ['success' => false, 'message' => 'An unknown error occurred.'];
 
