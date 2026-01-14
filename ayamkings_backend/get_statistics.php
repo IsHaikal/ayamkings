@@ -65,59 +65,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     // --- Monthly Profit (Sales - Expenses) ---
     $statistics['monthly_profit'] = $statistics['monthly_sales'] - $statistics['monthly_expenses'];
 
-    // --- Chart Data (Last 12 Months Sales & Expenses) ---
-    // Sales data
-    $sql_chart_sales = "SELECT
-                            YEAR(order_date) AS year,
-                            MONTH(order_date) AS month,
-                            SUM(total_amount) AS total_sales
-                        FROM
-                            orders
-                        WHERE
-                            order_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH) AND status != 'cancelled'
-                        GROUP BY
-                            year, month
-                        ORDER BY
-                            year ASC, month ASC";
-    $sales_result = $conn->query($sql_chart_sales);
-    $sales_data = [];
-    if ($sales_result) {
-        while ($row = $sales_result->fetch_assoc()) {
-            $sales_data[sprintf('%04d-%02d', $row['year'], $row['month'])] = $row['total_sales'];
+    // --- Chart Data (Dynamic: Daily vs Monthly) ---
+    $start_dt = new DateTime($start_date);
+    $end_dt = new DateTime($end_date);
+    $interval = $start_dt->diff($end_dt);
+    $days_diff = $interval->days;
+
+    // Decide grouping: Daily if <= 31 days, Monthly otherwise
+    $is_daily = $days_diff <= 31;
+
+    if ($is_daily) {
+        // --- DAILY GROUPING ---
+        $sql_chart_sales = "SELECT DATE(order_date) as date, SUM(total_amount) as total_sales 
+                            FROM orders 
+                            WHERE DATE(order_date) BETWEEN '$start_date' AND '$end_date' AND status != 'cancelled'
+                            GROUP BY DATE(order_date) ORDER BY date ASC";
+        
+        $sql_chart_expenses = "SELECT DATE(expense_date) as date, SUM(amount) as total_expenses
+                               FROM expenses
+                               WHERE DATE(expense_date) BETWEEN '$start_date' AND '$end_date'
+                               GROUP BY DATE(expense_date) ORDER BY date ASC";
+        
+        // Fetch Data
+        $sales_data = [];
+        $res = $conn->query($sql_chart_sales);
+        if ($res) while ($row = $res->fetch_assoc()) $sales_data[$row['date']] = $row['total_sales'];
+
+        $expenses_data = [];
+        $res = $conn->query($sql_chart_expenses);
+        if ($res) while ($row = $res->fetch_assoc()) $expenses_data[$row['date']] = $row['total_expenses'];
+
+        // Fill missing days
+        $period = new DatePeriod($start_dt, new DateInterval('P1D'), $end_dt->modify('+1 day'));
+        foreach ($period as $dt) {
+            $date_key = $dt->format('Y-m-d');
+            $label = $dt->format('M d'); // e.g. Jan 01
+            
+            $statistics['chart_data']['labels'][] = $label;
+            $statistics['chart_data']['sales'][] = $sales_data[$date_key] ?? 0.00;
+            $statistics['chart_data']['expenses'][] = $expenses_data[$date_key] ?? 0.00;
         }
-    }
 
-    // Expenses data
-    $sql_chart_expenses = "SELECT
-                                YEAR(expense_date) AS year,
-                                MONTH(expense_date) AS month,
-                                SUM(amount) AS total_expenses
-                            FROM
-                                expenses
-                            WHERE
-                                expense_date >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-                            GROUP BY
-                                year, month
-                            ORDER BY
-                                year ASC, month ASC";
-    $expenses_result = $conn->query($sql_chart_expenses);
-    $expenses_data = [];
-    if ($expenses_result) {
-        while ($row = $expenses_result->fetch_assoc()) {
-            $expenses_data[sprintf('%04d-%02d', $row['year'], $row['month'])] = $row['total_expenses'];
+    } else {
+        // --- MONTHLY GROUPING ---
+        $sql_chart_sales = "SELECT YEAR(order_date) as year, MONTH(order_date) as month, SUM(total_amount) as total_sales
+                            FROM orders
+                            WHERE DATE(order_date) BETWEEN '$start_date' AND '$end_date' AND status != 'cancelled'
+                            GROUP BY year, month ORDER BY year ASC, month ASC";
+
+        $sql_chart_expenses = "SELECT YEAR(expense_date) as year, MONTH(expense_date) as month, SUM(amount) as total_expenses
+                               FROM expenses
+                               WHERE DATE(expense_date) BETWEEN '$start_date' AND '$end_date'
+                               GROUP BY year, month ORDER BY year ASC, month ASC";
+
+        // Fetch Data
+        $sales_data = [];
+        $res = $conn->query($sql_chart_sales);
+        if ($res) while ($row = $res->fetch_assoc()) $sales_data[sprintf('%04d-%02d', $row['year'], $row['month'])] = $row['total_sales'];
+
+        $expenses_data = [];
+        $res = $conn->query($sql_chart_expenses);
+        if ($res) while ($row = $res->fetch_assoc()) $expenses_data[sprintf('%04d-%02d', $row['year'], $row['month'])] = $row['total_expenses'];
+
+        // Fill missing months
+        // Logic: Start from Month of start_date, go until Month of end_date
+        $curr = clone $start_dt;
+        // Reset to first day of month to avoid skipping issues
+        $curr->modify('first day of this month');
+        $end_limit = clone $end_dt;
+        $end_limit->modify('first day of this month');
+
+        while ($curr <= $end_limit) {
+            $key = $curr->format('Y-m');
+            $label = $curr->format('M Y'); // e.g. Jan 2024
+
+            $statistics['chart_data']['labels'][] = $label;
+            $statistics['chart_data']['sales'][] = $sales_data[$key] ?? 0.00;
+            $statistics['chart_data']['expenses'][] = $expenses_data[$key] ?? 0.00;
+
+            $curr->modify('+1 month');
         }
-    }
-
-    // Combine chart data for the last 12 months
-    $current_date = new DateTime();
-    for ($i = 11; $i >= 0; $i--) {
-        $date = (clone $current_date)->modify("-$i month");
-        $label = $date->format('M Y'); // e.g., Jan 2024
-        $key = $date->format('Y-m'); // e.g., 2024-01
-
-        $statistics['chart_data']['labels'][] = $label;
-        $statistics['chart_data']['sales'][] = $sales_data[$key] ?? 0.00;
-        $statistics['chart_data']['expenses'][] = $expenses_data[$key] ?? 0.00;
     }
 
     // --- Top Selling Items (Aggregation from JSON) ---
