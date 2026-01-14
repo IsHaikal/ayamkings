@@ -8,7 +8,7 @@
 // Environment Detection
 // ==========================================
 // 🔧 SET THIS TO TRUE FOR LOCAL DEVELOPMENT (uses localhost instead of Railway)
-const FORCE_LOCALHOST = true;
+const FORCE_LOCALHOST = false;
 
 const isInfinityFree = window.location.hostname.includes('kesug.com') || window.location.hostname.includes('infinityfreeapp.com');
 const isVercel = window.location.hostname.includes('vercel.app') && !FORCE_LOCALHOST;
@@ -32,9 +32,7 @@ const CONFIG = {
             ? PRODUCTION_BACKEND_URL  // Vercel (if CORS fixed)
             : isLocalDev
                 ? 'http://localhost:8000'  // Development
-                : isLocalDev
-                    ? 'http://localhost:8000'  // Development
-                    : 'http://localhost/Coding%20PSM/ayamkings_backend', // XAMPP Hardcoded
+                : window.location.origin + '/Coding%20PSM/ayamkings_backend', // XAMPP
 
     // Frontend Base URL - auto-detect from current location
     FRONTEND_BASE_URL: isInfinityFree
