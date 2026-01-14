@@ -1,14 +1,16 @@
 <?php
 /**
- * Award Points API
+ * Award Rebate Points API
  * 
- * Called from payment_success.html when payment is successful
- * Awards 10% rebate points to the user
+ * Called from payment_success.html when payment is successful (status_id=1)
+ * Awards 10% rebate points to the user's wallet (users.points)
+ * 
+ * Simple flow: No ToyyibPay callback needed
  */
 
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
-header("Access-Control-Allow-Methods: POST");
+header("Access-Control-Allow-Methods: POST, GET");
 header("Access-Control-Allow-Headers: Content-Type");
 
 require_once __DIR__ . '/db_config.php';
@@ -16,72 +18,81 @@ require_once __DIR__ . '/db_config.php';
 $response = ['success' => false];
 
 try {
-    $input = json_decode(file_get_contents('php://input'), true);
+    // Accept both POST and GET for flexibility
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $input = json_decode(file_get_contents('php://input'), true);
+        $orderId = $input['order_id'] ?? '';
+    } else {
+        $orderId = $_GET['order_id'] ?? '';
+    }
     
-    $billCode = $input['billcode'] ?? '';
-    $orderId = $input['order_id'] ?? '';
+    if (empty($orderId)) {
+        throw new Exception('Missing order_id');
+    }
     
-    if (empty($billCode) && empty($orderId)) {
-        throw new Exception('Missing billcode or order_id');
+    // Extract numeric ID from "AK123" format
+    $numericId = preg_replace('/[^0-9]/', '', $orderId);
+    
+    if (empty($numericId)) {
+        throw new Exception('Invalid order_id format');
     }
     
     $conn = getDbConnection();
     
-    // Find the order and user
-    $order = null;
-    
-    if ($billCode) {
-        $stmt = $conn->prepare("SELECT id, user_id, total_amount, payment_status FROM orders WHERE payment_bill_code = ? LIMIT 1");
-        $stmt->bind_param("s", $billCode);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $order = $result->fetch_assoc();
-        $stmt->close();
-    }
-    
-    if (!$order && $orderId) {
-        // Extract numeric ID from AK123 format
-        $numericId = preg_replace('/[^0-9]/', '', $orderId);
-        $stmt = $conn->prepare("SELECT id, user_id, total_amount, payment_status FROM orders WHERE id = ? LIMIT 1");
-        $stmt->bind_param("i", $numericId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $order = $result->fetch_assoc();
-        $stmt->close();
-    }
+    // Find the order
+    $stmt = $conn->prepare("SELECT id, user_id, total_amount, payment_status, points_awarded FROM orders WHERE id = ? LIMIT 1");
+    $stmt->bind_param("i", $numericId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $order = $result->fetch_assoc();
+    $stmt->close();
     
     if (!$order) {
-        throw new Exception('Order not found');
+        throw new Exception('Order not found: ' . $numericId);
     }
     
-    // Check if already paid (avoid double points)
+    // Check if points already awarded (prevent duplicates)
+    $alreadyAwarded = isset($order['points_awarded']) && intval($order['points_awarded']) === 1;
+    if ($alreadyAwarded) {
+        $response['success'] = true;
+        $response['message'] = 'Points already awarded for this order';
+        $response['points_earned'] = 0;
+        $response['already_awarded'] = true;
+        $conn->close();
+        echo json_encode($response);
+        exit;
+    }
+    
+    // Update order to paid status if not already
     if ($order['payment_status'] !== 'paid') {
-        // Update order status to paid
         $stmt = $conn->prepare("UPDATE orders SET payment_status = 'paid' WHERE id = ?");
         $stmt->bind_param("i", $order['id']);
         $stmt->execute();
         $stmt->close();
     }
     
-    // Check if points already awarded (prevent duplicate awards)
-    // We'll add a simple check using a flag or just calculate based on recent transactions
-    // For simplicity, we'll award points every time this is called for a paid order
-    // A better approach would be to add a 'points_awarded' flag to orders table
-    
+    // Calculate 10% rebate
     $userId = (int)$order['user_id'];
     $amount = (float)$order['total_amount'];
     $pointsEarned = round($amount * 0.10, 2); // 10% rebate
     
     if ($pointsEarned > 0 && $userId > 0) {
-        // Award points
+        // Award points to user's wallet
         $stmt = $conn->prepare("UPDATE users SET points = points + ? WHERE id = ?");
         $stmt->bind_param("di", $pointsEarned, $userId);
         $stmt->execute();
         $stmt->close();
         
+        // Mark order as points awarded
+        $stmt = $conn->prepare("UPDATE orders SET points_awarded = 1 WHERE id = ?");
+        $stmt->bind_param("i", $order['id']);
+        $stmt->execute();
+        $stmt->close();
+        
         $response['success'] = true;
-        $response['message'] = "Awarded RM $pointsEarned points";
+        $response['message'] = "Awarded RM $pointsEarned rebate points";
         $response['points_earned'] = $pointsEarned;
+        $response['user_id'] = $userId;
     } else {
         $response['success'] = true;
         $response['message'] = 'No points to award';
