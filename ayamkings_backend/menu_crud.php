@@ -34,12 +34,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $name = $data['name'] ?? '';
         $description = $data['description'] ?? '';
         $price = $data['price'] ?? 0.00;
-        $category = $data['category'] ?? ''; // Expecting string
-        $category = $data['category'] ?? ''; // Expecting string
-        $category = $data['category'] ?? ''; // Expecting string
-        $is_available = isset($data['is_available']) ? intval($data['is_available']) : 1; // Default to 1 (Available)
         $image_url = $data['image_url'] ?? 'https://placehold.co/100x100/FFD700/8B4513?text=Item';
-        error_log("[DEBUG POST] Name: '$name', Desc: '$description', Price: '$price', Category: '$category', Image_URL: '$image_url', Available: '$is_available'");
+        error_log("[DEBUG POST] Name: '$name', Desc: '$description', Price: '$price', Category: '$category', Image_URL: '$image_url'");
 
         if (empty($name) || !is_numeric($price) || empty($category)) {
             $response['message'] = 'Name, price, and category are required.';
@@ -54,14 +50,14 @@ switch ($_SERVER['REQUEST_METHOD']) {
             exit();
         }
 
-        $stmt = $conn->prepare("INSERT INTO menu (name, description, price, category, image_url, is_available) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO menu (name, description, price, category, image_url) VALUES (?, ?, ?, ?, ?)");
         if ($stmt === false) {
              error_log("[ERROR POST] Prepare failed: (" . $conn->errno . ") " . $conn->error);
              $response['message'] = 'Prepare failed: ' . $conn->error;
              echo json_encode($response);
              exit();
         }
-        $stmt->bind_param("ssdssi", $name, $description, $price, $category, $image_url, $is_available);
+        $stmt->bind_param("ssdss", $name, $description, $price, $category, $image_url);
 
         if ($stmt->execute()) {
             $response['success'] = true;
@@ -108,12 +104,8 @@ switch ($_SERVER['REQUEST_METHOD']) {
         $update_fields[] = "price = ?"; $bind_params .= "d"; $bind_values[] = $price;
         $update_fields[] = "category = ?"; $bind_params .= "s"; $bind_values[] = $category;
 
-        // Update is_available if provided
-        if ($is_available !== null) {
-            $update_fields[] = "is_available = ?";
-            $bind_params .= "i";
-            $bind_values[] = $is_available;
-        }
+        // Update is_available removed
+
 
         // Only update image_url if it was explicitly provided (e.g., from a new upload)
         if ($image_url !== null) {

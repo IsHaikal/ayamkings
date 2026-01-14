@@ -538,13 +538,6 @@
                                 <option value="Add-on">Add-on</option>
                             </select>
                         </div>
-                        <div class="mb-6 flex items-center">
-                            <input type="checkbox" id="itemAvailable"
-                                class="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500" checked>
-                            <label for="itemAvailable" class="ml-2 block text-sm text-gray-900 font-bold">
-                                Available
-                            </label>
-                        </div>
                     </div>
 
                     <div class="md:col-span-2">
@@ -784,14 +777,11 @@
         function displayMenuItems(items) {
             menuTableBody.innerHTML = '';
             if (!items.length) {
-                menuTableBody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-gray-400">No items found</td></tr>';
+                menuTableBody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-400">No items found</td></tr>';
                 return;
             }
             items.forEach(item => {
                 const imgSrc = item.image_url ? getUploadUrl(item.image_url) : 'https://placehold.co/300x200?text=No+Image';
-                const availableBadge = (item.is_available == 1 || item.is_available === undefined)
-                    ? '<span class="px-2 py-1 text-xs font-bold text-green-700 bg-green-100 rounded-full">Available</span>'
-                    : '<span class="px-2 py-1 text-xs font-bold text-red-700 bg-red-100 rounded-full">Unavailable</span>';
 
                 const tr = document.createElement('tr');
                 tr.className = 'border-b border-gray-50 hover:bg-gray-50/50 transition-colors group';
@@ -804,7 +794,6 @@
                     <td class="py-4 px-2 text-xs text-gray-700 max-w-xs truncate">${item.description}</td>
                     <td class="py-4 px-2 font-bold text-black">RM ${parseFloat(item.price).toFixed(2)}</td>
                     <td class="py-4 px-2"><span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">${item.category}</span></td>
-                    <td class="py-4 px-2">${availableBadge}</td>
                     <td class="py-4 px-2 text-center">
                         <button class="edit-btn text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors mr-2" data-id="${item.id}"><i class="fas fa-edit"></i></button>
                         <button class="delete-btn text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors" data-id="${item.id}"><i class="fas fa-trash"></i></button>
@@ -907,8 +896,7 @@
                 description: formData.get('description'),
                 price: formData.get('price'),
                 category: formData.get('category'),
-                image_url: imageUrl,
-                is_available: document.getElementById('itemAvailable').checked ? 1 : 0
+                image_url: imageUrl
             };
 
             try {
@@ -1267,11 +1255,11 @@
 
         function openMenuItemModal(item = null) {
             const modal = document.getElementById('menuItemModal');
-            const form = document.getElementById('menuItemForm'); // Reset form
+            const form = document.getElementById('menuItemForm');
             form.reset();
             document.getElementById('menuItemId').value = '';
-            document.getElementById('itemImageUrl').value = ''; // Clear image url
-            document.getElementById('imagePreview').classList.add('hidden'); // correct img preview hide
+            document.getElementById('itemImageUrl').value = '';
+            document.getElementById('imagePreview').classList.add('hidden');
 
             if (item) {
                 document.getElementById('modalTitle').textContent = 'Edit Menu Item';
@@ -1281,7 +1269,6 @@
                 document.getElementById('itemPrice').value = item.price;
                 document.getElementById('itemCategory').value = item.category;
                 document.getElementById('itemImageUrl').value = item.image_url || '';
-                document.getElementById('itemAvailable').checked = (item.is_available == 1 || item.is_available === undefined);
 
                 if (item.image_url) {
                     document.getElementById('imagePreview').src = getUploadUrl(item.image_url);
