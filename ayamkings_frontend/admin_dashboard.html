@@ -919,13 +919,30 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-                const data = await res.json();
+
+                const text = await res.text();
+                console.log('Server Response:', text);
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    console.error('JSON Parse Error:', e);
+                    throw new Error('Invalid server response');
+                }
+
                 if (data.success) {
                     showMessage('Saved successfully!');
                     modal.style.display = 'none';
                     fetchMenuItems();
-                } else showMessage(data.message, true);
-            } catch (e) { showMessage('Error saving item', true); }
+                } else {
+                    console.error('Server Error:', data.message);
+                    showMessage(data.message, true);
+                }
+            } catch (e) {
+                console.error('Save Error:', e);
+                showMessage('Error saving item: ' + e.message, true);
+            }
         };
 
 
