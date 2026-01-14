@@ -7,10 +7,13 @@
 // ==========================================
 // Environment Detection
 // ==========================================
+// 🔧 SET THIS TO TRUE FOR LOCAL DEVELOPMENT (uses localhost instead of Railway)
+const FORCE_LOCALHOST = false;
+
 const isInfinityFree = window.location.hostname.includes('kesug.com') || window.location.hostname.includes('infinityfreeapp.com');
-const isVercel = window.location.hostname.includes('vercel.app');
+const isVercel = window.location.hostname.includes('vercel.app') && !FORCE_LOCALHOST;
 const isLocalDev = window.location.port === '5500' || window.location.port === '8080';
-const isXAMPP = window.location.port === '80' || window.location.pathname.includes('Coding%20PSM');
+const isXAMPP = window.location.hostname === 'localhost' || window.location.port === '80' || window.location.pathname.includes('Coding%20PSM') || FORCE_LOCALHOST;
 
 // ==========================================
 // 🔴 PRODUCTION BACKEND URL
