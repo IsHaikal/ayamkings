@@ -2,9 +2,8 @@
 // daily_specials_crud.php
 // CRUD operations for Daily Specials (Staff feature)
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+// Headers removed to prevent duplication
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {

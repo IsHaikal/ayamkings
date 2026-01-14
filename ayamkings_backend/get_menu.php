@@ -1,9 +1,7 @@
 <?php
 // get_menu.php - Fetch all menu items
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+// Headers removed to prevent duplication with Apache config
 header('Content-Type: application/json');
 
 // Handle preflight request

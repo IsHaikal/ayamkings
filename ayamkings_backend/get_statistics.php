@@ -1,9 +1,8 @@
 <?php
 // get_statistics.php (NEW FILE: Fetches daily sales, monthly profit, expenses, and chart data)
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+// Headers removed to prevent duplication
+
 header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
