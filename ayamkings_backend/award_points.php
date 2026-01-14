@@ -71,10 +71,9 @@ try {
         $stmt->close();
     }
     
-    // Calculate 10% rebate
+    // Flat rebate: RM 0.10 per order (not percentage of amount)
     $userId = (int)$order['user_id'];
-    $amount = (float)$order['total_amount'];
-    $pointsEarned = round($amount * 0.10, 2); // 10% rebate
+    $pointsEarned = 0.10; // Fixed RM 0.10 per order
     
     if ($pointsEarned > 0 && $userId > 0) {
         // Award points to user's wallet
