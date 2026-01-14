@@ -1,14 +1,7 @@
 <?php
 // get_users.php (Place this in your XAMPP htdocs/ayamkings_backend/ directory)
 
-// Headers removed to prevent duplication
-
-header('Content-Type: application/json');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require_once __DIR__ . '/cors.php'; // Handle CORS and Preflight
 
 $response = ['success' => false, 'message' => 'An unknown error occurred.', 'users' => []];
 

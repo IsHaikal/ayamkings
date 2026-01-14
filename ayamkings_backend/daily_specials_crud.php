@@ -2,14 +2,7 @@
 // daily_specials_crud.php
 // CRUD operations for Daily Specials (Staff feature)
 
-// Headers removed to prevent duplication
-
-header('Content-Type: application/json');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require_once __DIR__ . '/cors.php'; // Handle CORS and Preflight
 
 // Database connection (using centralized config)
 require_once __DIR__ . '/db_config.php';

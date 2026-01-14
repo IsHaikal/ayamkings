@@ -1,14 +1,7 @@
 <?php
 // get_menu.php - Fetch all menu items
 
-// Headers removed to prevent duplication with Apache config
-header('Content-Type: application/json');
-
-// Handle preflight request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
+require_once __DIR__ . '/cors.php'; // Handle CORS and Preflight
 
 $response = [
     'success' => false, 
