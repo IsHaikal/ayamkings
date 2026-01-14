@@ -47,7 +47,7 @@ function createToyyibPayBill($billData) {
         'billPriceSetting' => 1, // Fixed price
         'billPayorInfo' => 1, // Require payer info
         'billAmount' => $billData['amount'], // Amount in cents (e.g., 1000 = RM10.00)
-        'billReturnUrl' => FRONTEND_URL . '/payment_success.html',
+        'billReturnUrl' => FRONTEND_URL . '/payment_success.html?order_id=' . ($billData['order_id'] ?? ''),
         'billCallbackUrl' => BACKEND_URL . '/toyyibpay_callback.php',
         'billExternalReferenceNo' => $billData['order_id'] ?? uniqid('AK'),
         'billTo' => $billData['customer_name'] ?? 'Customer',
