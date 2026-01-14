@@ -21,14 +21,30 @@ try {
     
     // Validate required fields
     $orderId = $input['order_id'] ?? null;
-    $amount = $input['amount'] ?? null; // Amount in RM (e.g., 25.50)
     $customerName = $input['customer_name'] ?? '';
     $customerEmail = $input['customer_email'] ?? '';
     $customerPhone = $input['customer_phone'] ?? '';
     
-    if (!$orderId || !$amount) {
-        throw new Exception('Order ID and amount are required.');
+    if (!$orderId) {
+        throw new Exception('Order ID is required.');
     }
+
+    // SECURITY FIX: Fetch amount from Database instead of trusting client
+    $conn = getDbConnection();
+    $stmt_price = $conn->prepare("SELECT total_amount FROM orders WHERE id = ?");
+    $stmt_price->bind_param("i", $orderId);
+    $stmt_price->execute();
+    $result_price = $stmt_price->get_result();
+
+    if ($result_price->num_rows === 0) {
+        $stmt_price->close();
+        throw new Exception('Order not found.');
+    }
+
+    $orderData = $result_price->fetch_assoc();
+    $amount = $orderData['total_amount']; // Trusted amount from DB
+    $stmt_price->close();
+    // conn is intentionally not closed here as it might be used below for points logic or bill update
     
     // Convert amount to cents (ToyyibPay uses cents)
     $originalAmount = (float)$amount;
