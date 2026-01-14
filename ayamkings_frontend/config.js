@@ -32,7 +32,9 @@ const CONFIG = {
             ? PRODUCTION_BACKEND_URL  // Vercel (if CORS fixed)
             : isLocalDev
                 ? 'http://localhost:8000'  // Development
-                : window.location.origin + '/Coding%20PSM/ayamkings_backend', // XAMPP
+                : isLocalDev
+                    ? 'http://localhost:8000'  // Development
+                    : 'http://localhost/Coding%20PSM/ayamkings_backend', // XAMPP Hardcoded
 
     // Frontend Base URL - auto-detect from current location
     FRONTEND_BASE_URL: isInfinityFree
