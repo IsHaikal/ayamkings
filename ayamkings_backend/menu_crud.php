@@ -11,22 +11,23 @@ ini_set('display_errors', 0); // Disable error display
 ini_set('log_errors', 1);
 error_reporting(E_ALL);
 
-function trace_log($msg) {
-    file_put_contents(__DIR__ . '/debug_trace.txt', "[" . date('Y-m-d H:i:s') . "] " . $msg . "\n", FILE_APPEND);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
 }
 
-trace_log("Request Method: " . $_SERVER['REQUEST_METHOD']);
+$response = ['success' => false, 'message' => 'An unknown error occurred.'];
+
+error_log("[DEBUG] menu_crud.php received a " . $_SERVER['REQUEST_METHOD'] . " request.");
 
 // Database connection
 require_once __DIR__ . '/db_config.php';
 $conn = getDbConnection();
 
 // Get JSON data for POST and PUT requests
-$input_raw = file_get_contents('php://input');
-trace_log("Raw Input: " . $input_raw);
-$data = json_decode($input_raw, true);
-trace_log("JSON Decode Error: " . json_last_error_msg());
-trace_log("Decoded Data: " . print_r($data, true));
+$data = json_decode(file_get_contents('php://input'), true);
+error_log("[DEBUG] Raw input: " . file_get_contents('php://input'));
+error_log("[DEBUG] Decoded JSON data: " . print_r($data, true));
 
 switch ($_SERVER['REQUEST_METHOD']) {
     case 'POST': // Add new menu item

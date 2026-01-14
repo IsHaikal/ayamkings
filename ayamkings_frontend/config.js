@@ -8,7 +8,7 @@
 // Environment Detection
 // ==========================================
 // 🔧 SET THIS TO TRUE FOR LOCAL DEVELOPMENT (uses localhost instead of Railway)
-const FORCE_LOCALHOST = false;
+const FORCE_LOCALHOST = true;
 
 const isInfinityFree = window.location.hostname.includes('kesug.com') || window.location.hostname.includes('infinityfreeapp.com');
 const isVercel = window.location.hostname.includes('vercel.app') && !FORCE_LOCALHOST;
